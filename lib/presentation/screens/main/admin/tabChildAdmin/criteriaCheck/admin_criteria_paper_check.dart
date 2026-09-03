@@ -2,7 +2,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';

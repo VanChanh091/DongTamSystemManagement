@@ -1,3 +1,5 @@
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_code.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_type.dart";
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
 import "package:get/get.dart";
 import "package:flutter/material.dart";
@@ -159,6 +161,8 @@ class _HomePageState extends State<HomePage> {
       _buildPage(roles: ["admin"], child: AdminCriteria()),
       _buildPage(roles: ["admin"], child: TopTabCriteriaCheck()),
       _buildPage(roles: ["admin"], child: AdminMangeUser()),
+      _buildPage(roles: ["admin"], child: TopTabAdminPaperType()),
+      _buildPage(roles: ["admin"], child: TopTabAdminPaperCode()),
     ].whereType<Widget>().toList(); // lọc bỏ null
   }
 

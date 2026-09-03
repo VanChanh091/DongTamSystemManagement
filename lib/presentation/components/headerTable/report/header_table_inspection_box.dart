@@ -6,14 +6,17 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 final List<Map<String, dynamic>> inspectionBoxColumns = [
   // --- THÔNG TIN CHUNG ---
   {"key": "index", "title": "STT"},
+  {"key": "timeInspection", "title": "Ngày kiểm tra"},
+
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
-  {"key": "structure", "title": "Kết Cấu Sản Xuất"},
+
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "qcBox", "title": "Quy Cách"},
   {"key": "sizePaper", "title": "Khổ (cm)"},
   {"key": "lengthPaper", "title": "Dài (cm)"},
   {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
-  {"key": "qcBox", "title": "Quy Cách"},
 
   // --- NHÓM CHECKLIST ---
   {"key": "boxDimension", "title": "Quy Cách Thùng", "dataKey": "BOX_DIMENSIONS"},

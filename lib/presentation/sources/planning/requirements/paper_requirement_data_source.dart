@@ -6,28 +6,21 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class PaperRequirementsDataSource extends DataGridSource {
   List<PaperRequirementModel> requirements = [];
-  int currentPage;
-  int pageSize;
 
   late List<DataGridRow> paperDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
 
-  PaperRequirementsDataSource({
-    required this.requirements,
-    required this.currentPage,
-    required this.pageSize,
-  }) {
+  PaperRequirementsDataSource({required this.requirements}) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: 'dayStart', sortGroupRows: false));
   }
 
-  List<DataGridCell> buildRequirementCells(PaperRequirementModel requirement, int index) {
+  List<DataGridCell> buildRequirementCells(PaperRequirementModel requirement) {
     final planning = requirement.planningPaper;
     final order = planning?.order;
     final customer = order?.customer;
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: planning?.orderId ?? ""),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(
@@ -38,7 +31,7 @@ class PaperRequirementsDataSource extends DataGridSource {
 
       DataGridCell<String>(columnName: 'structure', value: planning?.formatterStructureOrder ?? ""),
       DataGridCell<String>(columnName: "flute", value: planning?.order?.flute ?? ""),
-      DataGridCell<int>(columnName: "ghepKho", value: planning?.ghepKho ?? 0),
+      DataGridCell<int>(columnName: "ghepKho", value: requirement.paperRollWidth),
       DataGridCell<double>(columnName: "sizePaper", value: planning?.sizePaperPLaning ?? 0),
       DataGridCell<double>(columnName: "lengthPaper", value: planning?.lengthPaperPlanning ?? 0),
       DataGridCell<int>(columnName: "runningPlan", value: planning?.runningPlan ?? 0),
@@ -59,14 +52,14 @@ class PaperRequirementsDataSource extends DataGridSource {
   List<DataGridRow> get rows => paperDataGridRows;
 
   void buildDataGridRows() {
-    final int offset = (currentPage - 1) * pageSize;
-
     paperDataGridRows =
-        requirements.asMap().entries.map<DataGridRow>((entry) {
-          int globalIndex = offset + entry.key;
+        requirements
+            .map<DataGridRow>(
+              (requirement) => DataGridRow(cells: buildRequirementCells(requirement)),
+            )
+            .toList();
 
-          return DataGridRow(cells: buildRequirementCells(entry.value, globalIndex));
-        }).toList();
+    notifyListeners();
   }
 
   String _formatCellValueBool(DataGridCell dataCell) {

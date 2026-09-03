@@ -104,7 +104,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
     await Future.delayed(const Duration(seconds: 1));
 
     try {
-      final bool success = await WarehouseService().transferQtyToOrderOrQilidation(
+      final bool success = await WarehouseService().handleChangeQtyInventory(
         action: "TRANSFER_QTY",
         sourceOrderId: _orderIdController.text,
         targetOrderId: _orderIdReceiveControler.text,

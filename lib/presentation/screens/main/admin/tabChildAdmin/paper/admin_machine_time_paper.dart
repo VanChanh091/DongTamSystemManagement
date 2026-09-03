@@ -1,10 +1,10 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/admin_machine_paper_model.dart';
+import 'package:dongtam/data/models/admin/machine/admin_machine_paper_model.dart';
 import 'package:dongtam/presentation/components/headerTable/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/sources/machine_paper_data_source.dart';
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/presentation/sources/admin/machine_paper_data_source.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';

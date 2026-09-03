@@ -1,10 +1,10 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_layers.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_model.dart";
 import "package:dongtam/presentation/components/headerTable/planning/requirements/header_table_layer_requirement.dart";
 import "package:dongtam/presentation/components/headerTable/planning/requirements/header_table_paper_requirement.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/planning/requirements/layer_requirement_data_source.dart";
@@ -54,9 +54,8 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   String machine = "Máy 1350";
   bool _isSelectionChange = false;
 
-  //paging
-  int currentPage = 1;
-  int pageSize = 35;
+  //cache grand totals paper required for smooth animated
+  double _lastPaperRequired = 0;
 
   @override
   void initState() {
@@ -81,11 +80,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
 
   void _fetchData() {
     futureRequirements = ensureMinLoading(
-      PlanningService().getPaperRequirementsList(
-        page: currentPage,
-        pageSize: pageSize,
-        machine: machine,
-      ),
+      PlanningService().getPaperRequirementsList(machine: machine),
     );
 
     selectedPaperLayers = [];
@@ -258,43 +253,94 @@ class _PaperRequirementsState extends State<PaperRequirements> {
                 controller: headerScrollController,
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.only(bottom: 5),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      //left button
-                      const SizedBox(),
-                      const SizedBox(width: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          //left button
+                          const SizedBox(),
 
-                      //right button
-                      ValueListenableBuilder(
-                        valueListenable: _selectedRequirementIdsNotifier,
-                        builder: (context, selectedOrderIds, _) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              //change machine
-                              buildDropdownItems(
-                                value: machine,
-                                items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
-                                onChanged:
-                                    (value) => {
-                                      setState(() {
-                                        machine = value!;
-                                        _selectedRequirementIdsNotifier.value = [];
-                                        selectedPaperLayers = [];
-                                        loadPaperRequirements();
-                                      }),
-                                    },
-                              ),
-                              const SizedBox(width: 8),
-                            ],
+                          //right button
+                          ValueListenableBuilder(
+                            valueListenable: _selectedRequirementIdsNotifier,
+                            builder: (context, selectedOrderIds, _) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  //change machine
+                                  buildDropdownItems(
+                                    value: machine,
+                                    items: const [
+                                      'Máy 1350',
+                                      "Máy 1900",
+                                      "Máy 2 Lớp",
+                                      "Máy Quấn Cuồn",
+                                    ],
+                                    onChanged:
+                                        (value) => {
+                                          setState(() {
+                                            machine = value!;
+                                            _selectedRequirementIdsNotifier.value = [];
+                                            selectedPaperLayers = [];
+                                            loadPaperRequirements();
+                                          }),
+                                        },
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    //total qty paper required
+                    Padding(
+                      padding: const EdgeInsets.only(right: 7),
+                      child: FutureBuilder(
+                        future: futureRequirements,
+                        builder: (context, snapshot) {
+                          final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+                          if (snapshot.hasData) {
+                            final rawValue = snapshot.data?['totalRequiredQty'];
+                            final double totalValue =
+                                double.tryParse(rawValue?.toString() ?? "") ?? 0.0;
+
+                            _lastPaperRequired = totalValue;
+                          }
+
+                          return AnimatedOpacity(
+                            duration: const Duration(milliseconds: 400),
+                            opacity: isLoading ? 0.4 : 1.0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                const Text(
+                                  "Tổng số lượng yêu cầu: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                _buildAnimatedCounter(
+                                  targetValue: _lastPaperRequired,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.green.shade500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             );
@@ -332,47 +378,151 @@ class _PaperRequirementsState extends State<PaperRequirements> {
 
         final data = snapshot.data!;
         final requirements = data["requirements"] as List<PaperRequirementModel>;
-        final currentPg = data["currentPage"];
-        final totalPgs = data["totalPages"];
 
         if (_cachedRequirements == null || _cachedRequirements != requirements) {
           _cachedRequirements = requirements;
-          _cachedDatasource = PaperRequirementsDataSource(
-            requirements: requirements,
-            currentPage: currentPg,
-            pageSize: pageSize,
-          );
+          _cachedDatasource = PaperRequirementsDataSource(requirements: requirements);
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(
-                      selectionColor: Colors.blue.withValues(alpha: 0.3),
-                      currentCellStyle: const DataGridCurrentCellStyle(
-                        borderColor: Colors.transparent,
-                        borderWidth: 0,
+        return StatefulBuilder(
+          builder: (context, localSetState) {
+            return SfDataGridTheme(
+              data: SfDataGridThemeData(
+                selectionColor: Colors.blue.withValues(alpha: 0.3),
+                currentCellStyle: const DataGridCurrentCellStyle(
+                  borderColor: Colors.transparent,
+                  borderWidth: 0,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: SfDataGrid(
+                      controller: dataGridController,
+                      source: _cachedDatasource!,
+                      isScrollbarAlwaysShown: true,
+                      columnWidthMode: ColumnWidthMode.auto,
+                      selectionMode: SelectionMode.multiple,
+                      headerRowHeight: 35,
+                      rowHeight: 40,
+                      columns: ColumnWidthTable.applySavedWidths(
+                        columns: columnsRequirements,
+                        widths: columnWidthRequirements,
                       ),
+
+                      //auto resize
+                      allowColumnsResizing: true,
+                      columnResizeMode: ColumnResizeMode.onResize,
+
+                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: columnsRequirements,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: "requirements",
+                            columnWidths: columnWidthRequirements,
+                            setState: setState,
+                          ),
+
+                      onSelectionChanging: (addedRows, removedRows) {
+                        if (_isSelectionChange) return true;
+
+                        // Kiểm tra trạng thái bấm phím từ bàn phím
+                        final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                        final isShiftPressed =
+                            keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                            keys.contains(LogicalKeyboardKey.shiftRight);
+                        final isCtrlPressed =
+                            keys.contains(LogicalKeyboardKey.controlLeft) ||
+                            keys.contains(LogicalKeyboardKey.controlRight);
+
+                        // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
+                        if (!isShiftPressed && !isCtrlPressed) {
+                          if (addedRows.isNotEmpty) {
+                            final latestRow = addedRows.last;
+
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = [latestRow];
+                            _isSelectionChange = false;
+
+                            _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                            return false;
+                          } else if (removedRows.isNotEmpty &&
+                              dataGridController.selectedRows.length > 1) {
+                            // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
+                            final clickedRow = removedRows.first;
+
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = [clickedRow];
+                            _isSelectionChange = false;
+
+                            _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                            return false;
+                          }
+                        }
+
+                        // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
+                        if (isShiftPressed &&
+                            dataGridController.selectedRows.isNotEmpty &&
+                            addedRows.isNotEmpty) {
+                          final lastSelected = dataGridController.selectedRows.last;
+                          final newlyClicked = addedRows.last;
+
+                          final allRows = _cachedDatasource!.rows;
+                          final startIdx = allRows.indexOf(lastSelected);
+                          final endIdx = allRows.indexOf(newlyClicked);
+
+                          if (startIdx != -1 && endIdx != -1) {
+                            final min = startIdx < endIdx ? startIdx : endIdx;
+                            final max = startIdx > endIdx ? startIdx : endIdx;
+
+                            final List<DataGridRow> rangeSelection = [];
+                            for (int i = min; i <= max; i++) {
+                              rangeSelection.add(allRows[i]);
+                            }
+
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = List.from(rangeSelection);
+                            _isSelectionChange = false;
+
+                            _updateSelectedIdsFromRows(rangeSelection);
+                            return false;
+                          }
+                        }
+
+                        // TH 3: Giữ phím Ctrl
+                        return true;
+                      },
+
+                      onSelectionChanged: (addedRows, removedRows) async {
+                        if (_isSelectionChange) return;
+                        _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                      },
                     ),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 2,
+                  ),
+
+                  selectedPaperLayers.isNotEmpty
+                      ? Expanded(
+                        flex: 1,
+                        child: AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
                           child: SfDataGrid(
-                            controller: dataGridController,
-                            source: _cachedDatasource!,
+                            source: LayerRequirementDataSource(layers: selectedPaperLayers),
                             isScrollbarAlwaysShown: true,
-                            columnWidthMode: ColumnWidthMode.auto,
-                            selectionMode: SelectionMode.multiple,
-                            headerRowHeight: 35,
-                            rowHeight: 40,
+                            headerRowHeight: 30,
+                            rowHeight: 35,
+                            columnWidthMode: ColumnWidthMode.fill,
+                            selectionMode: SelectionMode.single,
                             columns: ColumnWidthTable.applySavedWidths(
-                              columns: columnsRequirements,
-                              widths: columnWidthRequirements,
+                              columns: columnsLayers,
+                              widths: columnWidthLayers,
                             ),
 
                             //auto resize
@@ -383,166 +533,37 @@ class _PaperRequirementsState extends State<PaperRequirements> {
                             onColumnResizeUpdate:
                                 (details) => GridResizeHelper.onResizeUpdate(
                                   details: details,
-                                  columns: columnsRequirements,
-                                  setState: localSetState,
+                                  columns: columnsLayers,
+                                  setState: setState,
                                 ),
                             onColumnResizeEnd:
                                 (details) => GridResizeHelper.onResizeEnd(
                                   details: details,
-                                  tableKey: "requirements",
-                                  columnWidths: columnWidthRequirements,
+                                  tableKey: "layers",
+                                  columnWidths: columnWidthLayers,
                                   setState: setState,
                                 ),
-
-                            onSelectionChanging: (addedRows, removedRows) {
-                              if (_isSelectionChange) return true;
-
-                              // Kiểm tra trạng thái bấm phím từ bàn phím
-                              final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                              final isShiftPressed =
-                                  keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                  keys.contains(LogicalKeyboardKey.shiftRight);
-                              final isCtrlPressed =
-                                  keys.contains(LogicalKeyboardKey.controlLeft) ||
-                                  keys.contains(LogicalKeyboardKey.controlRight);
-
-                              // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
-                              if (!isShiftPressed && !isCtrlPressed) {
-                                if (addedRows.isNotEmpty) {
-                                  final latestRow = addedRows.last;
-
-                                  _isSelectionChange = true;
-                                  dataGridController.selectedRows = [latestRow];
-                                  _isSelectionChange = false;
-
-                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                                  return false;
-                                } else if (removedRows.isNotEmpty &&
-                                    dataGridController.selectedRows.length > 1) {
-                                  // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
-                                  final clickedRow = removedRows.first;
-
-                                  _isSelectionChange = true;
-                                  dataGridController.selectedRows = [clickedRow];
-                                  _isSelectionChange = false;
-
-                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                                  return false;
-                                }
-                              }
-
-                              // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
-                              if (isShiftPressed &&
-                                  dataGridController.selectedRows.isNotEmpty &&
-                                  addedRows.isNotEmpty) {
-                                final lastSelected = dataGridController.selectedRows.last;
-                                final newlyClicked = addedRows.last;
-
-                                final allRows = _cachedDatasource!.rows;
-                                final startIdx = allRows.indexOf(lastSelected);
-                                final endIdx = allRows.indexOf(newlyClicked);
-
-                                if (startIdx != -1 && endIdx != -1) {
-                                  final min = startIdx < endIdx ? startIdx : endIdx;
-                                  final max = startIdx > endIdx ? startIdx : endIdx;
-
-                                  final List<DataGridRow> rangeSelection = [];
-                                  for (int i = min; i <= max; i++) {
-                                    rangeSelection.add(allRows[i]);
-                                  }
-
-                                  _isSelectionChange = true;
-                                  dataGridController.selectedRows = List.from(rangeSelection);
-                                  _isSelectionChange = false;
-
-                                  _updateSelectedIdsFromRows(rangeSelection);
-                                  return false;
-                                }
-                              }
-
-                              // TH 3: Giữ phím Ctrl
-                              return true;
-                            },
-
-                            onSelectionChanged: (addedRows, removedRows) async {
-                              if (_isSelectionChange) return;
-                              _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                            },
                           ),
                         ),
-
-                        selectedPaperLayers.isNotEmpty
-                            ? Expanded(
-                              flex: 1,
-                              child: AnimatedSize(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                child: SfDataGrid(
-                                  source: LayerRequirementDataSource(layers: selectedPaperLayers),
-                                  isScrollbarAlwaysShown: true,
-                                  headerRowHeight: 30,
-                                  rowHeight: 35,
-                                  columnWidthMode: ColumnWidthMode.fill,
-                                  selectionMode: SelectionMode.single,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columnsLayers,
-                                    widths: columnWidthLayers,
-                                  ),
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columnsLayers,
-                                        setState: setState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: "layers",
-                                        columnWidths: columnWidthLayers,
-                                        setState: setState,
-                                      ),
-                                ),
-                              ),
-                            )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  );
-                },
+                      )
+                      : const SizedBox.shrink(),
+                ],
               ),
-            ),
-
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadPaperRequirements();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadPaperRequirements();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadPaperRequirements();
-                });
-              },
-            ),
-          ],
+            );
+          },
         );
+      },
+    );
+  }
+
+  //helper animation
+  Widget _buildAnimatedCounter({required num targetValue, required TextStyle style}) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: targetValue.toDouble()),
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, child) {
+        return Text(OrderModel.formatCurrency(value), style: style);
       },
     );
   }

@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/admin_waste_norm_model.dart';
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/data/models/admin/wasteNorm/admin_waste_paper_model.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -17,13 +17,16 @@ class AdminWasteNorm extends StatefulWidget {
 }
 
 class _AdminWasteNormState extends State<AdminWasteNorm> {
-  late Future<List<AdminWasteNormModel>> futureAdminWasteNorm;
+  late Future<List<AdminWastePaperModel>> futureAdminWasteNorm;
+
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+
   int? selectedWasteNorm;
-  List<int> isSelected = [];
-  List<AdminWasteNormModel> updatedWasteNorms = [];
   bool selectedAll = false;
+
+  List<int> isSelected = [];
+  List<AdminWastePaperModel> updatedWasteNorms = [];
 
   @override
   void initState() {
@@ -44,7 +47,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isAccept = userController.hasAnyRole(roles: ["admin"]);
+    final bool isAdmin = userController.hasAnyRole(roles: ["admin"]);
 
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value,
@@ -52,7 +55,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isAccept)),
+          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isAdmin)),
 
           //table & pagination
           Expanded(
@@ -69,7 +72,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
       ),
       floatingActionButton: Obx(
         () =>
-            isAccept
+            isAdmin
                 ? FloatingActionButton(
                   onPressed: loadWasteNorm,
                   backgroundColor: themeController.buttonColor.value,
@@ -80,7 +83,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
     );
   }
 
-  Widget _buildHeaderBar(bool isAccept) {
+  Widget _buildHeaderBar(bool isAdmin) {
     return Column(
       children: [
         Text(
@@ -93,7 +96,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
         ),
         const SizedBox(height: 8),
 
-        if (isAccept)
+        if (isAdmin)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -274,7 +277,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
   }
 
   Widget _buildTableSection() {
-    return FutureBuilder<List<AdminWasteNormModel>>(
+    return FutureBuilder<List<AdminWastePaperModel>>(
       future: futureAdminWasteNorm,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -303,7 +306,7 @@ class _AdminWasteNormState extends State<AdminWasteNorm> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
             child: Text(
-              "Không có đơn hàng nào",
+              "Không có dữ liệu",
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
             ),
           );

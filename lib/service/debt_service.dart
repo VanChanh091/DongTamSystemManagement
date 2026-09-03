@@ -15,6 +15,7 @@ class DebtService {
   Future<Map<String, dynamic>> getCustomerDebtSummary({
     required int page,
     required int pageSize,
+    required DateTime targetDate,
     String? customerId,
     String? userId,
   }) async {
@@ -23,6 +24,7 @@ class DebtService {
       queryParameters: {
         "page": page,
         "pageSize": pageSize,
+        "targetDate": DateFormat("yyyy-MM-dd").format(targetDate),
         if (customerId != null) "customerId": customerId,
         if (userId != null) "userId": userId,
       },
@@ -47,13 +49,13 @@ class DebtService {
   }
 
   // Export debt customer
-  Future<File?> exportDebtCustomer() async {
+  Future<File?> exportDebtCustomer({required DateTime targetDate}) async {
     try {
       final token = await SecureStorageService().getToken();
 
       final response = await dioService.post(
         "/api/debts/closing-debt/export",
-        data: const {},
+        queryParameters: {"targetDate": DateFormat("yyyy-MM-dd").format(targetDate)},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
           responseType: ResponseType.bytes,
@@ -64,6 +66,7 @@ class DebtService {
         return await HelperService().saveExcelFile(
           bytes: response.data as List<int>,
           fileNamePrefix: "debt_customer_",
+          dateTime: targetDate,
         );
       } else {
         AppLogger.w("Export failed with statusCode: ${response.statusCode}");

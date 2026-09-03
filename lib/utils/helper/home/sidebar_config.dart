@@ -9,6 +9,8 @@ import 'package:dongtam/presentation/screens/main/admin/admin_vehicle.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart';
 import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
+import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_code.dart';
+import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_type.dart';
 import 'package:dongtam/presentation/screens/main/customer/customer.dart';
 import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
 import 'package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart';
@@ -336,6 +338,22 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               pageType: AdminVehicle,
             ),
             LeafMenuConfig(icon: Icons.people, label: "Người Dùng", pageType: AdminMangeUser),
+          ],
+        ),
+        GroupMenuConfig(
+          icon: Icons.category,
+          label: "Loại Giấy và NCC",
+          items: [
+            LeafMenuConfig(
+              icon: Symbols.category,
+              label: "Loại Giấy và Định Lượng",
+              pageType: TopTabAdminPaperType,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.category,
+              label: "Phân Loại Mã Giấy",
+              pageType: TopTabAdminPaperCode,
+            ),
           ],
         ),
         GroupMenuConfig(

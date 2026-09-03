@@ -15,8 +15,8 @@ class InspectionBoxDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
-  final formatter = DateFormat("dd/MM/yyyy");
-  final formatterDay = DateFormat("dd/MM/yyyy HH:mm:ss");
+  final formatterDay = DateFormat("dd/MM/yyyy");
+  final formatterDateTime = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   InspectionBoxDataSource({
     required this.inspectionBoxes,
@@ -26,6 +26,7 @@ class InspectionBoxDataSource extends DataGridSource {
     required this.pageSize,
   }) {
     buildDataGridRows();
+    addColumnGroup(ColumnGroup(name: "timeInspecDate", sortGroupRows: false));
   }
 
   List<DataGridCell> buildInspectionBoxCells(QcInspectionBoxModel inspectionBox, int index) {
@@ -35,18 +36,24 @@ class InspectionBoxDataSource extends DataGridSource {
 
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(
+        columnName: "timeInspection",
+        value: formatterDateTime.format(inspectionBox.timeInspection),
+      ),
+
       DataGridCell<String>(columnName: "orderId", value: box?.orderId ?? ""),
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
 
       DataGridCell<String>(columnName: "structure", value: box?.formatterStructureOrder ?? ""),
+      DataGridCell<String>(columnName: "qcBox", value: order?.QC_box ?? ""),
       DataGridCell<double>(columnName: "sizePaper", value: box?.size ?? 0),
       DataGridCell<double>(columnName: "lengthPaper", value: box?.length ?? 0),
       DataGridCell<int>(columnName: "runningPlan", value: boxtime?.runningPlan ?? 0),
-      DataGridCell<String>(columnName: "qcBox", value: order?.QC_box ?? ""),
 
       //checklist
       ...buildChecklistCells(inspectionBox, machine),
+
       DataGridCell<String>(columnName: "note", value: inspectionBox.note),
       DataGridCell<String>(columnName: "checkedBy", value: inspectionBox.checkedBy),
 

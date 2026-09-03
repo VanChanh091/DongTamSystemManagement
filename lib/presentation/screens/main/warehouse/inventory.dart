@@ -1,32 +1,32 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_inventory.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_transfer_qty.dart';
-import 'package:dongtam/presentation/components/headerTable/warehouse/inventory/header_inventory.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/warehouse/inventory/inventory_data_source.dart';
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_inventory.dart";
+import "package:dongtam/presentation/components/dialog/other/dialog_transfer_qty.dart";
+import "package:dongtam/presentation/components/headerTable/warehouse/inventory/header_inventory.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/warehouse/inventory/inventory_data_source.dart";
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class Inventory extends StatefulWidget {
   const Inventory({super.key});
@@ -53,7 +53,7 @@ class _InventoryState extends State<Inventory> {
 
   //filter by qtyInventory
   String filterType = "gtZero";
-  final Map<String, String> filterOptions = {'gtZero': 'Còn SL Tồn', 'ltZero': 'Âm SL Tồn'};
+  final Map<String, String> filterOptions = {"gtZero": "Còn SL Tồn", "ltZero": "Âm SL Tồn"};
 
   //notifiers
   final _zoomNotifier = ValueNotifier<double>(1.0);
@@ -91,7 +91,7 @@ class _InventoryState extends State<Inventory> {
     loadInventory();
 
     columns = buildInventoryColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'inventory', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "inventory", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -125,7 +125,6 @@ class _InventoryState extends State<Inventory> {
 
   void searchInventory() {
     String keyword = searchController.text.trim().toLowerCase();
-    AppLogger.i("searchInventory: searchType=$searchType, keyword='$keyword'");
 
     if (isTextFieldEnabled && keyword.isEmpty) {
       AppLogger.w("searchInventory: search bị bỏ qua vì keyword trống");
@@ -144,8 +143,8 @@ class _InventoryState extends State<Inventory> {
         rows
             .map((row) {
               final cell = row.getCells().firstWhere(
-                (c) => c.columnName == 'inventoryId',
-                orElse: () => const DataGridCell(columnName: 'inventoryId', value: ''),
+                (c) => c.columnName == "inventoryId",
+                orElse: () => const DataGridCell(columnName: "inventoryId", value: ""),
               );
 
               return int.tryParse(cell.value.toString());
@@ -291,7 +290,7 @@ class _InventoryState extends State<Inventory> {
                           LeftButtonSearch(
                             selectedType: searchType,
                             types: const [
-                              'Tất cả',
+                              "Tất cả",
                               "Mã Đơn Hàng",
                               "Tên Khách Hàng",
                               "Tên Nhân Viên",
@@ -299,7 +298,7 @@ class _InventoryState extends State<Inventory> {
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = searchType != 'Tất cả';
+                                isTextFieldEnabled = searchType != "Tất cả";
 
                                 if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                                   searchController.clear();
@@ -332,7 +331,7 @@ class _InventoryState extends State<Inventory> {
                                         try {
                                           final data = await futureInventory;
                                           final inventoryList =
-                                              data['inventories'] as List<InventoryModel>;
+                                              data["inventories"] as List<InventoryModel>;
                                           final selectedModels =
                                               inventoryList
                                                   .where(
@@ -383,7 +382,7 @@ class _InventoryState extends State<Inventory> {
                                         selectedInventoryId.length == 1
                                             ? () async {
                                               final inventory = await futureInventory;
-                                              final selectedInv = inventory['inventories']
+                                              final selectedInv = inventory["inventories"]
                                                   .firstWhere(
                                                     (i) =>
                                                         i.inventoryId == selectedInventoryId.first,
@@ -411,7 +410,7 @@ class _InventoryState extends State<Inventory> {
                                   buildDropdownItems(
                                     width: 140,
                                     value: filterType,
-                                    items: const ['gtZero', 'ltZero'],
+                                    items: const ["gtZero", "ltZero"],
                                     onChanged:
                                         (value) => {
                                           setState(() {
@@ -429,16 +428,24 @@ class _InventoryState extends State<Inventory> {
                                     icon: const Icon(Icons.more_vert, color: Colors.black),
                                     color: Colors.white,
                                     onSelected: (value) async {
-                                      if (value == 'liquidation') {
+                                      if (value == "liquidation") {
+                                        if (selectedInventoryId.length > 1) {
+                                          showSnackBarError(
+                                            context,
+                                            "Chỉ được chọn 1 tồn kho để thanh lý trong 1 thời điểm",
+                                          );
+                                          return;
+                                        }
+
                                         await showInputQtyDialog(
                                           context: context,
                                           title: "Thanh Lý Tồn Kho",
                                           onConfirm: (inputQty, inputReason) async {
                                             try {
                                               final success = await WarehouseService()
-                                                  .transferQtyToOrderOrQilidation(
-                                                    action: 'TRANSFER_TO_LIQUIDATION',
-                                                    inventoryId: selectedInventoryId.first,
+                                                  .handleChangeQtyInventory(
+                                                    action: "TRANSFER_TO_LIQUIDATION",
+                                                    inventoryId: [selectedInventoryId.first],
                                                     qtyTransfer: inputQty,
                                                     reason: inputReason,
                                                   );
@@ -467,8 +474,8 @@ class _InventoryState extends State<Inventory> {
                                             } on ApiException catch (e) {
                                               final errorText = switch (e.errorCode) {
                                                 "INSUFFICIENT_QUANTITY" =>
-                                                  'Không đủ số lượng trong tồn kho để chuyển giao',
-                                                _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                  "Không đủ số lượng trong tồn kho để chuyển giao",
+                                                _ => "Có lỗi xảy ra, vui lòng thử lại",
                                               };
 
                                               if (!context.mounted) return false;
@@ -486,7 +493,37 @@ class _InventoryState extends State<Inventory> {
                                             }
                                           },
                                         );
-                                      } else if (value == 'export') {
+                                      } else if (value == "transferToVariance") {
+                                        final bool success = await showConfirmDialog(
+                                          context: context,
+                                          title: "Xử lý giá trị tồn âm",
+                                          content:
+                                              "Xác nhận chuyển số lượng tồn âm này sang sai số?",
+                                          confirmText: "Xác nhận",
+                                        );
+
+                                        if (success) {
+                                          try {
+                                            await WarehouseService().handleChangeQtyInventory(
+                                              action: "TRANSFER_TO_VARIANCE",
+                                              inventoryId: selectedInventoryId,
+                                            );
+
+                                            if (context.mounted) {
+                                              showSnackBarSuccess(
+                                                context,
+                                                "Xử lý tồn âm thành công",
+                                              );
+
+                                              loadInventory();
+                                            }
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              showSnackBarError(context, "Xử lý tồn âm thất bại");
+                                            }
+                                          }
+                                        }
+                                      } else if (value == "export") {
                                         showDialog(
                                           context: context,
                                           builder: (_) => DialogExportInventory(),
@@ -496,17 +533,24 @@ class _InventoryState extends State<Inventory> {
                                     itemBuilder:
                                         (BuildContext context) => [
                                           const PopupMenuItem<String>(
-                                            value: 'liquidation',
+                                            value: "liquidation",
                                             child: ListTile(
                                               leading: Icon(Symbols.output),
-                                              title: Text('Thanh Lý Tồn'),
+                                              title: Text("Thanh Lý Tồn"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'export',
+                                            value: "transferToVariance",
+                                            child: ListTile(
+                                              leading: Icon(Symbols.swap_horiz),
+                                              title: Text("Xử Lý Tồn Âm"),
+                                            ),
+                                          ),
+                                          const PopupMenuItem<String>(
+                                            value: "export",
                                             child: ListTile(
                                               leading: Icon(Symbols.file_download),
-                                              title: Text('Xuất Excel'),
+                                              title: Text("Xuất Excel"),
                                             ),
                                           ),
                                         ],
@@ -529,7 +573,7 @@ class _InventoryState extends State<Inventory> {
                           final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
                           if (snapshot.hasData) {
-                            final rawValue = snapshot.data?['totalValueInventory'];
+                            final rawValue = snapshot.data?["totalValueInventory"];
                             final double totalValue =
                                 double.tryParse(rawValue?.toString() ?? "") ?? 0.0;
 
@@ -584,7 +628,7 @@ class _InventoryState extends State<Inventory> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['inventories'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["inventories"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -597,9 +641,9 @@ class _InventoryState extends State<Inventory> {
         }
 
         final data = snapshot.data!;
-        final inventory = data['inventories'] as List<InventoryModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final inventory = data["inventories"] as List<InventoryModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         if (_cachedInventory == null || _cachedInventory != inventory) {
           _cachedInventory = inventory;
@@ -643,10 +687,10 @@ class _InventoryState extends State<Inventory> {
                         StackedHeaderRow(
                           cells: [
                             StackedHeaderCell(
-                              columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
+                              columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Số Lượng',
+                                  label: "Số Lượng",
                                   themeController: themeController,
                                 ),
                               ),
@@ -660,7 +704,7 @@ class _InventoryState extends State<Inventory> {
                               ],
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Số Lượng',
+                                  label: "Số Lượng",
                                   themeController: themeController,
                                 ),
                               ),
@@ -669,7 +713,7 @@ class _InventoryState extends State<Inventory> {
                               columnNames: ["totalPrice", "totalPriceVAT"],
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Tổng Tiền',
+                                  label: "Tổng Tiền",
                                   themeController: themeController,
                                 ),
                               ),
@@ -692,7 +736,7 @@ class _InventoryState extends State<Inventory> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'inventory',
+                            tableKey: "inventory",
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
@@ -923,7 +967,7 @@ class _InventoryState extends State<Inventory> {
                             child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                           )
                           : const Text(
-                            'Xác nhận',
+                            "Xác nhận",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,

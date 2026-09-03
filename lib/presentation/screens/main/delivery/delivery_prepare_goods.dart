@@ -3,7 +3,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
 import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_delivery_schedule.dart';
+import 'package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_schedule.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';

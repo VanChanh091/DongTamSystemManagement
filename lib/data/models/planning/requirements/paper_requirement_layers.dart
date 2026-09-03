@@ -8,7 +8,6 @@ class PaperRequirementLayerModel {
   final String paperCode;
   final int weightGsm;
   final String? fluteType;
-  final int paperRollWidth;
   final double availableStock;
   final double shortageQty;
   final bool isEnoughQty;
@@ -23,7 +22,6 @@ class PaperRequirementLayerModel {
     required this.layerRole,
     required this.paperCode,
     required this.weightGsm,
-    required this.paperRollWidth,
     required this.availableStock,
     required this.shortageQty,
     required this.isEnoughQty,
@@ -41,7 +39,6 @@ class PaperRequirementLayerModel {
       paperCode: json["paperCode"] ?? "",
       weightGsm: json["weightGsm"] ?? 0,
       fluteType: json["fluteType"] ?? '',
-      paperRollWidth: json["paperRollWidth"] ?? 0,
       availableStock: toDouble(json["availableStock"]),
       shortageQty: toDouble(json["shortageQty"]),
       isEnoughQty: json["isEnoughQty"] ?? false,

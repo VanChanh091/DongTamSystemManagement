@@ -1,7 +1,7 @@
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:dongtam/data/models/admin/admin_machine_paper_model.dart';
+import 'package:dongtam/data/models/admin/machine/admin_machine_paper_model.dart';
 
 class MachinePaperDataSource extends DataGridSource {
   List<AdminMachinePaperModel> machinePapers = [];

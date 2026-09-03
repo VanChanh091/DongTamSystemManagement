@@ -18,7 +18,6 @@ class LayerRequirementDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "layerRole", value: layers.layerRole),
       DataGridCell<int>(columnName: "weightGsm", value: layers.weightGsm),
       DataGridCell<String>(columnName: "fluteType", value: layers.fluteType),
-      DataGridCell<int>(columnName: "paperRollWidth", value: layers.paperRollWidth),
       DataGridCell<double>(columnName: "availableStock", value: layers.availableStock),
       DataGridCell<double>(columnName: "shortageQty", value: layers.shortageQty),
       DataGridCell<bool>(columnName: "isEnoughQty", value: layers.isEnoughQty),

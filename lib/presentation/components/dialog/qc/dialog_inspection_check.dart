@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/components/shared/cardForm/building_card_fo
 import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/presentation/components/shared/resizable_dialog.dart';
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';

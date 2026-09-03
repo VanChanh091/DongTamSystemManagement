@@ -4,6 +4,7 @@ import "package:dongtam/utils/helper/helper_model.dart";
 
 class PaperRequirementModel {
   final int requirementId;
+  final int paperRollWidth;
   final double totalRequiredQty;
   final String inventoryStatus;
 
@@ -14,6 +15,7 @@ class PaperRequirementModel {
 
   PaperRequirementModel({
     required this.requirementId,
+    required this.paperRollWidth,
     required this.totalRequiredQty,
     required this.inventoryStatus,
 
@@ -26,6 +28,7 @@ class PaperRequirementModel {
   factory PaperRequirementModel.fromJson(Map<String, dynamic> json) {
     return PaperRequirementModel(
       requirementId: json["requirementId"] ?? 0,
+      paperRollWidth: json["paperRollWidth"] ?? 0,
       totalRequiredQty: toDouble(json["totalRequiredQty"]),
       inventoryStatus: json["inventoryStatus"] ?? "",
 

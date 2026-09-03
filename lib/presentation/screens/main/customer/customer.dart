@@ -525,6 +525,7 @@ class _CustomerPageState extends State<CustomerPage> {
                 },
               ),
             ),
+
             const SizedBox(height: 8),
             PaginationControls(
               currentPage: currentPg,

@@ -346,6 +346,26 @@ class ValidationHelper {
     );
   }
 
+  static Widget paperClassificationInput({
+    required String label,
+    required IconData icon,
+    required TextEditingController controller,
+    bool isRequired = true,
+    VoidCallback? onTap,
+    Function(String)? onChanged,
+  }) {
+    return BaseValidateInput(
+      label: label,
+      controller: controller,
+      icon: icon,
+      onChanged: onChanged,
+      onTap: onTap,
+      validator: (value) {
+        return null;
+      },
+    );
+  }
+
   //---------------------HELPER CHECKBOX AND DROPDOWN--------------------------
   static Widget checkboxForBox({
     required String label,
@@ -395,22 +415,25 @@ class ValidationHelper {
     );
   }
 
-  static Widget dropdownForTypes({
-    required List<String> items,
-    required String type,
-    required ValueChanged onChanged,
-    Map<String, String>? labels,
+  static Widget dropdownForTypes<T>({
+    required List<T> items,
+    required T? type,
+    required ValueChanged<T?> onChanged,
+    String Function(T item)? itemLabelBuilder,
+    double menuMaxHeight = 300,
   }) {
-    return DropdownButtonFormField<String>(
+    return DropdownButtonFormField<T>(
       isExpanded: true,
-      initialValue: items.contains(type) ? type : null,
+      isDense: true,
+      menuMaxHeight: menuMaxHeight,
+      value: items.contains(type) ? type : null,
       items:
           items
               .map(
-                (value) => DropdownMenuItem<String>(
+                (value) => DropdownMenuItem<T>(
                   value: value,
                   child: Text(
-                    labels?[value] ?? value,
+                    itemLabelBuilder != null ? itemLabelBuilder(value) : value.toString(),
                     style: const TextStyle(fontWeight: FontWeight.w500),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,

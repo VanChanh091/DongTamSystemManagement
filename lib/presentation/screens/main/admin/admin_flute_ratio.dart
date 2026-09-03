@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/admin_flute_ratio_model.dart';
-import 'package:dongtam/service/admin_service.dart';
+import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -18,15 +18,18 @@ class AdminFluteRatio extends StatefulWidget {
 
 class _AdminFluteRatioState extends State<AdminFluteRatio> {
   late Future<List<AdminFluteRatioModel>> futureFluteRatio;
+
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
-  List<AdminFluteRatioModel> updatedFluteRatio = [];
-  List<AdminFluteRatioModel> draftFluteRatio = [];
-  List<AdminFluteRatioModel> tableData = [];
-  List<int> isSelected = [];
   int? selectedFluteRatioId;
   bool selectedAll = false;
+
+  List<int> isSelected = [];
+  List<AdminFluteRatioModel> updatedFluteRatio = [];
+
+  List<AdminFluteRatioModel> tableData = [];
+  List<AdminFluteRatioModel> draftFluteRatio = [];
 
   @override
   void initState() {
@@ -195,6 +198,7 @@ class _AdminFluteRatioState extends State<AdminFluteRatio> {
                     icon: Symbols.save,
                     backgroundColor: themeController.buttonColor,
                   ),
+
                   const SizedBox(width: 10),
 
                   //delete
@@ -417,6 +421,7 @@ class _AdminFluteRatioState extends State<AdminFluteRatio> {
             ],
             rows: List<DataRow>.generate(tableData.length, (index) {
               final fluteRatio = tableData[index];
+
               return DataRow(
                 key: ValueKey(fluteRatio.fluteRatioId ?? fluteRatio.hashCode),
                 color:
@@ -442,7 +447,6 @@ class _AdminFluteRatioState extends State<AdminFluteRatio> {
                         value:
                             fluteRatio.fluteRatioId != null &&
                             isSelected.contains(fluteRatio.fluteRatioId),
-
                         onChanged:
                             fluteRatio.fluteRatioId == null
                                 ? null

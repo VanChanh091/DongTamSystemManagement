@@ -1,21 +1,21 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:io';
-import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
-import 'package:dongtam/utils/handleError/dio_client.dart';
-import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
-import 'package:file_picker/file_picker.dart';
+import "dart:io";
+import "package:dio/dio.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/planning/planning_stages.dart";
+import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
+import "package:dongtam/utils/handleError/dio_client.dart";
+import "package:dongtam/utils/helper/helper_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
+import "package:file_picker/file_picker.dart";
 
 class WarehouseService {
   final Dio dioService = DioClient().dio;
@@ -24,7 +24,7 @@ class WarehouseService {
   Future<List<PlanningPaperModel>> getPaperWaitingChecked({required String isPaper}) async {
     return HelperService().fetchingData<PlanningPaperModel>(
       endpoint: "warehouse/waiting-check",
-      queryParameters: {'isPaper': isPaper},
+      queryParameters: {"isPaper": isPaper},
       fromJson: (json) => PlanningPaperModel.fromJson(json),
     );
   }
@@ -32,15 +32,15 @@ class WarehouseService {
   Future<List<PlanningBoxModel>> getBoxWaitingChecked({required String isPaper}) async {
     return HelperService().fetchingData<PlanningBoxModel>(
       endpoint: "warehouse/waiting-check",
-      queryParameters: {'isPaper': isPaper},
+      queryParameters: {"isPaper": isPaper},
       fromJson: (json) => PlanningBoxModel.fromJson(json),
     );
   }
 
   Future<List<PlanningStageModel>> getBoxWaitingCheckedDetail({required int planningBoxId}) async {
     return HelperService().fetchingData(
-      endpoint: 'warehouse/waiting-check',
-      queryParameters: {'planningBoxId': planningBoxId},
+      endpoint: "warehouse/waiting-check",
+      queryParameters: {"planningBoxId": planningBoxId},
       fromJson: (json) => PlanningStageModel.fromJson(json),
     );
   }
@@ -58,15 +58,15 @@ class WarehouseService {
     return HelperService().fetchPaginatedData<InboundHistoryModel>(
       endpoint: "warehouse/inbound",
       queryParameters: {
-        'page': page,
-        'pageSize': pageSize,
-        if (field != null) 'field': field,
-        if (keyword != null) 'keyword': keyword,
-        if (startDate != null) 'startDate': startDate.toIso8601String(),
-        if (endDate != null) 'endDate': endDate.toIso8601String(),
+        "page": page,
+        "pageSize": pageSize,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+        if (startDate != null) "startDate": startDate.toIso8601String(),
+        if (endDate != null) "endDate": endDate.toIso8601String(),
       },
       fromJson: (json) => InboundHistoryModel.fromJson(json),
-      dataKey: 'inbounds',
+      dataKey: "inbounds",
     );
   }
 
@@ -85,7 +85,7 @@ class WarehouseService {
         "/api/warehouse/inbound/export",
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -119,23 +119,23 @@ class WarehouseService {
     return HelperService().fetchPaginatedData<OutboundHistoryModel>(
       endpoint: "warehouse/outbound",
       queryParameters: {
-        'page': page,
-        'pageSize': pageSize,
-        if (field != null) 'field': field,
-        if (keyword != null) 'keyword': keyword,
-        if (startDate != null) 'startDate': startDate.toIso8601String(),
-        if (endDate != null) 'endDate': endDate.toIso8601String(),
+        "page": page,
+        "pageSize": pageSize,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+        if (startDate != null) "startDate": startDate.toIso8601String(),
+        if (endDate != null) "endDate": endDate.toIso8601String(),
       },
       fromJson: (json) => OutboundHistoryModel.fromJson(json),
-      dataKey: 'outbounds',
+      dataKey: "outbounds",
     );
   }
 
   //get outbound detail
   Future<List<OutboundDetailModel>> getOutboundDetail({required int outboundId}) async {
     return HelperService().fetchingData(
-      endpoint: 'warehouse/outbound/detail',
-      queryParameters: {'outboundId': outboundId},
+      endpoint: "warehouse/outbound/detail",
+      queryParameters: {"outboundId": outboundId},
       fromJson: (json) => OutboundDetailModel.fromJson(json),
     );
   }
@@ -146,8 +146,8 @@ class WarehouseService {
     String isSearch = "true",
   }) async {
     return HelperService().fetchingData(
-      endpoint: 'warehouse/outbound/get-search',
-      queryParameters: {'orderId': orderId, 'isSearch': isSearch},
+      endpoint: "warehouse/outbound/get-search",
+      queryParameters: {"orderId": orderId, "isSearch": isSearch},
       fromJson: (json) => OrderModel.fromJson(json),
     );
   }
@@ -158,8 +158,8 @@ class WarehouseService {
     String isSearch = "false",
   }) async {
     return HelperService().fetchSingleData(
-      endpoint: 'warehouse/outbound/get-search',
-      queryParameters: {'orderId': orderId, 'isSearch': isSearch},
+      endpoint: "warehouse/outbound/get-search",
+      queryParameters: {"orderId": orderId, "isSearch": isSearch},
       parser: (json) => OrderModel.fromJson(json as Map<String, dynamic>),
     );
   }
@@ -167,8 +167,8 @@ class WarehouseService {
   //create outbound
   Future<bool> createOutbound({required List<Map<String, dynamic>> list}) async {
     return await HelperService().addItem(
-      endpoint: 'warehouse/outbound',
-      body: {'outboundDetails': list},
+      endpoint: "warehouse/outbound",
+      body: {"outboundDetails": list},
     );
   }
 
@@ -177,7 +177,7 @@ class WarehouseService {
     required List<Map<String, dynamic>> list,
   }) async {
     return HelperService().updateItem(
-      endpoint: 'warehouse/outbound',
+      endpoint: "warehouse/outbound",
       queryParameters: const {},
       body: {"outboundId": outboundId, "outboundDetails": list},
     );
@@ -185,8 +185,8 @@ class WarehouseService {
 
   Future<bool> deleteOutbound({required int outboundId}) async {
     return HelperService().deleteItem(
-      endpoint: 'warehouse/outbound',
-      queryParameters: {'outboundId': outboundId},
+      endpoint: "warehouse/outbound",
+      queryParameters: {"outboundId": outboundId},
     );
   }
 
@@ -196,9 +196,9 @@ class WarehouseService {
 
       final response = await dioService.post(
         "/api/warehouse/outbound/export",
-        data: {'outboundId': outboundId, 'hasMoney': hasMoney},
+        data: {"outboundId": outboundId, "hasMoney": hasMoney},
         options: Options(
-          headers: {'Authorization': 'Bearer $token'},
+          headers: {"Authorization": "Bearer $token"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -213,7 +213,7 @@ class WarehouseService {
           return null;
         }
 
-        final contentDisposition = response.headers.value('content-disposition');
+        final contentDisposition = response.headers.value("content-disposition");
 
         String fileName = "phieu_xuat_kho.pdf";
 
@@ -253,7 +253,7 @@ class WarehouseService {
           if (toDate != null) "toDate": toDate.toIso8601String(),
         },
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -284,35 +284,35 @@ class WarehouseService {
     return HelperService().fetchPaginatedData<InventoryModel>(
       endpoint: "warehouse/inventory",
       queryParameters: {
-        'page': page,
-        'pageSize': pageSize,
-        'filter': filter,
-        'field': field,
-        'keyword': keyword,
+        "page": page,
+        "pageSize": pageSize,
+        "filter": filter,
+        "field": field,
+        "keyword": keyword,
       },
       fromJson: (json) => InventoryModel.fromJson(json),
-      dataKey: 'inventories',
+      dataKey: "inventories",
     );
   }
 
-  Future<bool> transferQtyToOrderOrQilidation({
+  Future<bool> handleChangeQtyInventory({
     required String action,
-    required int qtyTransfer,
+    int? qtyTransfer,
     String? reason,
     String? sourceOrderId,
     String? targetOrderId,
-    int? inventoryId,
+    List<int>? inventoryId,
   }) async {
     final Map<String, dynamic> payload = {
-      'action': action,
-      'qtyTransfer': qtyTransfer,
-      'reason': reason ?? "Không có lý do",
-      'sourceOrderId': sourceOrderId,
-      'targetOrderId': targetOrderId,
-      'inventoryId': inventoryId,
+      "action": action,
+      "qtyTransfer": qtyTransfer,
+      "reason": reason ?? "Không có lý do",
+      "sourceOrderId": sourceOrderId,
+      "targetOrderId": targetOrderId,
+      "inventoryId": inventoryId,
     }..removeWhere((key, value) => value == null);
 
-    return HelperService().addItem(endpoint: 'warehouse/inventory', body: payload);
+    return HelperService().addItem(endpoint: "warehouse/inventory", body: payload);
   }
 
   //export inventory logs
@@ -330,7 +330,7 @@ class WarehouseService {
         "/api/warehouse/inventory-logs/export",
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -360,9 +360,9 @@ class WarehouseService {
   }) async {
     return HelperService().fetchPaginatedData<LiquidationInventoryModel>(
       endpoint: "warehouse/liquidation",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'field': field, 'keyword': keyword},
+      queryParameters: {"page": page, "pageSize": pageSize, "field": field, "keyword": keyword},
       fromJson: (json) => LiquidationInventoryModel.fromJson(json),
-      dataKey: 'liquidations',
+      dataKey: "liquidations",
     );
   }
 }

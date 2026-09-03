@@ -1,21 +1,18 @@
-import "dart:io";
-
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/warehouse/payment/customer_debt_summary_model.dart";
 import "package:dongtam/presentation/components/dialog/debt/dialog_closing_debt.dart";
 import "package:dongtam/presentation/components/dialog/debt/dialog_payment_debt.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_debt_customer.dart";
 import "package:dongtam/presentation/components/headerTable/header_table_debt.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/debt_customer_data_source.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/debt_service.dart";
-import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/helper/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
@@ -23,6 +20,7 @@ import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
 import "package:get/get.dart";
+import "package:intl/intl.dart";
 import "package:material_symbols_icons/symbols.dart";
 import "package:syncfusion_flutter_core/theme.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
@@ -73,6 +71,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   //text controller
   final searchController = TextEditingController();
   final slipCodeController = TextEditingController();
+  TextEditingController dayStartController = TextEditingController();
 
   //flag
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
@@ -91,8 +90,14 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
     isManager = userController.hasAnyRole(roles: ["admin", "manager"]);
     isAccountant = userController.hasPermission(permission: "accountant");
 
+    final now = DateTime.now();
+    dayStartController.text =
+        "${now.day.toString().padLeft(2, '0')}/"
+        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.year}";
+
     _loadSalesUsers();
-    loadOutbound();
+    loadDebtCustomer();
 
     columnsDebt = buildDebtColumn(themeController: themeController);
     ColumnWidthTable.loadWidths(tableKey: "debtCustomer", columns: columnsDebt).then((w) {
@@ -147,18 +152,20 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   }
 
   void _fetchData() {
+    final date = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
     futureDebtSummary = ensureMinLoading(
       DebtService().getCustomerDebtSummary(
         page: currentPage,
         pageSize: pageSize,
         userId: selectedUserId,
+        targetDate: date,
       ),
     );
 
     _selectedDebtNotifier.value = null;
   }
 
-  void loadOutbound() {
+  void loadDebtCustomer() {
     setState(() => _fetchData());
   }
 
@@ -171,6 +178,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
     super.dispose();
     searchController.dispose();
     slipCodeController.dispose();
+    dayStartController.dispose();
     _zoomNotifier.dispose();
     _selectedDebtNotifier.dispose();
     headerScrollController.dispose();
@@ -252,7 +260,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () => loadOutbound(),
+        onPressed: () => loadDebtCustomer(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -301,42 +309,68 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  AnimatedButton(
-                                    onPressed: () async {
-                                      final bool success = await showConfirmDialog(
-                                        context: context,
-                                        title: "Xuất file công nợ khách hàng",
-                                        content:
-                                            "Bạn có chắc chắn muốn xuất file công nợ khách hàng không?",
-                                        confirmText: "Xác Nhận",
-                                      );
-
-                                      if (success) {
-                                        final File? file = await DebtService().exportDebtCustomer();
-
-                                        if (context.mounted) {
-                                          if (file != null) {
-                                            showSnackBarSuccess(
-                                              context,
-                                              "Xuất file công nợ khách hàng thành công",
-                                            );
-                                          } else {
-                                            showSnackBarError(
-                                              context,
-                                              "Xuất file công nợ khách hàng thất bại",
-                                            );
-                                          }
-                                        }
-                                      }
-                                    },
-                                    label: "Xuất Excel",
-                                    icon: Symbols.file_download,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 8),
-
                                   //closing debt
                                   if (isAccountant) ...[
+                                    buildLabelAndUnderlineInput(
+                                      label: "Ngày Chốt:",
+                                      controller: dayStartController,
+                                      width: 120,
+                                      readOnly: true,
+                                      onTap: () async {
+                                        final selected = await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(2026),
+                                          lastDate: DateTime(2100),
+                                          builder: (BuildContext context, Widget? child) {
+                                            return Theme(
+                                              data: Theme.of(context).copyWith(
+                                                colorScheme: ColorScheme.light(
+                                                  primary: Colors.blue,
+                                                  onPrimary: Colors.white,
+                                                  onSurface: Colors.black,
+                                                ),
+                                                dialogTheme: DialogThemeData(
+                                                  backgroundColor: Colors.white12,
+                                                ),
+                                              ),
+                                              child: child!,
+                                            );
+                                          },
+                                        );
+
+                                        if (selected != null) {
+                                          setState(() {
+                                            dayStartController.text = DateFormat(
+                                              "dd/MM/yyyy",
+                                            ).format(selected);
+
+                                            _selectedDebtNotifier.value = null;
+                                          });
+
+                                          loadDebtCustomer();
+                                        }
+                                      },
+                                    ),
+                                    const SizedBox(width: 12),
+
+                                    //xuất excel
+                                    AnimatedButton(
+                                      onPressed: () async {
+                                        showDialog(
+                                          context: context,
+                                          builder:
+                                              (_) => DialogExportDebtCustomer(
+                                                onLoading: () => loadDebtCustomer(),
+                                              ),
+                                        );
+                                      },
+                                      label: "Xuất Excel",
+                                      icon: Symbols.file_download,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 8),
+
                                     AnimatedButton(
                                       onPressed: () {
                                         showDialog(
@@ -344,9 +378,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                           builder:
                                               (context) => DialogClosingDebt(
                                                 customerId: _selectedDebtNotifier.value,
-                                                onClosingSuccess: () {
-                                                  loadOutbound();
-                                                },
+                                                onClosingSuccess: () => loadDebtCustomer(),
                                               ),
                                         );
                                       },
@@ -365,7 +397,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                               (context) => DialogPaymentDebt(
                                                 customerId: _selectedDebtNotifier.value,
                                                 onPaymentSuccess: () {
-                                                  loadOutbound();
+                                                  loadDebtCustomer();
                                                 },
                                               ),
                                         );
@@ -391,7 +423,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                             selectedSalesUser = value;
                                             selectedUserId = salesUserMap[value];
                                             currentPage = 1;
-                                            loadOutbound();
+                                            loadDebtCustomer();
                                           });
                                         }
                                       },
@@ -645,19 +677,19 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
               onPrevious: () {
                 setState(() {
                   currentPage--;
-                  loadOutbound();
+                  loadDebtCustomer();
                 });
               },
               onNext: () {
                 setState(() {
                   currentPage++;
-                  loadOutbound();
+                  loadDebtCustomer();
                 });
               },
               onJumpToPage: (page) {
                 setState(() {
                   currentPage = page;
-                  loadOutbound();
+                  loadDebtCustomer();
                 });
               },
             ),

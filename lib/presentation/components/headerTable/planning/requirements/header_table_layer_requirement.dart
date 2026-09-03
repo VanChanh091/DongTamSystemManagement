@@ -5,10 +5,9 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _layerRequirementColumns = [
   {"key": "paperCode", "title": "Mã Giấy"},
-  {"key": "layerRole", "title": "Vị Trí Lớp"},
+  {"key": "layerRole", "title": "Vị Trí Lớp Giấy"},
   {"key": "weightGsm", "title": "Trọng Lượng (gsm)"},
   {"key": "fluteType", "title": "Loại Sóng"},
-  {"key": "paperRollWidth", "title": "Khổ Cấp Giấy"},
   {"key": "availableStock", "title": "Tồn Kho"},
   {"key": "shortageQty", "title": "Số Lượng Thiếu"},
   {"key": "isEnoughQty", "title": "Đủ Số Lượng?"},

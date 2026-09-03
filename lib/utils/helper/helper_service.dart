@@ -73,8 +73,8 @@ class HelperService {
   //get all data
   Future<List<T>> fetchingData<T>({
     required String endpoint,
-    required Map<String, dynamic> queryParameters,
     required T Function(Map<String, dynamic>) fromJson,
+    Map<String, dynamic> queryParameters = const {},
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -159,7 +159,7 @@ class HelperService {
   Future<bool> addItem({
     required String endpoint,
     Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? body,
+    dynamic body, //tự động parse body thành Map<String, dynamic> nếu là object, hỗ trợ cả List
   }) async {
     try {
       final token = await SecureStorageService().getToken();
@@ -187,7 +187,7 @@ class HelperService {
   Future<bool> updateItem({
     required String endpoint,
     Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? body,
+    dynamic body,
   }) async {
     try {
       final token = await SecureStorageService().getToken();

@@ -14,7 +14,7 @@ class InspectionPaperDataSource extends DataGridSource {
 
   late List<DataGridRow> reportDataGridRows;
   final formatterDay = DateFormat("dd/MM/yyyy");
-  final formatterDayTime = DateFormat("dd/MM/yyyy HH:mm:ss");
+  final formatterDateTime = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   InspectionPaperDataSource({
     required this.inspectionPapers,
@@ -33,6 +33,11 @@ class InspectionPaperDataSource extends DataGridSource {
 
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(
+        columnName: "timeInspection",
+        value: formatterDateTime.format(inspecPaper.timeInspection),
+      ),
+
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
@@ -46,10 +51,6 @@ class InspectionPaperDataSource extends DataGridSource {
       ),
       DataGridCell<int>(columnName: "runningPlan", value: paper.runningPlan),
 
-      DataGridCell<String>(
-        columnName: "timeInspection",
-        value: formatterDayTime.format(inspecPaper.timeInspection),
-      ),
       DataGridCell<int>(columnName: "numberPallet", value: inspecPaper.numberPallet),
       DataGridCell<double>(columnName: "machineSpeed", value: inspecPaper.machineSpeed),
       DataGridCell<double>(columnName: "moisture", value: inspecPaper.moisture),
@@ -60,6 +61,7 @@ class InspectionPaperDataSource extends DataGridSource {
 
       //checklist
       ...buildChecklistCells(inspecPaper),
+
       DataGridCell<String>(columnName: "note", value: inspecPaper.note),
       DataGridCell<String>(columnName: "checkedBy", value: inspecPaper.checkedBy),
 

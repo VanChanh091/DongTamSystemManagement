@@ -1,6 +1,6 @@
 import "package:dongtam/utils/helper/helper_model.dart";
 
-class AdminWasteNormModel {
+class AdminWastePaperModel {
   int wasteNormId;
   double waveCrest;
   double? waveCrestSoft;
@@ -8,7 +8,7 @@ class AdminWasteNormModel {
   double lossInSheetingAndSlitting;
   String machineName;
 
-  AdminWasteNormModel({
+  AdminWastePaperModel({
     required this.wasteNormId,
     required this.waveCrest,
     this.waveCrestSoft,
@@ -17,8 +17,8 @@ class AdminWasteNormModel {
     required this.machineName,
   });
 
-  factory AdminWasteNormModel.fromJson(Map<String, dynamic> json) {
-    return AdminWasteNormModel(
+  factory AdminWastePaperModel.fromJson(Map<String, dynamic> json) {
+    return AdminWastePaperModel(
       wasteNormId: json["wasteNormId"],
       waveCrest: toDouble(json["waveCrest"]),
       waveCrestSoft: toDouble(json["waveCrestSoft"]),
