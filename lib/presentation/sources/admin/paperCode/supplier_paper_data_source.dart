@@ -24,7 +24,7 @@ class SupplierPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "layerType", value: supplierPaper.layerType),
       DataGridCell<String>(columnName: "paperName", value: paperType?.paperName ?? ""),
       DataGridCell<String>(columnName: "paperCode", value: paperType?.paperCode ?? ""),
-      DataGridCell<int>(columnName: "grade", value: paperType?.grade ?? 0),
+      DataGridCell<int>(columnName: "grade", value: supplier?.grade ?? 0),
       DataGridCell<String>(columnName: "supplierName", value: supplier?.supplierName ?? ""),
 
       // hidden field

@@ -13,7 +13,7 @@ import 'package:dongtam/presentation/components/shared/animation/animated_button
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -496,6 +496,7 @@ Future<void> handleBackOrder({
     title: "Xác nhận trả đơn về",
     content: "Bạn có chắc chắn muốn trả đơn không?",
     confirmText: "Xác nhận",
+    loadingMessage: "Đang trả đơn...",
     onDelete: () async {
       try {
         await PlanningService().backOrderToReject(orderId: orderId);
@@ -514,7 +515,7 @@ Future<void> handleBackOrder({
         showSnackBarError(context, messageErr);
       } catch (e) {
         if (context.mounted) {
-          showSnackBarError(context, "Trả đơn thất bạis");
+          showSnackBarError(context, "Trả đơn thất bại");
         }
       }
     },

@@ -124,6 +124,7 @@ class _SupplierState extends State<Supplier> {
                           supplierName: "",
                           supplierCode: "",
                           transferCode: "",
+                          grade: 0,
                           isActive: true,
                           isDraft: true,
                         );
@@ -178,6 +179,7 @@ class _SupplierState extends State<Supplier> {
                         "supplierName": item.supplierName,
                         "supplierCode": item.supplierCode,
                         "transferCode": item.transferCode,
+                        "grade": item.grade,
                       };
 
                       await Future.wait([
@@ -214,10 +216,7 @@ class _SupplierState extends State<Supplier> {
                   AnimatedButton(
                     onPressed: () async {
                       if (isSelected.isEmpty) {
-                        showSnackBarError(
-                          context,
-                          "Chưa chọn nhà cung cấp để thay đổi trạng thái",
-                        );
+                        showSnackBarError(context, "Chưa chọn nhà cung cấp để thay đổi trạng thái");
                         return;
                       }
 
@@ -307,6 +306,7 @@ class _SupplierState extends State<Supplier> {
                       supplierName: e.supplierName,
                       supplierCode: e.supplierCode,
                       transferCode: e.transferCode,
+                      grade: e.grade,
                       isActive: e.isActive,
                       isDraft: false,
                     ),
@@ -352,6 +352,7 @@ class _SupplierState extends State<Supplier> {
               DataColumn(label: styleText("Tên Nhà Cung Cấp")),
               DataColumn(label: styleText("Mã Nhà Cung Cấp")),
               DataColumn(label: styleText("Mã Chuyển Đổi")),
+              DataColumn(label: styleText("Cấp Độ")),
               DataColumn(label: styleText("Trạng Thái")),
             ],
             rows: List<DataRow>.generate(tableData.length, (index) {
@@ -418,6 +419,14 @@ class _SupplierState extends State<Supplier> {
                       text: supplier.transferCode,
                       onChanged: (value) {
                         supplier.transferCode = value;
+                      },
+                    ),
+                  ),
+                  DataCell(
+                    styleCellAdmin(
+                      text: supplier.grade.toString(),
+                      onChanged: (value) {
+                        supplier.grade = int.tryParse(value) ?? 0;
                       },
                     ),
                   ),

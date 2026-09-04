@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
+import 'package:dongtam/data/models/order/model_helper/paper_classification_item.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
@@ -12,7 +12,7 @@ import 'package:http_parser/http_parser.dart';
 class OrderService {
   final Dio dioService = DioClient().dio;
 
-  //=============================== ORDER AUTOCOMPLETE =====================================
+  //========================= ORDER AUTOCOMPLETE ==============================
   Future<List<OrderModel>> getOrderIdRaw({required String orderId}) async {
     return HelperService().fetchingData<OrderModel>(
       endpoint: "order/order-id-raw",
@@ -26,6 +26,14 @@ class OrderService {
       endpoint: "order/order-detail",
       queryParameters: {'orderId': orderId},
       parser: (json) => OrderModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  //======================= PAPER CODE FOR STRUCTURE ==========================
+  Future<List<PaperClassificationItem>> getPaperCodeForStructure() async {
+    return HelperService().fetchingData<PaperClassificationItem>(
+      endpoint: "order/paper-code",
+      fromJson: (json) => PaperClassificationItem.fromJson(json),
     );
   }
 

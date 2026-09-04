@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/components/headerTable/warehouse/inventory/
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/presentation/sources/warehouse/inventory/liquidation_inv_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';

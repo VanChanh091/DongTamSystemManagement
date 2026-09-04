@@ -119,15 +119,18 @@ class OrderModel {
   }
 
   //listener
-  static void listenerForFieldNeed(
+  static VoidCallback listenerForFieldNeed(
     TextEditingController fieldController,
     TextEditingController fieldControllerReplace,
   ) {
-    fieldController.addListener(() {
+    void listener() {
       if (fieldController.text != fieldControllerReplace.text) {
         fieldControllerReplace.text = fieldController.text;
       }
-    });
+    }
+
+    fieldController.addListener(listener);
+    return () => fieldController.removeListener(listener);
   }
 
   // helper: only add prefix if not empty and not already present

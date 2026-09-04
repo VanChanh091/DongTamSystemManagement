@@ -4,7 +4,6 @@ class PaperTypeModel {
   int? paperTypeId;
   String paperName;
   String paperCode;
-  int grade;
 
   //association
   List<SupplierPaperCodeModel>? supplierPapers;
@@ -15,7 +14,6 @@ class PaperTypeModel {
     this.paperTypeId,
     required this.paperName,
     required this.paperCode,
-    required this.grade,
     this.supplierPapers,
 
     this.isDraft = false,
@@ -26,7 +24,6 @@ class PaperTypeModel {
       paperTypeId: json["paperTypeId"] ?? 0,
       paperName: json["paperName"] ?? "",
       paperCode: json["paperCode"] ?? "",
-      grade: json["grade"] ?? 0,
       supplierPapers:
           json["supplierPapers"] != null
               ? List<SupplierPaperCodeModel>.from(
@@ -37,6 +34,6 @@ class PaperTypeModel {
   }
 
   Map<String, dynamic> toJson() {
-    return {"paperName": paperName, "paperCode": paperCode, "grade": grade};
+    return {"paperName": paperName, "paperCode": paperCode};
   }
 }

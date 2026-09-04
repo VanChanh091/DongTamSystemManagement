@@ -2,8 +2,10 @@ import "dart:async";
 import "dart:typed_data";
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/controller/upload_process_controller.dart";
+import "package:dongtam/data/models/order/model_helper/paper_classification_item.dart";
 import "package:dongtam/data/models/customer/customer_model.dart";
 import "package:dongtam/data/models/order/box_model.dart";
+import "package:dongtam/data/models/order/model_helper/paper_structure_result.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/product/product_model.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart";
@@ -14,9 +16,10 @@ import "package:dongtam/service/order_service.dart";
 import "package:dongtam/service/product_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
-import "package:dongtam/utils/helper/auto_complete_field.dart";
+import "package:dongtam/presentation/components/shared/auto_complete_field.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/utils/helper/orderHelper/paper_structure_helper.dart";
 import "package:dongtam/utils/helper/paste_image_order.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
@@ -55,6 +58,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   List<CustomerModel> allCustomers = [];
   List<ProductModel> allProducts = [];
+  List<PaperClassificationItem> allPapers = [];
 
   double uploadProgress = 0.0;
   bool isUploading = false;
@@ -67,9 +71,11 @@ class _OrderDialogState extends State<OrderDialog> {
   final orderIdController = TextEditingController();
   final qcBoxController = TextEditingController();
   final canLanController = TextEditingController();
-  final dayController = TextEditingController();
 
   //structure
+  final structureController = TextEditingController();
+
+  final dayController = TextEditingController();
   final matEController = TextEditingController();
   final matBController = TextEditingController();
   final matCController = TextEditingController();
@@ -145,6 +151,8 @@ class _OrderDialogState extends State<OrderDialog> {
 
     _fetchAllCustomers();
     _fetchAllProducts();
+    _fetchAllPaperCodes();
+
     addListenerForField();
 
     if (widget.order == null) {
@@ -168,6 +176,15 @@ class _OrderDialogState extends State<OrderDialog> {
     canLanController.text = selectedOrder.canLan ?? "";
     orderIdCustomerController.text = selectedOrder.orderIdCustomer ?? "";
 
+    if (selectedOrder.customer != null) {
+      customerNameController.text = selectedOrder.customer!.customerName;
+      customerCompanyController.text = selectedOrder.customer!.companyName;
+    }
+    if (selectedOrder.product != null) {
+      typeProduct.text = selectedOrder.product!.typeProduct;
+      nameSpController.text = selectedOrder.product!.productName ?? "";
+    }
+
     // Cụm các field Sóng/Mặt
     dayController.text = selectedOrder.day ?? "";
     matEController.text = selectedOrder.matE ?? "";
@@ -178,6 +195,8 @@ class _OrderDialogState extends State<OrderDialog> {
     songBController.text = selectedOrder.songB ?? "";
     songCController.text = selectedOrder.songC ?? "";
     songE2Controller.text = selectedOrder.songE2 ?? "";
+
+    structureController.text = selectedOrder.formatterStructureOrder;
 
     // Cụm các field Số
     lengthCustomerController.text = selectedOrder.lengthPaperCustomer.toString();
@@ -193,7 +212,7 @@ class _OrderDialogState extends State<OrderDialog> {
     pricePaperController.text = selectedOrder.pricePaper?.toStringAsFixed(2) ?? "0.00";
     discountController.text = selectedOrder.discount?.toStringAsFixed(1) ?? "0.0";
     profitController.text = selectedOrder.profit.toStringAsFixed(1);
-    vatController.text = selectedOrder.vat.toString();
+    vatController.text = selectedOrder.vat?.toString() ?? "8";
 
     // Dropdown & Date
     setState(() {
@@ -223,7 +242,7 @@ class _OrderDialogState extends State<OrderDialog> {
     inMatTruocController.text = box?.inMatTruoc?.toString() ?? "";
     inMatSauController.text = box?.inMatSau?.toString() ?? "";
     dongGoiController.text = box?.dongGoi ?? "";
-    maKhuonController.text = box?.maKhuon ?? "";
+    maKhuonController.text = selectedOrder.product?.maKhuon ?? box?.maKhuon ?? "";
 
     // Cập nhật cụm Checkbox
     canMangChecked.value = box?.canMang ?? false;
@@ -258,10 +277,27 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
+  Future<void> _fetchAllPaperCodes() async {
+    try {
+      final result = await OrderService().getPaperCodeForStructure();
+      allPapers = result;
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách giấy", error: e, stackTrace: s);
+    }
+  }
+
+  final List<VoidCallback> _fieldListeners = [];
+
   void addListenerForField() {
-    OrderModel.listenerForFieldNeed(lengthCustomerController, lengthManufactureController);
-    OrderModel.listenerForFieldNeed(sizeCustomerController, sizeManufactureController);
-    OrderModel.listenerForFieldNeed(quantityCustomerController, quantityManufactureController);
+    _fieldListeners.add(
+      OrderModel.listenerForFieldNeed(lengthCustomerController, lengthManufactureController),
+    );
+    _fieldListeners.add(
+      OrderModel.listenerForFieldNeed(sizeCustomerController, sizeManufactureController),
+    );
+    _fieldListeners.add(
+      OrderModel.listenerForFieldNeed(quantityCustomerController, quantityManufactureController),
+    );
   }
 
   void _autoSetDvtByProduct(String productType) {
@@ -461,7 +497,9 @@ class _OrderDialogState extends State<OrderDialog> {
       });
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        formKey.currentState!.validate();
+        if (mounted && formKey.currentState != null) {
+          formKey.currentState!.validate();
+        }
       });
 
       uploadCtrl.isUploading.value = false;
@@ -475,11 +513,19 @@ class _OrderDialogState extends State<OrderDialog> {
 
   @override
   void dispose() {
-    super.dispose();
+    for (final removeListener in _fieldListeners) {
+      removeListener();
+    }
+    _fieldListeners.clear();
+
+    _customerIdDebounce?.cancel();
+    _productIdDebounce?.cancel();
+
     orderIdController.dispose();
     orderIdCustomerController.dispose();
     instructSpecialController.dispose();
     noteController.dispose();
+    structureController.dispose();
     customerIdController.dispose();
     productIdController.dispose();
     dateShippingController.dispose();
@@ -510,24 +556,27 @@ class _OrderDialogState extends State<OrderDialog> {
     pricePaperController.dispose();
     discountController.dispose();
     profitController.dispose();
+    vatController.dispose();
     inMatTruocController.dispose();
     inMatSauController.dispose();
-    canMangChecked = ValueNotifier<bool>(false);
-    canLanChecked = ValueNotifier<bool>(false);
-    xaChecked = ValueNotifier<bool>(false);
-    catKheChecked = ValueNotifier<bool>(false);
-    beChecked = ValueNotifier<bool>(false);
-    dan1ManhChecked = ValueNotifier<bool>(false);
-    dan2ManhChecked = ValueNotifier<bool>(false);
-    chongThamChecked = ValueNotifier<bool>(false);
-    dongGhim1ManhChecked = ValueNotifier<bool>(false);
-    dongGhim2ManhChecked = ValueNotifier<bool>(false);
-    isBoxChecked = ValueNotifier<bool>(false);
-    chongThamPaperChecked = ValueNotifier<bool>(false);
     dongGoiController.dispose();
     maKhuonController.dispose();
-    _customerIdDebounce?.cancel();
-    _productIdDebounce?.cancel();
+    canLanController.dispose();
+
+    canMangChecked.dispose();
+    canLanChecked.dispose();
+    xaChecked.dispose();
+    catKheChecked.dispose();
+    beChecked.dispose();
+    dan1ManhChecked.dispose();
+    dan2ManhChecked.dispose();
+    chongThamChecked.dispose();
+    dongGhim1ManhChecked.dispose();
+    dongGhim2ManhChecked.dispose();
+    isBoxChecked.dispose();
+    chongThamPaperChecked.dispose();
+
+    super.dispose();
   }
 
   @override
@@ -567,7 +616,9 @@ class _OrderDialogState extends State<OrderDialog> {
           onChanged: (value) {
             if (value.isEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                orderIdController.clear();
+                if (mounted) {
+                  orderIdController.clear();
+                }
               });
             }
           },
@@ -662,8 +713,10 @@ class _OrderDialogState extends State<OrderDialog> {
           onChanged: (value) {
             if (value.isEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                customerNameController.clear();
-                customerCompanyController.clear();
+                if (mounted) {
+                  customerNameController.clear();
+                  customerCompanyController.clear();
+                }
               });
             }
           },
@@ -731,9 +784,11 @@ class _OrderDialogState extends State<OrderDialog> {
           onChanged: (value) {
             if (value.isEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                typeProduct.clear();
-                nameSpController.clear();
-                maKhuonController.clear();
+                if (mounted) {
+                  typeProduct.clear();
+                  nameSpController.clear();
+                  maKhuonController.clear();
+                }
               });
             }
           },
@@ -875,78 +930,35 @@ class _OrderDialogState extends State<OrderDialog> {
 
     final List<Map<String, dynamic>> structureRows = [
       {
-        "leftKey": "Đáy",
+        "leftKey": "Cấn Lằn",
         "leftValue": ValidationHelper.orderInput(
-          label: "Đáy (g)",
-          controller: dayController,
-          icon: Symbols.vertical_align_bottom,
-        ),
-        "middle_1Key": "Cấn Lằn",
-        "middle_1Value": ValidationHelper.orderInput(
           label: "Cấn Lằn",
           controller: canLanController,
           icon: Symbols.bottom_sheets,
         ),
-        "middle_2Key": "",
-        "middle_2Value": ValidationHelper.checkboxForBox(
+        "middle_1Key": "",
+        "middle_1Value": ValidationHelper.checkboxForBox(
           label: "Chống Thấm",
           notifier: chongThamPaperChecked,
         ),
+        "middle_2Key": "",
+        "middle_2Value": const SizedBox(),
         "rightKey": "",
         "rightValue": const SizedBox(),
       },
-
       {
-        "leftKey": "Sóng E",
-        "leftValue": ValidationHelper.orderInput(
-          label: "Sóng E (g)",
-          controller: songEController,
-          icon: Symbols.airwave,
-        ),
-        "middle_1Key": "Sóng B",
-        "middle_1Value": ValidationHelper.orderInput(
-          label: "Sóng B (g)",
-          controller: songBController,
-          icon: Symbols.airwave,
-        ),
-        "middle_2Key": "Sóng C",
-        "middle_2Value": ValidationHelper.orderInput(
-          label: "Sóng C (g)",
-          controller: songCController,
-          icon: Symbols.airwave,
-        ),
-        "rightKey": "Sóng E2",
-        "rightValue": ValidationHelper.orderInput(
-          label: "Sóng E2 (g)",
-          controller: songE2Controller,
-          icon: Symbols.airwave,
-        ),
-      },
-
-      {
-        "leftKey": "Mặt E",
-        "leftValue": ValidationHelper.orderInput(
-          label: "Mặt E (g)",
-          controller: matEController,
-          icon: Symbols.vertical_align_center,
-        ),
-        "middle_1Key": "Mặt B",
-        "middle_1Value": ValidationHelper.orderInput(
-          label: "Mặt B (g)",
-          controller: matBController,
-          icon: Symbols.vertical_align_center,
-        ),
-        "middle_2Key": "Mặt C",
-        "middle_2Value": ValidationHelper.orderInput(
-          label: "Mặt C (g)",
-          controller: matCController,
-          icon: Symbols.vertical_align_center,
-        ),
-        "rightKey": "Mặt E2",
-        "rightValue": ValidationHelper.orderInput(
-          label: "Mặt E2 (g)",
-          controller: matE2Controller,
-          icon: Symbols.vertical_align_center,
+        "leftKey": "Kết Cấu",
+        "leftValue": InkWell(
+          onTap: _handleOpenStructureBuilder,
+          borderRadius: BorderRadius.circular(8),
+          child: AbsorbPointer(
+            child: ValidationHelper.orderInput(
+              label: "Bấm để thiết lập kết cấu...",
+              controller: structureController,
+              icon: Symbols.layers,
+              readOnly: true,
+            ),
+          ),
         ),
       },
     ];
@@ -1110,6 +1122,7 @@ class _OrderDialogState extends State<OrderDialog> {
                         ),
                         const SizedBox(height: 15),
 
+                        //base info
                         buildingCard(
                           title: "📃 Thông Tin Cơ Bản",
                           children: formatKeyValueRows(
@@ -1119,8 +1132,8 @@ class _OrderDialogState extends State<OrderDialog> {
                             columnCount: 3,
                           ),
                         ),
-                        const SizedBox(height: 15),
 
+                        //costing
                         buildingCard(
                           title: "📃 Chi Phí",
                           children: formatKeyValueRows(
@@ -1130,7 +1143,6 @@ class _OrderDialogState extends State<OrderDialog> {
                             columnCount: 3,
                           ),
                         ),
-                        const SizedBox(height: 15),
 
                         //structure
                         buildingCard(
@@ -1144,7 +1156,6 @@ class _OrderDialogState extends State<OrderDialog> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 15),
 
                     //box
                     Column(
@@ -1168,6 +1179,7 @@ class _OrderDialogState extends State<OrderDialog> {
                             ),
                           ],
                         ),
+
                         buildingCard(
                           title: "Làm Thùng",
                           children: [
@@ -1201,7 +1213,6 @@ class _OrderDialogState extends State<OrderDialog> {
                                 );
                               },
                             ),
-
                             const SizedBox(height: 16),
 
                             Row(
@@ -1285,5 +1296,46 @@ class _OrderDialogState extends State<OrderDialog> {
         );
       },
     );
+  }
+
+  Future<void> _handleOpenStructureBuilder() async {
+    final result = await showDialog<PaperStructureResult>(
+      barrierDismissible: false,
+      context: context,
+      builder:
+          (ctx) => PaperStructureHelper(
+            allPapers: allPapers,
+            initialData: {
+              "day": dayController.text,
+              "songE": songEController.text,
+              "matE": matEController.text,
+              "songB": songBController.text,
+              "matB": matBController.text,
+              "songC": songCController.text,
+              "matC": matCController.text,
+              "songE2": songE2Controller.text,
+              "matE2": matE2Controller.text,
+            },
+          ),
+    );
+
+    // Nếu người dùng bấm "Áp dụng vào đơn"
+    if (result != null) {
+      setState(() {
+        // 1. Hiển thị chuỗi gộp ra UI
+        structureController.text = result.formattedString;
+
+        // 2. Tự động đổ vào 10 controller con để submit() đọc bình thường
+        dayController.text = result.day ?? "";
+        songEController.text = result.songE ?? "";
+        matEController.text = result.matE ?? "";
+        songBController.text = result.songB ?? "";
+        matBController.text = result.matB ?? "";
+        songCController.text = result.songC ?? "";
+        matCController.text = result.matC ?? "";
+        songE2Controller.text = result.songE2 ?? "";
+        matE2Controller.text = result.matE2 ?? "";
+      });
+    }
   }
 }

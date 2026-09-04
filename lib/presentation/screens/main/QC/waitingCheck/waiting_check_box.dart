@@ -12,7 +12,7 @@ import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_box_data
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';

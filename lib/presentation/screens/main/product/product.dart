@@ -10,7 +10,7 @@ import 'package:dongtam/presentation/sources/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';

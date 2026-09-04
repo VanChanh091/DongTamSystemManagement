@@ -122,7 +122,6 @@ class _PaperTypeState extends State<PaperType> {
                           paperTypeId: null,
                           paperName: "",
                           paperCode: "",
-                          grade: 0,
                           isDraft: true,
                         );
 
@@ -173,7 +172,6 @@ class _PaperTypeState extends State<PaperType> {
                       Map<String, dynamic> toPayload(PaperTypeModel item) => {
                         "paperName": item.paperName,
                         "paperCode": item.paperCode,
-                        "grade": item.grade,
                       };
 
                       await Future.wait([
@@ -260,7 +258,6 @@ class _PaperTypeState extends State<PaperType> {
                       paperTypeId: e.paperTypeId,
                       paperName: e.paperName,
                       paperCode: e.paperCode,
-                      grade: e.grade,
                       supplierPapers: e.supplierPapers,
                       isDraft: false,
                     ),
@@ -306,7 +303,6 @@ class _PaperTypeState extends State<PaperType> {
               ),
               DataColumn(label: styleText("Tên Loại Giấy")),
               DataColumn(label: styleText("Mã Loại Giấy")),
-              DataColumn(label: styleText("Cấp Độ")),
             ],
             rows: List<DataRow>.generate(tableData.length, (index) {
               final paperType = tableData[index];
@@ -365,14 +361,6 @@ class _PaperTypeState extends State<PaperType> {
                       text: paperType.paperCode,
                       onChanged: (value) {
                         paperType.paperCode = value;
-                      },
-                    ),
-                  ),
-                  DataCell(
-                    styleCellAdmin(
-                      text: paperType.grade.toString(),
-                      onChanged: (value) {
-                        paperType.grade = int.tryParse(value) ?? 0;
                       },
                     ),
                   ),

@@ -5,6 +5,7 @@ class SupplierModel {
   String supplierName;
   String supplierCode;
   String transferCode;
+  int grade;
   bool? isActive;
 
   //association
@@ -17,6 +18,7 @@ class SupplierModel {
     required this.supplierName,
     required this.supplierCode,
     required this.transferCode,
+    required this.grade,
     this.isActive,
     this.supplierPapers,
 
@@ -29,6 +31,7 @@ class SupplierModel {
       supplierName: json["supplierName"] ?? "",
       supplierCode: json["supplierCode"] ?? "",
       transferCode: json["transferCode"] ?? "",
+      grade: json["grade"] ?? 0,
       isActive: json["isActive"] ?? false,
       supplierPapers:
           json["supplierPapers"] != null
@@ -44,6 +47,7 @@ class SupplierModel {
       "supplierName": supplierName,
       "supplierCode": supplierCode,
       "transferCode": transferCode,
+      "grade": grade,
     };
   }
 }

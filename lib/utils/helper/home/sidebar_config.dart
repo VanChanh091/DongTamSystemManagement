@@ -154,6 +154,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           label: "Đăng Ký Giao Hàng",
           pageType: DeliveryEstimateTime,
         ),
+        LeafMenuConfig(
+          icon: Symbols.account_balance_wallet,
+          label: "Công Nợ Khách Hàng",
+          pageType: DebtCustomerSummary,
+        ),
       ],
     ),
 
@@ -338,6 +343,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               pageType: AdminVehicle,
             ),
             LeafMenuConfig(icon: Icons.people, label: "Người Dùng", pageType: AdminMangeUser),
+            LeafMenuConfig(
+              icon: Symbols.account_balance_wallet,
+              label: "Công Nợ Khách Hàng",
+              pageType: DebtCustomerSummary,
+            ),
           ],
         ),
         GroupMenuConfig(
@@ -357,7 +367,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           ],
         ),
         GroupMenuConfig(
-          icon: Icons.admin_panel_settings,
+          icon: Icons.rule_folder,
           label: "Tiêu Chí Kiểm Tra",
           items: [
             LeafMenuConfig(icon: Icons.rule, label: "Kiểm Tra Thành Phẩm", pageType: AdminCriteria),

@@ -7,7 +7,7 @@ import 'package:dongtam/presentation/components/shared/animation/animated_button
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/sources/warehouse/report_inbound_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';

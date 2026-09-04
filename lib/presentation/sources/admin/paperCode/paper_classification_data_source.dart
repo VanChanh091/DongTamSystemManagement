@@ -35,7 +35,7 @@ class PaperClassificationDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "supplierName", value: supplier?.supplierName ?? ""),
       DataGridCell<String>(columnName: "supplierCode", value: supplier?.supplierCode ?? ""),
       DataGridCell<String>(columnName: "companyCode", value: supplierPaper?.companyCode ?? ""),
-      DataGridCell<int>(columnName: "grade", value: paperType?.grade ?? 0),
+      DataGridCell<int>(columnName: "grade", value: supplier?.grade ?? 0),
       DataGridCell<int>(columnName: "basisWeight", value: basisWeight?.basisWeight ?? 0),
 
       DataGridCell<double>(columnName: "burstRatio", value: classification.burstRatio ?? 0),

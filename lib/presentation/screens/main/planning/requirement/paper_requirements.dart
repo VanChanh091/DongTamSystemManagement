@@ -10,7 +10,7 @@ import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/planning/requirements/layer_requirement_data_source.dart";
 import "package:dongtam/presentation/sources/planning/requirements/paper_requirement_data_source.dart";
 import "package:dongtam/service/planning_service.dart";
-import "package:dongtam/utils/helper/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";

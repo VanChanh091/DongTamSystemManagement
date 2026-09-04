@@ -8,7 +8,7 @@ import 'package:dongtam/presentation/components/shared/pagination_controls.dart'
 import 'package:dongtam/presentation/sources/admin/paperCode/paper_classification_data_source.dart';
 import 'package:dongtam/service/admin/admin_paper_code_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';

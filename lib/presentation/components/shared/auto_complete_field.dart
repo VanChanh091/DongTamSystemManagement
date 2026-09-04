@@ -40,19 +40,22 @@ class AutoCompleteField<T> extends StatefulWidget {
 class _AutoCompleteFieldState<T> extends State<AutoCompleteField<T>> {
   late TextEditingController _internalController;
 
+  void _handleControllerChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _internalController = widget.controller;
-
-    _internalController.addListener(() {
-      setState(() {}); // Cập nhật lại màu khi text thay đổi
-    });
+    _internalController.addListener(_handleControllerChange);
   }
 
   @override
   void dispose() {
-    _internalController.removeListener(() {});
+    _internalController.removeListener(_handleControllerChange);
     super.dispose();
   }
 

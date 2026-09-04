@@ -15,7 +15,7 @@ import 'package:dongtam/presentation/sources/warehouse/outbound/ob_history_data_
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';

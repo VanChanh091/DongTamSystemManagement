@@ -5,21 +5,27 @@ class InitSocketDeliverySchedule {
   final BuildContext context;
   final SocketService socketService;
   final Function() onLoadData;
-  final DateTime deliveryDate;
+  DateTime currentDate;
 
   // Khai báo hằng số cho tên room và event
-  static const String roomName = 'delivery-schedule';
+  // static const String roomName = 'delivery-schedule';
   static const String eventName = 'delivery-schedule-event';
 
   InitSocketDeliverySchedule({
     required this.context,
     required this.socketService,
     required this.onLoadData,
-    required this.deliveryDate,
+    required this.currentDate,
   });
 
+  // Helper tạo đúng tên room theo quy chuẩn của SocketService
+  String _formatRoom(DateTime date) {
+    final dateStr = date.toIso8601String().split('T').first;
+    return 'delivery-$dateStr';
+  }
+
   Future<void> registerSocket() async {
-    socketService.joinDeliveryScheduleRoom(deliveryDate);
+    socketService.joinDeliveryScheduleRoom(currentDate);
 
     socketService.off(eventName);
     socketService.on(eventName, (data) => _handleNotification(data));
@@ -27,10 +33,11 @@ class InitSocketDeliverySchedule {
 
   Future<void> changeDeliveryDate(DateTime newDate) async {
     // rời room cũ
-    await socketService.leaveRoom(roomName);
+    await socketService.leaveRoom(_formatRoom(currentDate));
 
     // gỡ listener cũ
     socketService.off(eventName);
+    currentDate = newDate;
 
     // join room mới và đăng ký listener
     await socketService.joinDeliveryScheduleRoom(newDate);
@@ -100,7 +107,7 @@ class InitSocketDeliverySchedule {
   }
 
   void stop() {
-    socketService.leaveRoom(roomName);
+    socketService.leaveRoom(_formatRoom(currentDate));
     socketService.off(eventName);
   }
 }

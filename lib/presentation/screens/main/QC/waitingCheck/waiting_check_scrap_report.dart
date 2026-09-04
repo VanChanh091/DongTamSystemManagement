@@ -12,7 +12,7 @@ import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/service/scrap_report_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
