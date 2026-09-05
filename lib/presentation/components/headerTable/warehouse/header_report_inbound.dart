@@ -11,6 +11,7 @@ final List<Map<String, dynamic>> _reportInboundColumns = [
   {"key": "companyName", "title": "Tên Công Ty"},
   {"key": "typeProduct", "title": "Loại Sản Phẩm"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "QcBox", "title": "QC Thùng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},

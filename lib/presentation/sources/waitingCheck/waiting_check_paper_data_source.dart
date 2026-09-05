@@ -1,10 +1,10 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingCheckPaperDataSource extends DataGridSource {
   List<PlanningPaperModel> planning = [];
@@ -12,7 +12,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
   bool showGroup;
 
   late List<DataGridRow> planningDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   bool hasSortedInitially = false;
@@ -25,7 +25,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
     buildDataGridRows();
 
     if (showGroup) {
-      addColumnGroup(ColumnGroup(name: 'dayStartProduction', sortGroupRows: false));
+      addColumnGroup(ColumnGroup(name: "dayStartProduction", sortGroupRows: false));
     }
   }
 
@@ -34,39 +34,40 @@ class WaitingCheckPaperDataSource extends DataGridSource {
     final order = planning.order;
 
     return [
-      DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
-      DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ''),
+      DataGridCell<String>(columnName: "orderId", value: planning.orderId),
+      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
 
-      DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
-      DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ''),
-      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
+      DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
+      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: "khoCapGiay", value: "${planning.ghepKho} cm"),
 
       DataGridCell<String>(
-        columnName: 'size',
-        value: planning.sizePaperPLaning > 0 ? '${planning.sizePaperPLaning} cm' : '0',
+        columnName: "size",
+        value: planning.sizePaperPLaning > 0 ? "${planning.sizePaperPLaning} cm" : "0",
       ),
       DataGridCell<String>(
-        columnName: 'length',
-        value: planning.lengthPaperPlanning > 0 ? '${planning.lengthPaperPlanning} cm' : "0",
+        columnName: "length",
+        value: planning.lengthPaperPlanning > 0 ? "${planning.lengthPaperPlanning} cm" : "0",
       ),
 
-      DataGridCell<String>(columnName: 'canLan', value: order?.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: order?.daoXa ?? ''),
-      DataGridCell<int>(columnName: 'child', value: planning.numberChild),
-      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ''),
-      DataGridCell<bool>(columnName: 'chongTham', value: order!.chongTham),
-      DataGridCell<bool>(columnName: 'haveMadeBox', value: order.isBox),
+      DataGridCell<String>(columnName: "canLan", value: order?.canLan ?? ""),
+      DataGridCell<String>(columnName: "daoXa", value: order?.daoXa ?? ""),
+      DataGridCell<int>(columnName: "child", value: planning.numberChild),
+      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ""),
+      DataGridCell<bool>(columnName: "chongTham", value: order!.chongTham),
+      DataGridCell<bool>(columnName: "haveMadeBox", value: order.isBox),
 
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
 
       DataGridCell<String>(
-        columnName: 'timeRunningProd',
+        columnName: "timeRunningProd",
         value:
             planning.timeRunning != null
                 ? PlanningPaperModel.formatTimeOfDay(timeOfDay: planning.timeRunning!)
-                : '',
+                : "",
       ),
 
       DataGridCell<String?>(columnName: "shiftProduct", value: planning.shiftProduction ?? ""),
@@ -81,8 +82,8 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       // hidden technical fields
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
-      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
-      DataGridCell<String>(columnName: 'statusCheck', value: planning.statusCheck),
+      DataGridCell<int>(columnName: "planningId", value: planning.planningId),
+      DataGridCell<String>(columnName: "statusCheck", value: planning.statusCheck),
     ];
   }
 
@@ -91,18 +92,18 @@ class WaitingCheckPaperDataSource extends DataGridSource {
 
   int extractFlute(String loaiSong) {
     //5BC => 5
-    final match = RegExp(r'^\d+').firstMatch(loaiSong);
+    final match = RegExp(r"^\d+").firstMatch(loaiSong);
     return match != null ? int.parse(match.group(0)!) : 0;
   }
 
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ["chongTham", "haveMadeBox"];
+    const boolColumns = ["chongTham", "haveMadeBox", "isFSC"];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
     if (dataCell.columnName == "statusRequest") {
@@ -119,7 +120,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       }
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   void buildDataGridRows() {
@@ -136,16 +137,16 @@ class WaitingCheckPaperDataSource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
+    String displayDate = "";
+    String itemCount = "";
 
     if (match != null) {
-      displayDate = match.group(1) ?? '';
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      displayDate = match.group(1) ?? "";
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
     }
 
     return Container(
@@ -155,8 +156,8 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate – $itemCount'
-            : '📅 Ngày sản xuất: Không xác định',
+            ? "📅 Ngày sản xuất: $displayDate – $itemCount"
+            : "📅 Ngày sản xuất: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -165,7 +166,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final planningId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value.toString();
+        row.getCells().firstWhere((cell) => cell.columnName == "planningId").value.toString();
 
     final isSelected = selectedPlanningIds.contains(planningId);
 
@@ -185,7 +186,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
+            } else if (cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;

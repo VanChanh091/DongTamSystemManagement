@@ -149,6 +149,8 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
   };
 
   // Sinh slot theo loại sóng và số lớp
+  // Lớp chẵn (2,4,6): không có Đáy, bắt đầu từ Sóng/Mặt
+  // Lớp lẻ (3,5,7): bắt đầu từ Đáy
   List<Map<String, dynamic>> _generateSlots(String wave, int layers) {
     const waveFlutes = {
       "E": ["E"],
@@ -164,15 +166,18 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
     };
 
     final flutes = waveFlutes[wave] ?? [wave];
-    final slots = <Map<String, dynamic>>[
-      {"name": "Đáy", "isFlute": false, "prefix": "", "field": "day"},
-    ];
+    final hasDay = layers.isOdd; // Lớp lẻ mới có Đáy
+    final slots = <Map<String, dynamic>>[];
+
+    if (hasDay) {
+      slots.add({"name": "Đáy", "isFlute": false, "prefix": "", "field": "day"});
+    }
 
     for (final f in flutes) {
       // 1. Lớp Sóng
       slots.add({"name": "Sóng $f", "isFlute": true, "prefix": f, "field": "song$f"});
 
-      // 2. Lớp Mặt tương ứng (nếu chưa đủ số lớp)
+      // 2. Lớp Mặt tương ứng
       if (slots.length < layers) {
         slots.add({"name": "Mặt $f", "isFlute": false, "prefix": "", "field": "mat$f"});
       }
@@ -295,8 +300,8 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                                     currentWave = wave;
                                     currentLayerCount = waveConfigs[wave]!["defaultLayer"] as int;
 
-                                    // CHỈ XÓA CÁC TẦNG TRÊN, GIỮ NGUYÊN ĐÁY
-                                    chosenSlots.removeWhere((slotIndex, _) => slotIndex != 0);
+                                    // Xóa hết dữ liệu giấy đã chọn khi đổi sóng
+                                    chosenSlots.clear();
                                   });
                                 },
                               );

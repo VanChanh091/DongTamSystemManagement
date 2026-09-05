@@ -404,7 +404,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
                       isScrollbarAlwaysShown: true,
                       columnWidthMode: ColumnWidthMode.auto,
                       selectionMode: SelectionMode.multiple,
-                      headerRowHeight: 35,
+                      headerRowHeight: 38,
                       rowHeight: 40,
                       columns: ColumnWidthTable.applySavedWidths(
                         columns: columnsRequirements,

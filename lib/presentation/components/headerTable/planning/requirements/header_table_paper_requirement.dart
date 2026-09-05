@@ -9,6 +9,7 @@ final List<Map<String, dynamic>> _paperRequirementColumns = [
   {"key": "dateRequestShipping", "title": "Ngày Dự Kiến"},
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "flute", "title": "Sóng"},
   {"key": "ghepKho", "title": "Khổ Cấp Giấy"},
   {"key": "sizePaper", "title": "Khổ (cm)"},

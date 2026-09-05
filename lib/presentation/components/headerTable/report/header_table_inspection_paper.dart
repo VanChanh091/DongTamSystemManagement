@@ -10,6 +10,7 @@ final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "isFSC", "title": "Đơn FSC"},
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},

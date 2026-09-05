@@ -13,6 +13,7 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "customerName", "title": "Tên Khách Hàng"},
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "QC_box", "title": "QC Thùng"},
 
   {"key": "size", "title": "Khổ (cm)"},

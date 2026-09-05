@@ -13,6 +13,7 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "daoXa", "title": "Dao Xả"},
 
   {"key": "size", "title": "Khổ (cm)"},

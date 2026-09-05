@@ -124,6 +124,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   //box
   ValueNotifier<bool> isBoxChecked = ValueNotifier<bool>(false);
+  ValueNotifier<bool> isFSCChecked = ValueNotifier<bool>(false);
   ValueNotifier<bool> chongThamPaperChecked = ValueNotifier<bool>(false);
 
   final inMatTruocController = TextEditingController();
@@ -237,8 +238,9 @@ class _OrderDialogState extends State<OrderDialog> {
     // 2. Cập nhật Box Fields (Chỉ cập nhật .value, không khởi tạo lại Notifier)
     chongThamPaperChecked.value = selectedOrder.chongTham;
     isBoxChecked.value = selectedOrder.isBox;
-    final box = selectedOrder.box;
+    isFSCChecked.value = selectedOrder.isFSC;
 
+    final box = selectedOrder.box;
     inMatTruocController.text = box?.inMatTruoc?.toString() ?? "";
     inMatSauController.text = box?.inMatSau?.toString() ?? "";
     dongGoiController.text = box?.dongGoi ?? "";
@@ -305,6 +307,14 @@ class _OrderDialogState extends State<OrderDialog> {
       switch (productType) {
         case "Phí Khác":
           typeDVT = "Lần";
+          // Auto-fill: length & size = 0, numberChild & quantity = 1
+          lengthCustomerController.text = "0";
+          lengthManufactureController.text = "0";
+          sizeCustomerController.text = "0";
+          sizeManufactureController.text = "0";
+          numberChildController.text = "1";
+          quantityCustomerController.text = "1";
+          quantityManufactureController.text = "1";
           break;
         case "Thùng/hộp":
           typeDVT = "Cái";
@@ -395,6 +405,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
         chongTham: chongThamPaperChecked.value,
         isBox: isBoxChecked.value,
+        isFSC: isFSCChecked.value,
         box: newBox,
         status: "pending",
       );
@@ -574,6 +585,7 @@ class _OrderDialogState extends State<OrderDialog> {
     dongGhim1ManhChecked.dispose();
     dongGhim2ManhChecked.dispose();
     isBoxChecked.dispose();
+    isFSCChecked.dispose();
     chongThamPaperChecked.dispose();
 
     super.dispose();
@@ -1116,11 +1128,24 @@ class _OrderDialogState extends State<OrderDialog> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "📜 CÔNG ĐOẠN 1",
-                          style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "📜 CÔNG ĐOẠN 1",
+                              style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
+                            ),
+                            SizedBox(
+                              width: 150,
+                              child: ValidationHelper.checkboxForBox(
+                                label: "Đơn FSC?",
+                                notifier: isFSCChecked,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 10),
 
                         //base info
                         buildingCard(
@@ -1161,24 +1186,24 @@ class _OrderDialogState extends State<OrderDialog> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Stack(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
                               "📦 CÔNG ĐOẠN 2",
                               style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 20),
                             ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: SizedBox(
-                                width: 150,
-                                child: ValidationHelper.checkboxForBox(
-                                  label: "Làm thùng?",
-                                  notifier: isBoxChecked,
-                                ),
+                            SizedBox(
+                              width: 150,
+                              child: ValidationHelper.checkboxForBox(
+                                label: "Làm thùng?",
+                                notifier: isBoxChecked,
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(height: 10),
 
                         buildingCard(
                           title: "Làm Thùng",

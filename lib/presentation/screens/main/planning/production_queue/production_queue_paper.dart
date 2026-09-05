@@ -861,7 +861,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                 headerRowHeight: 35,
                 rowHeight: 40,
                 columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                frozenColumnsCount: 8,
+                frozenColumnsCount: 7,
                 stackedHeaderRows: <StackedHeaderRow>[
                   StackedHeaderRow(
                     cells: [

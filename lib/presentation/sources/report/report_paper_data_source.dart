@@ -1,11 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/report/report_paper_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/report/report_paper_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportPaperDatasource extends DataGridSource {
   List<ReportPaperModel> reportPapers = [];
@@ -16,7 +16,7 @@ class ReportPaperDatasource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayReported = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   ReportPaperDatasource({
@@ -27,7 +27,7 @@ class ReportPaperDatasource extends DataGridSource {
     required this.pageSize,
   }) {
     buildDataGridRows();
-    addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: "dateTimeRp", sortGroupRows: false));
   }
 
   List<DataGridCell> buildReportInfoCells(ReportPaperModel reportPaper, int index) {
@@ -35,9 +35,9 @@ class ReportPaperDatasource extends DataGridSource {
     final planningPaper = reportPaper.planningPaper;
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
-      DataGridCell<String>(columnName: 'orderId', value: orderCell!.orderId),
-      DataGridCell<String>(columnName: 'customerName', value: orderCell.customer?.customerName),
+      DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
+      DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
 
       DataGridCell<String>(
         columnName: "dayStartProduction",
@@ -48,30 +48,31 @@ class ReportPaperDatasource extends DataGridSource {
         value: formatterDayReported.format(reportPaper.dayReport),
       ),
 
-      DataGridCell<String>(columnName: 'structure', value: planningPaper.formatterStructureOrder),
-      DataGridCell<String>(columnName: 'flute', value: orderCell.flute ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: orderCell.daoXa),
+      DataGridCell<String>(columnName: "structure", value: planningPaper.formatterStructureOrder),
+      DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: orderCell.isFSC),
+      DataGridCell<String>(columnName: "daoXa", value: orderCell.daoXa),
 
-      DataGridCell<String>(columnName: 'size', value: '${planningPaper.sizePaperPLaning}'),
+      DataGridCell<String>(columnName: "size", value: "${planningPaper.sizePaperPLaning}"),
       DataGridCell<String>(
-        columnName: 'length',
-        value: planningPaper.lengthPaperPlanning > 0 ? '${planningPaper.lengthPaperPlanning}' : "0",
+        columnName: "length",
+        value: planningPaper.lengthPaperPlanning > 0 ? "${planningPaper.lengthPaperPlanning}" : "0",
       ),
-      DataGridCell<int>(columnName: 'numberChild', value: planningPaper.numberChild),
-      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planningPaper.ghepKho} cm'),
+      DataGridCell<int>(columnName: "numberChild", value: planningPaper.numberChild),
+      DataGridCell<String>(columnName: "khoCapGiay", value: "${planningPaper.ghepKho} cm"),
 
       DataGridCell<int>(columnName: "runningPlanProd", value: planningPaper.runningPlan),
       DataGridCell<int>(columnName: "qtyReported", value: reportPaper.qtyProduced),
       DataGridCell<int>(columnName: "lackOfQty", value: reportPaper.lackOfQty),
 
       DataGridCell<String>(
-        columnName: 'timeRunningProd',
+        columnName: "timeRunningProd",
         value: PlanningPaperModel.formatTimeOfDay(timeOfDay: planningPaper.timeRunning!),
       ),
       DataGridCell<double>(columnName: "averageSpeed", value: reportPaper.averageSpeed),
       DataGridCell<String>(columnName: "dvt", value: orderCell.dvt),
 
-      DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ''),
+      DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ""),
 
       ...buildWasteNormCell(reportPaper),
     ];
@@ -85,22 +86,22 @@ class ReportPaperDatasource extends DataGridSource {
     }
 
     return [
-      buildWasteNormCell('bottom', planningPaper.bottom ?? 0),
-      buildWasteNormCell('fluteE', planningPaper.fluteE ?? 0),
-      buildWasteNormCell('fluteB', planningPaper.fluteB ?? 0),
-      buildWasteNormCell('fluteC', planningPaper.fluteC ?? 0),
-      buildWasteNormCell('knife', planningPaper.knife ?? 0),
-      buildWasteNormCell('totalLoss', planningPaper.totalLoss ?? 0),
-      buildWasteNormCell('qtyWasteRp', reportPaper.qtyWasteNorm),
+      buildWasteNormCell("bottom", planningPaper.bottom ?? 0),
+      buildWasteNormCell("fluteE", planningPaper.fluteE ?? 0),
+      buildWasteNormCell("fluteB", planningPaper.fluteB ?? 0),
+      buildWasteNormCell("fluteC", planningPaper.fluteC ?? 0),
+      buildWasteNormCell("knife", planningPaper.knife ?? 0),
+      buildWasteNormCell("totalLoss", planningPaper.totalLoss ?? 0),
+      buildWasteNormCell("qtyWasteRp", reportPaper.qtyWasteNorm),
 
-      DataGridCell<String>(columnName: 'shiftProduct', value: reportPaper.shiftProduction),
-      DataGridCell<String>(columnName: 'shiftManager', value: reportPaper.shiftManagement),
-      DataGridCell<String>(columnName: 'reportedBy', value: reportPaper.reportedBy),
+      DataGridCell<String>(columnName: "shiftProduct", value: reportPaper.shiftProduction),
+      DataGridCell<String>(columnName: "shiftManager", value: reportPaper.shiftManagement),
+      DataGridCell<String>(columnName: "reportedBy", value: reportPaper.reportedBy),
 
-      DataGridCell<bool>(columnName: 'hasMadeBox', value: reportPaper.planningPaper!.hasBox),
+      DataGridCell<bool>(columnName: "hasMadeBox", value: reportPaper.planningPaper!.hasBox),
 
       //hidden fields
-      DataGridCell<int>(columnName: 'reportPaperId', value: reportPaper.reportPaperId),
+      DataGridCell<int>(columnName: "reportPaperId", value: reportPaper.reportPaperId),
       DataGridCell<String?>(
         columnName: "dateTimeRp",
         value: formatter.format(reportPaper.dayReport),
@@ -111,14 +112,14 @@ class ReportPaperDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ['hasMadeBox'];
+    const boolColumns = ["hasMadeBox", "isFSC"];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   @override
@@ -140,37 +141,37 @@ class ReportPaperDatasource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
-    String performanceText = '';
+    String displayDate = "";
+    String itemCount = "";
+    String performanceText = "";
 
     if (match != null) {
-      final fullDate = match.group(1) ?? '';
-      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      final fullDate = match.group(1) ?? "";
+      displayDate = fullDate.split(" ").first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
     }
 
     try {
       if (displayDate.isNotEmpty && summaryByDate.isNotEmpty) {
         // Chuyển đổi từ dd/MM/yyyy sang yyyy-MM-dd để làm Key tra cứu
         final parsedDate = formatter.parse(displayDate);
-        final lookupKey = DateFormat('yyyy-MM-dd').format(parsedDate); // Kết quả: "2026-06-13"
+        final lookupKey = DateFormat("yyyy-MM-dd").format(parsedDate); // Kết quả: "2026-06-13"
 
         // Tra cứu dữ liệu ngày đó trong Map summaryByDate
         final dayPerf = summaryByDate[lookupKey];
 
         if (dayPerf != null) {
           // Lấy tốc độ cả máy
-          final machineSpeed = dayPerf['machineSpeed'] ?? 0;
+          final machineSpeed = dayPerf["machineSpeed"] ?? 0;
 
           // Lấy tốc độ theo từng loại sóng
-          final fluteData = Map<String, dynamic>.from(dayPerf['flute'] ?? {});
+          final fluteData = Map<String, dynamic>.from(dayPerf["flute"] ?? {});
 
-          String waveSpeedsText = '';
+          String waveSpeedsText = "";
 
           if (fluteData.isNotEmpty) {
             //Sắp xếp các loại sóng theo thứ tự số tăng dần
@@ -181,19 +182,19 @@ class ReportPaperDatasource extends DataGridSource {
             final waveParts =
                 sortedKeys.map((key) {
                   final speed = fluteData[key] ?? 0;
-                  return '$key Lớp: ${speed.toStringAsFixed(2)}';
+                  return "$key Lớp: ${speed.toStringAsFixed(2)}";
                 }).toList();
 
-            waveSpeedsText = ' (${waveParts.join(' – ')}) (m/p)';
+            waveSpeedsText = " (${waveParts.join(" – ")}) (m/p)";
           }
 
           // Tạo chuỗi text hiển thị
-          performanceText = '  |  ⚙️ Tốc độ máy: ${machineSpeed.toStringAsFixed(2)}$waveSpeedsText';
+          performanceText = "  |  ⚙️ Tốc độ máy: ${machineSpeed.toStringAsFixed(2)}$waveSpeedsText";
         }
       }
     } catch (e) {
       // Đề phòng trường hợp parse ngày lỗi thì grid không bị vỡ giao diện
-      performanceText = '';
+      performanceText = "";
     }
 
     return Container(
@@ -203,8 +204,8 @@ class ReportPaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate – $itemCount$performanceText'
-            : '📅 Ngày báo cáo: Không xác định',
+            ? "📅 Ngày báo cáo: $displayDate – $itemCount$performanceText"
+            : "📅 Ngày báo cáo: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -213,7 +214,7 @@ class ReportPaperDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'reportPaperId').value;
+        row.getCells().firstWhere((cell) => cell.columnName == "reportPaperId").value;
     final isSelected = selectedReportId == reportPaperId;
 
     Color backgroundColor;
@@ -232,14 +233,14 @@ class ReportPaperDatasource extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
+            } else if (cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }
 
             Color cellColor = Colors.transparent;
-            if (dataCell.columnName == 'qtyReported') {
+            if (dataCell.columnName == "qtyReported") {
               final qty = dataCell.value;
               if (qty > 0) {
                 cellColor = Colors.amberAccent.withValues(alpha: 0.3);

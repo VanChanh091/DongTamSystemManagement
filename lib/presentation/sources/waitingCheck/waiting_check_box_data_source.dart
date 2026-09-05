@@ -21,30 +21,29 @@ class WaitingCheckBoxDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildPlanningCells(PlanningBoxModel planning) {
+    final order = planning.order;
+    final customer = order?.customer;
+
     return [
       //14 items
       DataGridCell<String>(columnName: "orderId", value: planning.orderId),
-      DataGridCell<String>(
-        columnName: "customerName",
-        value: planning.order?.customer?.customerName ?? "",
-      ),
+      DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(
         columnName: "dateShipping",
         value:
-            planning.order?.dateRequestShipping != null
-                ? formatter.format(planning.order!.dateRequestShipping!)
-                : '',
+            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : '',
       ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
-      DataGridCell<String>(columnName: "flute", value: planning.order?.flute ?? ""),
-      DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
+      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: "QC_box", value: order?.QC_box ?? ""),
       DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
       DataGridCell<String>(
         columnName: "length",
         value: planning.length > 0 ? '${planning.length} cm' : "0",
       ),
-      DataGridCell<int>(columnName: 'child', value: planning.order?.numberChild ?? 0),
-      DataGridCell<int>(columnName: "quantityOrd", value: planning.order?.quantityCustomer ?? 0),
+      DataGridCell<int>(columnName: 'child', value: order?.numberChild ?? 0),
+      DataGridCell<int>(columnName: "quantityOrd", value: order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
       DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
 
@@ -59,19 +58,15 @@ class WaitingCheckBoxDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildChildBoxCells(PlanningBoxModel planning) {
+    final box = planning.order?.box;
+
     return [
-      DataGridCell<int>(columnName: "inMatTruoc", value: planning.order!.box!.inMatTruoc ?? 0),
-      DataGridCell<int>(columnName: "inMatSau", value: planning.order!.box!.inMatSau ?? 0),
-      DataGridCell<bool>(columnName: "dan_1_Manh", value: planning.order!.box!.dan_1_Manh ?? false),
-      DataGridCell<bool>(columnName: "dan_2_Manh", value: planning.order!.box!.dan_2_Manh ?? false),
-      DataGridCell<bool>(
-        columnName: "dongGhim1Manh",
-        value: planning.order!.box!.dongGhim1Manh ?? false,
-      ),
-      DataGridCell<bool>(
-        columnName: "dongGhim2Manh",
-        value: planning.order!.box!.dongGhim2Manh ?? false,
-      ),
+      DataGridCell<int>(columnName: "inMatTruoc", value: box?.inMatTruoc ?? 0),
+      DataGridCell<int>(columnName: "inMatSau", value: box?.inMatSau ?? 0),
+      DataGridCell<bool>(columnName: "dan_1_Manh", value: box?.dan_1_Manh ?? false),
+      DataGridCell<bool>(columnName: "dan_2_Manh", value: box?.dan_2_Manh ?? false),
+      DataGridCell<bool>(columnName: "dongGhim1Manh", value: box?.dongGhim1Manh ?? false),
+      DataGridCell<bool>(columnName: "dongGhim2Manh", value: box?.dongGhim2Manh ?? false),
     ];
   }
 

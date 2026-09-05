@@ -38,6 +38,7 @@ class ObDetailDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "orderId", value: detail.orderId),
       DataGridCell<String>(columnName: "typeProduct", value: order!.product!.typeProduct),
       DataGridCell<String>(columnName: "productName", value: order.product!.productName),
+      DataGridCell<bool>(columnName: "isFSC", value: order.isFSC),
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(
         columnName: "flute",
@@ -80,11 +81,26 @@ class ObDetailDataSource extends DataGridSource {
         }).toList();
   }
 
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = ["isFSC"];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return "";
+      return value == true ? "✅" : "";
+    }
+
+    return value?.toString() ?? "";
+  }
+
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -92,7 +108,7 @@ class ObDetailDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }

@@ -41,6 +41,7 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+      DataGridCell<bool>(columnName: 'isFSC', value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "structure", value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
@@ -155,6 +156,12 @@ class InspectionPaperDataSource extends DataGridSource {
       return value == true ? "" : "❌";
     }
 
+    const checkColumns = ["isFSC"];
+    if (checkColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
     return value?.toString() ?? "";
   }
 
@@ -210,7 +217,7 @@ class InspectionPaperDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }

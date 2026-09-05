@@ -52,6 +52,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
 
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
+      DataGridCell<bool>(columnName: "isFSC", value: order.isFSC),
 
       DataGridCell<String>(columnName: "sizeProd", value: '${order.paperSizeManufacture} cm'),
       DataGridCell<String>(columnName: "lengthProd", value: '${order.lengthPaperManufacture} cm'),
@@ -96,6 +97,40 @@ class DeliveryScheduleDataSource extends DataGridSource {
             return DataGridRow(cells: buildDbPaperCells(plan, item));
           });
         }).toList();
+  }
+
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = ["isFSC"];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    if (dataCell.columnName == "statusRequest") {
+      switch (value) {
+        case "none":
+          return "";
+        case "planned":
+          return "Chờ";
+        case "requested":
+          return "Đã Yêu Cầu";
+        case "prepared":
+          return "Đã Chuẩn Bị Hàng";
+        case "outbound":
+          return "Đã Xuất Kho";
+        case "cancelled":
+          return "Hủy Giao";
+        case "completed":
+          return "Hoàn Thành";
+        default:
+          return value?.toString() ?? "";
+      }
+    }
+
+    return value?.toString() ?? '';
   }
 
   @override
@@ -167,36 +202,11 @@ class DeliveryScheduleDataSource extends DataGridSource {
       rowColor = Colors.transparent;
     }
 
-    String getStatusVi(String status) {
-      switch (status) {
-        case "none":
-          return "";
-        case "planned":
-          return "Chờ";
-        case "requested":
-          return "Đã Yêu Cầu";
-        case "prepared":
-          return "Đã Chuẩn Bị Hàng";
-        case "outbound":
-          return "Đã Xuất Kho";
-        case "cancelled":
-          return "Hủy Giao";
-        case "completed":
-          return "Hoàn Thành";
-        default:
-          return status;
-      }
-    }
-
     return DataGridRowAdapter(
       color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            String displayValue = dataCell.value?.toString() ?? "";
-
-            if (dataCell.columnName == 'status') {
-              displayValue = getStatusVi(displayValue);
-            }
+            final cellText = _formatCellValueBool(dataCell);
 
             Alignment alignment;
             if (dataCell.value is num) {
@@ -205,7 +215,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }

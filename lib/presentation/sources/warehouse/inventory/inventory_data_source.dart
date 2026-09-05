@@ -1,9 +1,9 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/inventory_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class InventoryDataSource extends DataGridSource {
   List<InventoryModel> inventory = [];
@@ -12,7 +12,7 @@ class InventoryDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> inventoryDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   InventoryDataSource({
     required this.inventory,
@@ -32,47 +32,48 @@ class InventoryDataSource extends DataGridSource {
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: (value) > 0 ? '${OrderModel.formatCurrency(value)} cm' : "0",
+        value: (value) > 0 ? "${OrderModel.formatCurrency(value)} cm" : "0",
       );
     }
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
 
-      DataGridCell<String>(columnName: 'orderId', value: inventory.orderId),
-      DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ""),
-      DataGridCell<String>(columnName: 'typeProduct', value: order?.product?.typeProduct ?? ""),
-      DataGridCell<String>(columnName: 'productName', value: order?.product?.productName ?? ""),
+      DataGridCell<String>(columnName: "orderId", value: inventory.orderId),
+      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "typeProduct", value: order?.product?.typeProduct ?? ""),
+      DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
-      DataGridCell<String>(columnName: 'QcBox', value: order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
-      DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
+      DataGridCell<String>(columnName: "QcBox", value: order?.QC_box ?? ""),
+      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: "structure", value: order?.formatterStructureOrder ?? ""),
 
-      buildCurrencyCell('size', order?.paperSizeManufacture ?? 0),
-      buildCurrencyCell('length', order?.lengthPaperManufacture ?? 0),
+      buildCurrencyCell("size", order?.paperSizeManufacture ?? 0),
+      buildCurrencyCell("length", order?.lengthPaperManufacture ?? 0),
 
-      DataGridCell<int>(columnName: 'totalQtyInbound', value: inventory.totalQtyInbound),
-      DataGridCell<int>(columnName: 'totalQtyOutbound', value: inventory.totalQtyOutbound),
-      DataGridCell<int>(columnName: 'qtyTransfer', value: inventory.getTotalQtyTransfer),
-      DataGridCell<int>(columnName: 'qtyInventory', value: inventory.qtyInventory),
+      DataGridCell<int>(columnName: "totalQtyInbound", value: inventory.totalQtyInbound),
+      DataGridCell<int>(columnName: "totalQtyOutbound", value: inventory.totalQtyOutbound),
+      DataGridCell<int>(columnName: "qtyTransfer", value: inventory.getTotalQtyTransfer),
+      DataGridCell<int>(columnName: "qtyInventory", value: inventory.qtyInventory),
 
-      DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
+      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
       DataGridCell<String>(
-        columnName: 'price',
-        value: '${OrderModel.formatCurrency(order?.pricePaper ?? 0)} VNĐ',
+        columnName: "price",
+        value: "${OrderModel.formatCurrency(order?.pricePaper ?? 0)} VNĐ",
       ),
       DataGridCell<String>(
-        columnName: 'valueInventory',
+        columnName: "valueInventory",
         value:
             inventory.valueInventory == 0
                 ? "0"
-                : '${OrderModel.formatCurrency(inventory.valueInventory)} VNĐ',
+                : "${OrderModel.formatCurrency(inventory.valueInventory)} VNĐ",
       ),
 
-      DataGridCell<String>(columnName: 'fullName', value: order?.user?.fullName ?? ""),
+      DataGridCell<String>(columnName: "fullName", value: order?.user?.fullName ?? ""),
 
       //hidden
-      DataGridCell<int>(columnName: 'inventoryId', value: inventory.inventoryId),
+      DataGridCell<int>(columnName: "inventoryId", value: inventory.inventoryId),
     ];
   }
 
@@ -92,9 +93,22 @@ class InventoryDataSource extends DataGridSource {
     notifyListeners();
   }
 
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = ["isFSC"];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return "";
+      return value == true ? "✅" : "";
+    }
+
+    return value?.toString() ?? "";
+  }
+
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final inventoryId = row.getCells().firstWhere((cell) => cell.columnName == 'inventoryId').value;
+    final inventoryId = row.getCells().firstWhere((cell) => cell.columnName == "inventoryId").value;
     final isSelected = selectedInventoryId?.contains(inventoryId);
 
     Color backgroundColor;
@@ -108,6 +122,8 @@ class InventoryDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -115,7 +131,7 @@ class InventoryDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }

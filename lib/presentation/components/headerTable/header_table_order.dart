@@ -18,6 +18,7 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "CTPaper", "title": "Chống Thấm"},
   {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "daoXaOrd", "title": "Dao Xả"},

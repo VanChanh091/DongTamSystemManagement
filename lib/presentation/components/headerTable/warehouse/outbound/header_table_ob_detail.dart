@@ -7,6 +7,7 @@ const List<Map<String, dynamic>> _headerOutboundDetail = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "typeProduct", "title": "Loại Sản Phẩm"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "isFSC", "title": "FSC"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "flute", "title": "Sóng"},
   {"key": "dvt", "title": "DVT"},

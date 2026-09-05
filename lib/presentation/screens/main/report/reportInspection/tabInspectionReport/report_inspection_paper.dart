@@ -361,6 +361,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                                 "sizePaper",
                                 "lengthPaper",
                                 "runningPlan",
+                                "isFSC",
                               ],
                               child: Obx(
                                 () => formatColumn(

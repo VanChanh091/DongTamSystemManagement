@@ -1,15 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/controller/unsaved_change_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/shared/animation/pulsing_row_animation.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
-import 'package:dongtam/utils/helper/planning_helper.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/shared/animation/pulsing_row_animation.dart";
+import "package:dongtam/utils/helper/build_color_row.dart";
+import "package:dongtam/utils/helper/planning_helper.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MachinePaperDatasource extends DataGridSource {
   List<PlanningPaperModel> planning = [];
@@ -23,7 +23,7 @@ class MachinePaperDatasource extends DataGridSource {
 
   late List<DataGridRow> planningDataGridRows;
   late List<String> visibleColumns;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   MachinePaperDatasource({
@@ -38,72 +38,66 @@ class MachinePaperDatasource extends DataGridSource {
     buildDataGridRows();
 
     if (showGroup) {
-      addColumnGroup(ColumnGroup(name: 'dayStartProduction', sortGroupRows: false));
+      addColumnGroup(ColumnGroup(name: "dayStartProduction", sortGroupRows: false));
     }
   }
 
   // create list cell for planning
   List<DataGridCell> buildPlanningInfoCells(PlanningPaperModel planning) {
+    final order = planning.order;
+
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? '$value' : "0");
+      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? "$value" : "0");
     }
 
     return [
-      DataGridCell<String>(columnName: 'orderId', value: planning.orderId),
+      DataGridCell<String>(columnName: "orderId", value: planning.orderId),
 
-      if (page == 'planning') ...[
+      if (page == "planning") ...[
         DataGridCell<String>(
           columnName: "dateShipping",
           value:
-              planning.order?.dateRequestShipping != null
-                  ? formatter.format(planning.order!.dateRequestShipping!)
-                  : '',
+              order?.dateRequestShipping != null
+                  ? formatter.format(order!.dateRequestShipping!)
+                  : "",
         ),
       ],
 
-      DataGridCell<String>(
-        columnName: 'customerName',
-        value: planning.order?.customer?.customerName ?? '',
-      ),
-      DataGridCell<String>(columnName: 'structure', value: planning.formatterStructureOrder),
-      DataGridCell<String>(columnName: 'flute', value: planning.order?.flute ?? ''),
-      DataGridCell<String>(columnName: 'khoCapGiay', value: '${planning.ghepKho} cm'),
+      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC),
+      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: "khoCapGiay", value: "${planning.ghepKho} cm"),
 
-      buildCurrencyCell('size', planning.sizePaperPLaning),
-      buildCurrencyCell('length', planning.lengthPaperPlanning),
+      buildCurrencyCell("size", planning.sizePaperPLaning),
+      buildCurrencyCell("length", planning.lengthPaperPlanning),
 
-      DataGridCell<String>(columnName: 'note', value: planning.note ?? ""),
-      DataGridCell<String>(columnName: 'qcBox', value: planning.order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: 'canLan', value: planning.order?.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXa', value: planning.order?.daoXa ?? ''),
-      DataGridCell<int>(columnName: 'child', value: planning.numberChild),
-      DataGridCell<String>(
-        columnName: "instructSpecial",
-        value: planning.order?.instructSpecial ?? '',
-      ),
-      DataGridCell<bool>(columnName: 'chongTham', value: planning.order!.chongTham),
-      DataGridCell<bool>(columnName: 'haveMadeBox', value: planning.order!.isBox),
+      DataGridCell<String>(columnName: "note", value: planning.note ?? ""),
+      DataGridCell<String>(columnName: "qcBox", value: order?.QC_box ?? ""),
+      DataGridCell<String>(columnName: "canLan", value: order?.canLan ?? ""),
+      DataGridCell<String>(columnName: "daoXa", value: order?.daoXa ?? ""),
+      DataGridCell<int>(columnName: "child", value: planning.numberChild),
+      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ""),
+      DataGridCell<bool>(columnName: "chongTham", value: order?.chongTham),
+      DataGridCell<bool>(columnName: "haveMadeBox", value: order?.isBox),
 
-      if (page == 'planning') ...[
-        DataGridCell<int>(
-          columnName: 'quantityOrd',
-          value: planning.order?.quantityManufacture ?? 0,
-        ),
+      if (page == "planning") ...[
+        DataGridCell<int>(columnName: "quantityOrd", value: order?.quantityManufacture ?? 0),
       ],
       DataGridCell<int>(columnName: "qtyProduced", value: planning.qtyProduced),
       DataGridCell<int>(columnName: "runningPlanProd", value: planning.remainRunningPlan),
-      DataGridCell<String>(columnName: "dvt", value: planning.order?.dvt),
+      DataGridCell<String>(columnName: "dvt", value: order?.dvt),
 
       DataGridCell<String>(
-        columnName: 'timeRunningProd',
+        columnName: "timeRunningProd",
         value:
             planning.timeRunning != null
                 ? PlanningPaperModel.formatTimeOfDay(timeOfDay: planning.timeRunning!)
-                : '',
+                : "",
       ),
       if (page == "planning") ...[
         DataGridCell<String>(
-          columnName: 'totalPrice',
+          columnName: "totalPrice",
           value:
               (planning.totalPrice ?? 0) > 0
                   ? OrderModel.formatCurrency(planning.totalPrice!)
@@ -121,29 +115,29 @@ class MachinePaperDatasource extends DataGridSource {
       // hidden technical fields
       DataGridCell<String>(columnName: "status", value: planning.status),
       DataGridCell<int>(columnName: "index", value: planning.sortPlanning ?? 0),
-      DataGridCell<int>(columnName: 'planningId', value: planning.planningId),
-      DataGridCell<String>(columnName: 'statusCheck', value: planning.statusCheck ?? ""),
+      DataGridCell<int>(columnName: "planningId", value: planning.planningId),
+      DataGridCell<String>(columnName: "statusCheck", value: planning.statusCheck ?? ""),
     ];
   }
 
   List<DataGridCell> buildWasteNormCell(PlanningPaperModel planning) {
     DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
-      return DataGridCell<String>(columnName: columnName, value: value != 0 ? '$value' : '0');
+      return DataGridCell<String>(columnName: columnName, value: value != 0 ? "$value" : "0");
     }
 
     return [
-      buildWasteCell(columnName: 'bottom', value: planning.bottom ?? 0),
-      buildWasteCell(columnName: 'fluteE', value: planning.fluteE ?? 0),
-      buildWasteCell(columnName: 'fluteE2', value: planning.fluteE2 ?? 0),
-      buildWasteCell(columnName: 'fluteB', value: planning.fluteB ?? 0),
-      buildWasteCell(columnName: 'fluteC', value: planning.fluteC ?? 0),
-      buildWasteCell(columnName: 'knife', value: planning.knife ?? 0),
-      buildWasteCell(columnName: 'totalLoss', value: planning.totalLoss ?? 0),
-      buildWasteCell(columnName: 'qtyWastes', value: planning.qtyWasteNorm ?? 0),
+      buildWasteCell(columnName: "bottom", value: planning.bottom ?? 0),
+      buildWasteCell(columnName: "fluteE", value: planning.fluteE ?? 0),
+      buildWasteCell(columnName: "fluteE2", value: planning.fluteE2 ?? 0),
+      buildWasteCell(columnName: "fluteB", value: planning.fluteB ?? 0),
+      buildWasteCell(columnName: "fluteC", value: planning.fluteC ?? 0),
+      buildWasteCell(columnName: "knife", value: planning.knife ?? 0),
+      buildWasteCell(columnName: "totalLoss", value: planning.totalLoss ?? 0),
+      buildWasteCell(columnName: "qtyWastes", value: planning.qtyWasteNorm ?? 0),
 
-      DataGridCell<String>(columnName: 'shiftProduct', value: planning.shiftProduction),
+      DataGridCell<String>(columnName: "shiftProduct", value: planning.shiftProduction),
       if (page == "planning") ...[
-        DataGridCell<String>(columnName: 'shiftManager', value: planning.shiftManagement),
+        DataGridCell<String>(columnName: "shiftManager", value: planning.shiftManagement),
       ],
 
       DataGridCell<String?>(
@@ -151,7 +145,7 @@ class MachinePaperDatasource extends DataGridSource {
         value: planning.dayStart != null ? formatter.format(planning.dayStart!) : null,
       ),
 
-      if (page == 'planning') ...[
+      if (page == "planning") ...[
         DataGridCell<String?>(
           columnName: "dayCompletedProd",
           value:
@@ -185,7 +179,7 @@ class MachinePaperDatasource extends DataGridSource {
 
   int extractFlute(String loaiSong) {
     //5BC => 5
-    final match = RegExp(r'^\d+').firstMatch(loaiSong);
+    final match = RegExp(r"^\d+").firstMatch(loaiSong);
     return match != null ? int.parse(match.group(0)!) : 0;
   }
 
@@ -218,11 +212,11 @@ class MachinePaperDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ["chongTham", "haveMadeBox"];
+    const boolColumns = ["chongTham", "haveMadeBox", "isFSC"];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
     if (dataCell.columnName == "statusRequest") {
@@ -241,7 +235,7 @@ class MachinePaperDatasource extends DataGridSource {
       }
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   //check ghepKho is same
@@ -250,8 +244,8 @@ class MachinePaperDatasource extends DataGridSource {
 
     final row = planningDataGridRows[rowIndex];
     final cell = row.getCells().firstWhere(
-      (c) => c.columnName == 'khoCapGiay',
-      orElse: () => const DataGridCell<String>(columnName: 'khoCapGiay', value: ''),
+      (c) => c.columnName == "khoCapGiay",
+      orElse: () => const DataGridCell<String>(columnName: "khoCapGiay", value: ""),
     );
 
     return cell.value?.toString();
@@ -264,12 +258,12 @@ class MachinePaperDatasource extends DataGridSource {
     bool isDuplicateOrder,
   ) {
     // check ghepKho
-    if (dataCell.columnName == 'khoCapGiay' && isKhoTransition == true) {
+    if (dataCell.columnName == "khoCapGiay" && isKhoTransition == true) {
       return Icon(Icons.warning_amber_rounded, size: 16, color: transitionColor);
     }
 
     // check orderId
-    if (dataCell.columnName == 'orderId' && isDuplicateOrder) {
+    if (dataCell.columnName == "orderId" && isDuplicateOrder) {
       return const Icon(Icons.copy_rounded, size: 14, color: Colors.redAccent);
     }
 
@@ -279,25 +273,25 @@ class MachinePaperDatasource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
-    String totalPriceStr = '';
+    String displayDate = "";
+    String itemCount = "";
+    String totalPriceStr = "";
 
     if (match != null) {
-      displayDate = match.group(1) ?? '';
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      displayDate = match.group(1) ?? "";
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
 
-      if (page == 'planning' && displayDate.isNotEmpty) {
+      if (page == "planning" && displayDate.isNotEmpty) {
         double totalGroupPrice = planning
             .where((p) => p.dayStart != null && formatter.format(p.dayStart!) == displayDate)
             .fold(0, (sum, p) => sum + (p.totalPrice ?? 0));
 
         if (totalGroupPrice > 0) {
-          totalPriceStr = ' – Tổng: ${OrderModel.formatCurrency(totalGroupPrice)} VNĐ';
+          totalPriceStr = " – Tổng: ${OrderModel.formatCurrency(totalGroupPrice)} VNĐ";
         }
       }
     }
@@ -309,8 +303,8 @@ class MachinePaperDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr'
-            : '📅 Ngày sản xuất: Không xác định',
+            ? "📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr"
+            : "📅 Ngày sản xuất: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -333,28 +327,28 @@ class MachinePaperDatasource extends DataGridSource {
 
     // ===== check trùng orderId =====
     final String currentOrderId =
-        row.getCells().firstWhere((c) => c.columnName == 'orderId').value.toString();
+        row.getCells().firstWhere((c) => c.columnName == "orderId").value.toString();
     final bool isDuplicateOrder = (orderIdCounts[currentOrderId] ?? 0) > 1;
 
     // ===== select and row color =====
     final planningId =
-        row.getCells().firstWhere((c) => c.columnName == 'planningId').value.toString();
+        row.getCells().firstWhere((c) => c.columnName == "planningId").value.toString();
     final isSelected = selectedPlanningIds.contains(planningId);
 
-    final sortPlanning = getCellValue<int>(row, 'index', 0);
-    final runningPlan = getCellValue<int>(row, 'runningPlanProd', 0);
-    final qtyProduced = getCellValue<int>(row, 'qtyProduced', 0);
-    final totalLoss = getCellValue<String>(row, 'totalLoss', "0");
-    final qtyWastes = getCellValue<String>(row, 'qtyWastes', "0");
+    final sortPlanning = getCellValue<int>(row, "index", 0);
+    final runningPlan = getCellValue<int>(row, "runningPlanProd", 0);
+    final qtyProduced = getCellValue<int>(row, "qtyProduced", 0);
+    final totalLoss = getCellValue<String>(row, "totalLoss", "0");
+    final qtyWastes = getCellValue<String>(row, "qtyWastes", "0");
 
     //status
-    final status = getCellValue<String>(row, 'status', "");
-    final statusCheck = getCellValue<String>(row, 'statusCheck', "");
+    final status = getCellValue<String>(row, "status", "");
+    final statusCheck = getCellValue<String>(row, "statusCheck", "");
 
     final bool isFailed = statusCheck == "failed";
 
-    final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(' kg', '')) ?? 0;
-    final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(' kg', '')) ?? 0;
+    final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(" kg", "")) ?? 0;
+    final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(" kg", "")) ?? 0;
 
     Color? rowColor;
     if (isSelected) {
@@ -385,14 +379,14 @@ class MachinePaperDatasource extends DataGridSource {
           Alignment alignment;
           if (dataCell.value is num) {
             alignment = Alignment.centerRight;
-          } else if (cellText == '✅') {
+          } else if (cellText == "✅") {
             alignment = Alignment.center;
           } else {
             alignment = Alignment.centerLeft;
           }
 
           TextStyle? customTextStyle;
-          if (page == 'planning' && dataCell.columnName == 'dateShipping') {
+          if (page == "planning" && dataCell.columnName == "dateShipping") {
             final DateTime? shipDate = currentPlanning.order?.dateRequestShipping;
             if (shipDate != null) {
               final now = DateTime.now();
@@ -422,7 +416,7 @@ class MachinePaperDatasource extends DataGridSource {
             cellColor = Colors.red.withValues(alpha: 0.5);
           }
 
-          if (dataCell.columnName == 'action') {
+          if (dataCell.columnName == "action") {
             return IconButton(
               icon: const Icon(Icons.fact_check, color: Colors.blueAccent, size: 20),
               onPressed: () {

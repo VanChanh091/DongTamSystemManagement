@@ -14,6 +14,7 @@ final List<Map<String, dynamic>> _headerSyntheticOrder = [
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "isFSC", "title": "Đơn FSC"},
 
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},

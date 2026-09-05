@@ -30,7 +30,8 @@ class PaperRequirementsDataSource extends DataGridSource {
       ),
 
       DataGridCell<String>(columnName: 'structure', value: planning?.formatterStructureOrder ?? ""),
-      DataGridCell<String>(columnName: "flute", value: planning?.order?.flute ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
+      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
       DataGridCell<int>(columnName: "ghepKho", value: requirement.paperRollWidth),
       DataGridCell<double>(columnName: "sizePaper", value: planning?.sizePaperPLaning ?? 0),
       DataGridCell<double>(columnName: "lengthPaper", value: planning?.lengthPaperPlanning ?? 0),
@@ -64,6 +65,13 @@ class PaperRequirementsDataSource extends DataGridSource {
 
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
+
+    const boolColumns = ["isFSC"];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
 
     if (dataCell.columnName == "inventoryStatus") {
       switch (value) {

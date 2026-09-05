@@ -14,6 +14,7 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "flute", "title": "Sóng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},

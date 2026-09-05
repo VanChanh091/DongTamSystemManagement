@@ -10,7 +10,8 @@ const List<Map<String, dynamic>> _headerDbPaper = [
 
   // Customer & Product
   {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "productName", "title": "Tên SP"},
+  {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "isFSC", "title": "Đơn FSC"},
 
   //structure
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},

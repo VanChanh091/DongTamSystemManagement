@@ -18,6 +18,7 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
 
   {"key": "QC_box", "title": "Quy Cách"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
 
   {"key": "sizeProd", "title": "Khổ (SX)"},
   {"key": "lengthProd", "title": "Dài (SX)"},

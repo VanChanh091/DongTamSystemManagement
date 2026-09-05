@@ -1,11 +1,11 @@
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
-import 'package:intl/intl.dart';
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/utils/helper/build_color_row.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
+import "package:intl/intl.dart";
 
 class OrderDataSource extends DataGridSource {
   final BuildContext context;
@@ -15,7 +15,7 @@ class OrderDataSource extends DataGridSource {
   String? selectedOrderId;
 
   final userController = Get.find<UserController>();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   OrderDataSource({required this.orders, this.selectedOrderId, required this.context}) {
     buildDataCell();
@@ -25,7 +25,7 @@ class OrderDataSource extends DataGridSource {
     DataGridCell<String> buildCurrencyCell(String columnName, num value, String? unit) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: (value) > 0 ? '${OrderModel.formatCurrency(value)} $unit' : "0",
+        value: (value) > 0 ? "${OrderModel.formatCurrency(value)} $unit" : "0",
       );
     }
 
@@ -34,49 +34,50 @@ class OrderDataSource extends DataGridSource {
     }
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
-      DataGridCell<String>(columnName: 'orderId', value: order.orderId),
+      DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(columnName: "orderId", value: order.orderId),
 
-      buildDateCell('dateShipping', order.dateRequestShipping!),
+      buildDateCell("dateShipping", order.dateRequestShipping!),
 
-      DataGridCell<String>(columnName: 'customerName', value: order.customer?.customerName ?? ''),
-      DataGridCell<String>(columnName: 'typeProduct', value: order.product?.typeProduct ?? ''),
-      DataGridCell<String>(columnName: 'productName', value: order.product?.productName ?? ''),
+      DataGridCell<String>(columnName: "customerName", value: order.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "typeProduct", value: order.product?.typeProduct ?? ""),
+      DataGridCell<String>(columnName: "productName", value: order.product?.productName ?? ""),
 
-      DataGridCell<String>(columnName: 'flute', value: order.flute ?? ''),
-      DataGridCell<String>(columnName: 'QC_box', value: order.QC_box ?? ''),
-      DataGridCell<String>(columnName: 'structure', value: order.formatterStructureOrder),
-      DataGridCell<bool>(columnName: 'CTPaper', value: order.chongTham),
-      DataGridCell<String>(columnName: 'canLan', value: order.canLan ?? ''),
-      DataGridCell<String>(columnName: 'daoXaOrd', value: order.daoXa),
+      DataGridCell<String>(columnName: "flute", value: order.flute ?? ""),
+      DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
+      DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
+      DataGridCell<bool>(columnName: "isFSC", value: order.isFSC),
+      DataGridCell<bool>(columnName: "CTPaper", value: order.chongTham),
+      DataGridCell<String>(columnName: "canLan", value: order.canLan ?? ""),
+      DataGridCell<String>(columnName: "daoXaOrd", value: order.daoXa),
 
-      buildCurrencyCell('sizeCustomer', order.paperSizeCustomer, 'cm'),
-      buildCurrencyCell('sizeManufacture', order.paperSizeManufacture, 'cm'),
-      buildCurrencyCell('lengthCus', order.lengthPaperCustomer, 'cm'),
-      buildCurrencyCell('lengthMf', order.lengthPaperManufacture, 'cm'),
-      buildCurrencyCell('quantityCustomer', order.quantityCustomer, ''),
-      buildCurrencyCell('qtyManufacture', order.quantityManufacture, ''),
+      buildCurrencyCell("sizeCustomer", order.paperSizeCustomer, "cm"),
+      buildCurrencyCell("sizeManufacture", order.paperSizeManufacture, "cm"),
+      buildCurrencyCell("lengthCus", order.lengthPaperCustomer, "cm"),
+      buildCurrencyCell("lengthMf", order.lengthPaperManufacture, "cm"),
+      buildCurrencyCell("quantityCustomer", order.quantityCustomer, ""),
+      buildCurrencyCell("qtyManufacture", order.quantityManufacture, ""),
 
       DataGridCell<String>(
-        columnName: 'volume',
+        columnName: "volume",
         value: order.volume! > 0 ? OrderModel.formatCurrency(order.volume ?? 0) : "0",
       ),
-      DataGridCell<int>(columnName: 'child', value: order.numberChild),
-      DataGridCell<String>(columnName: 'dvt', value: order.dvt),
+      DataGridCell<int>(columnName: "child", value: order.numberChild),
+      DataGridCell<String>(columnName: "dvt", value: order.dvt),
 
-      buildCurrencyCell('acreage', order.acreage ?? 0, ""),
-      buildCurrencyCell('price', order.price, "VNĐ"),
-      buildCurrencyCell('pricePaper', order.pricePaper ?? 0, "VNĐ"),
-      buildCurrencyCell('discounts', order.discount ?? 0, "VNĐ"),
+      buildCurrencyCell("acreage", order.acreage ?? 0, ""),
+      buildCurrencyCell("price", order.price, "VNĐ"),
+      buildCurrencyCell("pricePaper", order.pricePaper ?? 0, "VNĐ"),
+      buildCurrencyCell("discounts", order.discount ?? 0, "VNĐ"),
       DataGridCell<String>(
-        columnName: 'profitOrd',
-        value: order.profit > 0 ? '${OrderModel.formatCurrency(order.profit)}%' : "0",
+        columnName: "profitOrd",
+        value: order.profit > 0 ? "${OrderModel.formatCurrency(order.profit)}%" : "0",
       ),
 
-      DataGridCell<String>(columnName: 'vat', value: order.vat! > 0 ? '${order.vat ?? 0}%' : "0"),
-      DataGridCell<String>(columnName: 'instructSpecial', value: order.instructSpecial ?? ""),
+      DataGridCell<String>(columnName: "vat", value: order.vat! > 0 ? "${order.vat ?? 0}%" : "0"),
+      DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ""),
 
-      buildCurrencyCell('totalPrice', order.totalPrice ?? 0, "VNĐ"),
+      buildCurrencyCell("totalPrice", order.totalPrice ?? 0, "VNĐ"),
 
       ...buildBoxCells(order),
     ];
@@ -84,28 +85,28 @@ class OrderDataSource extends DataGridSource {
 
   List<DataGridCell> buildBoxCells(OrderModel order) {
     return [
-      DataGridCell<int>(columnName: 'inMatTruoc', value: order.box?.inMatTruoc ?? 0),
-      DataGridCell<int>(columnName: 'inMatSau', value: order.box?.inMatSau ?? 0),
+      DataGridCell<int>(columnName: "inMatTruoc", value: order.box?.inMatTruoc ?? 0),
+      DataGridCell<int>(columnName: "inMatSau", value: order.box?.inMatSau ?? 0),
 
-      DataGridCell<bool>(columnName: 'chongTham', value: order.box?.chongTham ?? false),
-      DataGridCell<bool>(columnName: 'canLanBox', value: order.box?.canLan ?? false),
-      DataGridCell<bool>(columnName: 'canMang', value: order.box?.canMang ?? false),
-      DataGridCell<bool>(columnName: 'xa', value: order.box?.Xa ?? false),
-      DataGridCell<bool>(columnName: 'catKhe', value: order.box?.catKhe ?? false),
-      DataGridCell<bool>(columnName: 'be', value: order.box?.be ?? false),
-      DataGridCell<bool>(columnName: 'dan_1_Manh', value: order.box?.dan_1_Manh ?? false),
-      DataGridCell<bool>(columnName: 'dan_2_Manh', value: order.box?.dan_2_Manh ?? false),
-      DataGridCell<bool>(columnName: 'dongGhimMotManh', value: order.box?.dongGhim1Manh ?? false),
-      DataGridCell<bool>(columnName: 'dongGhimHaiManh', value: order.box?.dongGhim2Manh ?? false),
-      DataGridCell<String>(columnName: 'maKhuon', value: order.box?.maKhuon ?? ""),
-      DataGridCell<String>(columnName: 'dongGoi', value: order.box?.dongGoi ?? ""),
+      DataGridCell<bool>(columnName: "chongTham", value: order.box?.chongTham ?? false),
+      DataGridCell<bool>(columnName: "canLanBox", value: order.box?.canLan ?? false),
+      DataGridCell<bool>(columnName: "canMang", value: order.box?.canMang ?? false),
+      DataGridCell<bool>(columnName: "xa", value: order.box?.Xa ?? false),
+      DataGridCell<bool>(columnName: "catKhe", value: order.box?.catKhe ?? false),
+      DataGridCell<bool>(columnName: "be", value: order.box?.be ?? false),
+      DataGridCell<bool>(columnName: "dan_1_Manh", value: order.box?.dan_1_Manh ?? false),
+      DataGridCell<bool>(columnName: "dan_2_Manh", value: order.box?.dan_2_Manh ?? false),
+      DataGridCell<bool>(columnName: "dongGhimMotManh", value: order.box?.dongGhim1Manh ?? false),
+      DataGridCell<bool>(columnName: "dongGhimHaiManh", value: order.box?.dongGhim2Manh ?? false),
+      DataGridCell<String>(columnName: "maKhuon", value: order.box?.maKhuon ?? ""),
+      DataGridCell<String>(columnName: "dongGoi", value: order.box?.dongGoi ?? ""),
 
-      DataGridCell<String>(columnName: 'orderIdCustomer', value: order.orderIdCustomer ?? ""),
+      DataGridCell<String>(columnName: "orderIdCustomer", value: order.orderIdCustomer ?? ""),
 
-      ...userController.hasAnyRole(roles: ['admin', 'manager'])
+      ...userController.hasAnyRole(roles: ["admin", "manager"])
           ? [
             DataGridCell(
-              columnName: 'staffOrder',
+              columnName: "staffOrder",
               value: () {
                 final fullName = order.user?.fullName ?? ""; //Nguyễn Văn Chánh
                 final parts = fullName.trim().split(" "); //["Nguyễn", "Văn", "Chánh"]
@@ -119,19 +120,19 @@ class OrderDataSource extends DataGridSource {
           ]
           : [],
 
-      DataGridCell(columnName: 'status', value: formatStatus(order.status)),
-      DataGridCell(columnName: 'rejectReason', value: order.rejectReason ?? ""),
-      DataGridCell(columnName: 'note', value: order.note ?? ""),
-      DataGridCell(columnName: 'orderImage', value: order.orderImage?.imageUrl ?? ""),
+      DataGridCell(columnName: "status", value: formatStatus(order.status)),
+      DataGridCell(columnName: "rejectReason", value: order.rejectReason ?? ""),
+      DataGridCell(columnName: "note", value: order.note ?? ""),
+      DataGridCell(columnName: "orderImage", value: order.orderImage?.imageUrl ?? ""),
     ];
   }
 
   String formatStatus(String status) {
-    if (status == 'accept') {
-      return 'Chấp nhận';
-    } else if (status == 'reject') {
+    if (status == "accept") {
+      return "Chấp nhận";
+    } else if (status == "reject") {
       return "Từ chối";
-    } else if (status == 'planning') {
+    } else if (status == "planning") {
       return "Đã lên kế hoạch";
     }
     return "Chờ Duyệt";
@@ -144,26 +145,27 @@ class OrderDataSource extends DataGridSource {
     final value = dataCell.value;
 
     const boolColumns = [
-      'chongTham',
-      'canLanBox',
-      'canMang',
-      'xa',
-      'catKhe',
-      'be',
-      'dan_1_Manh',
-      'dan_2_Manh',
-      'dongGhimMotManh',
-      'dongGhimHaiManh',
-      'isBox',
-      'CTPaper',
+      "chongTham",
+      "canLanBox",
+      "canMang",
+      "xa",
+      "catKhe",
+      "be",
+      "dan_1_Manh",
+      "dan_2_Manh",
+      "dongGhimMotManh",
+      "dongGhimHaiManh",
+      "isBox",
+      "CTPaper",
+      "isFSC",
     ];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   void buildDataCell() {
@@ -181,8 +183,8 @@ class OrderDataSource extends DataGridSource {
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     //get value cell
-    final orderId = getCellValue<String>(row, 'orderId', '');
-    final statusCell = getCellValue<String>(row, 'status', "");
+    final orderId = getCellValue<String>(row, "orderId", "");
+    final statusCell = getCellValue<String>(row, "status", "");
     final status = statusCell.toString().toLowerCase();
 
     // Chọn màu nền theo status
@@ -191,10 +193,10 @@ class OrderDataSource extends DataGridSource {
       backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       switch (status) {
-        case 'từ chối':
+        case "từ chối":
           backgroundColor = Colors.red.withValues(alpha: 0.4);
           break;
-        case 'đã lên kế hoạch':
+        case "đã lên kế hoạch":
           backgroundColor = Colors.white;
           break;
         default:
@@ -211,13 +213,13 @@ class OrderDataSource extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
+            } else if (cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }
 
-            if (dataCell.columnName == 'orderImage') {
+            if (dataCell.columnName == "orderImage") {
               final imageUrl = dataCell.value?.toString() ?? "";
               final hasImage = imageUrl.isNotEmpty && imageUrl != "Không có ảnh";
 
@@ -280,7 +282,7 @@ class OrderDataSource extends DataGridSource {
                             ),
                           ),
                         )
-                        : Text('Không có ảnh'),
+                        : Text("Không có ảnh"),
               );
             }
 

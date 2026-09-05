@@ -1,15 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/controller/unsaved_change_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/presentation/components/shared/animation/pulsing_row_animation.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
-import 'package:dongtam/utils/helper/planning_helper.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/presentation/components/shared/animation/pulsing_row_animation.dart";
+import "package:dongtam/utils/helper/build_color_row.dart";
+import "package:dongtam/utils/helper/planning_helper.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MachineBoxDatasource extends DataGridSource {
   List<PlanningBoxModel> planning = [];
@@ -21,7 +21,7 @@ class MachineBoxDatasource extends DataGridSource {
   Function(PlanningBoxModel)? onRowTap;
 
   late List<DataGridRow> planningDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   MachineBoxDatasource({
@@ -36,44 +36,43 @@ class MachineBoxDatasource extends DataGridSource {
     buildDataGridRows();
 
     if (showGroup) {
-      addColumnGroup(ColumnGroup(name: 'dayStartProduction', sortGroupRows: false));
+      addColumnGroup(ColumnGroup(name: "dayStartProduction", sortGroupRows: false));
     }
   }
 
   List<DataGridCell> buildPlanningCells(PlanningBoxModel planning, String machine) {
     DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? '$value' : "0");
+      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? "$value" : "0");
     }
 
+    final order = planning.order;
+    final customer = order?.customer;
     final boxMachineTime = planning.getBoxMachineTimeByMachine(machine);
 
     return [
       //14 items
       DataGridCell<String>(columnName: "orderId", value: planning.orderId),
+
       if (page == "planning") ...[
         DataGridCell<String>(
           columnName: "dateShipping",
           value:
-              planning.order?.dateRequestShipping != null
-                  ? formatter.format(planning.order!.dateRequestShipping!)
-                  : '',
+              order?.dateRequestShipping != null
+                  ? formatter.format(order!.dateRequestShipping!)
+                  : "",
         ),
       ],
-      DataGridCell<String>(
-        columnName: "customerName",
-        value: planning.order?.customer?.customerName ?? "",
-      ),
+
+      DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
-      DataGridCell<String>(columnName: "QC_box", value: planning.order?.QC_box ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC),
+      DataGridCell<String>(columnName: "QC_box", value: order?.QC_box ?? ""),
 
-      buildCurrencyCell('size', planning.size),
-      buildCurrencyCell('length', planning.length),
+      buildCurrencyCell("size", planning.size),
+      buildCurrencyCell("length", planning.length),
 
-      DataGridCell<String>(columnName: "canLan", value: planning.order?.canLan ?? ""),
-      DataGridCell<String>(
-        columnName: "instructSpecial",
-        value: planning.order?.instructSpecial ?? "",
-      ),
+      DataGridCell<String>(columnName: "canLan", value: order?.canLan ?? ""),
+      DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ""),
 
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
       DataGridCell<int>(columnName: "needProd", value: boxMachineTime?.remainRunningPlan ?? 0),
@@ -83,7 +82,7 @@ class MachineBoxDatasource extends DataGridSource {
         value:
             boxMachineTime?.timeRunning != null
                 ? PlanningBoxModel.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
-                : '',
+                : "",
       ),
     ];
   }
@@ -122,11 +121,11 @@ class MachineBoxDatasource extends DataGridSource {
 
       DataGridCell<String>(
         columnName: "dmWasteLoss",
-        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? '${boxMachineTime!.wasteBox} Cái' : "0",
+        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? "${boxMachineTime!.wasteBox} Cái" : "0",
       ),
       DataGridCell<String>(
         columnName: "wasteActually",
-        value: (boxMachineTime?.rpWasteLoss ?? 0) > 0 ? '${boxMachineTime!.rpWasteLoss} Cái' : "0",
+        value: (boxMachineTime?.rpWasteLoss ?? 0) > 0 ? "${boxMachineTime!.rpWasteLoss} Cái" : "0",
       ),
       DataGridCell<String>(
         columnName: "shiftManager",
@@ -135,21 +134,21 @@ class MachineBoxDatasource extends DataGridSource {
 
       DataGridCell<String>(
         columnName: "dayStartProduction",
-        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
+        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : "",
       ),
       DataGridCell<String>(
         columnName: "dayCompletedProd",
         value:
             boxMachineTime?.dayCompleted != null
                 ? formatterDayCompleted.format(boxMachineTime!.dayCompleted!)
-                : '',
+                : "",
       ),
       if (page == "planning") ...[
         DataGridCell<String>(
-          columnName: 'totalPrice',
+          columnName: "totalPrice",
           value:
               (planning.order?.totalPrice ?? 0) > 0
-                  ? '${OrderModel.formatCurrency(planning.order?.totalPrice ?? 0)} VND'
+                  ? "${OrderModel.formatCurrency(planning.order?.totalPrice ?? 0)} VND"
                   : "0",
         ),
       ],
@@ -241,11 +240,11 @@ class MachineBoxDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
+    const boolColumns = ["dan_1_Manh", "dan_2_Manh", "dongGhim1Manh", "dongGhim2Manh", "isFSC"];
 
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return "";
-      return value == true ? '✅' : "";
+      return value == true ? "✅" : "";
     }
 
     if (dataCell.columnName == "statusRequest") {
@@ -264,23 +263,23 @@ class MachineBoxDatasource extends DataGridSource {
       }
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
-    String totalPriceStr = '';
+    String displayDate = "";
+    String itemCount = "";
+    String totalPriceStr = "";
 
     if (match != null) {
-      displayDate = match.group(1) ?? '';
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      displayDate = match.group(1) ?? "";
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
     }
 
     return Container(
@@ -290,8 +289,8 @@ class MachineBoxDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr'
-            : '📅 Ngày sản xuất: Không xác định',
+            ? "📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr"
+            : "📅 Ngày sản xuất: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -304,36 +303,36 @@ class MachineBoxDatasource extends DataGridSource {
     final currentPlanning = planning[rowIndex];
 
     final planningBoxId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'planningBoxId').value.toString();
+        row.getCells().firstWhere((cell) => cell.columnName == "planningBoxId").value.toString();
 
     final isSelected = selectedPlanningIds.contains(planningBoxId);
 
     // Lấy giá trị các cột cần check
-    final sortPlanning = getCellValue<int>(row, 'index', 0);
-    final dmWasteLoss = getCellValue<String>(row, 'dmWasteLoss', "0");
-    final wasteActually = getCellValue<String>(row, 'wasteActually', "0");
-    final needProd = getCellValue<int>(row, 'needProd', 0);
+    final sortPlanning = getCellValue<int>(row, "index", 0);
+    final dmWasteLoss = getCellValue<String>(row, "dmWasteLoss", "0");
+    final wasteActually = getCellValue<String>(row, "wasteActually", "0");
+    final needProd = getCellValue<int>(row, "needProd", 0);
 
     //status
-    final status = getCellValue<String>(row, 'status', "");
-    final statusCheck = getCellValue<String>(row, 'statusCheck', "");
+    final status = getCellValue<String>(row, "status", "");
+    final statusCheck = getCellValue<String>(row, "statusCheck", "");
 
     final bool isFailed = statusCheck == "failed";
 
     final Map<String, String> machineColumnMap = {
-      'qtyPrinted': "Máy In",
-      'qtyCanLan': "Máy Cấn Lằn",
-      'qtyCanMang': "Máy Cán Màng",
-      'qtyXa': "Máy Xả",
-      'qtyCatKhe': "Máy Cắt Khe",
-      'qtyBe': "Máy Bế",
-      'qtyDan': "Máy Dán",
-      'qtyDongGhim': "Máy Đóng Ghim",
+      "qtyPrinted": "Máy In",
+      "qtyCanLan": "Máy Cấn Lằn",
+      "qtyCanMang": "Máy Cán Màng",
+      "qtyXa": "Máy Xả",
+      "qtyCatKhe": "Máy Cắt Khe",
+      "qtyBe": "Máy Bế",
+      "qtyDan": "Máy Dán",
+      "qtyDongGhim": "Máy Đóng Ghim",
     };
 
     //Chuyển từ "10 cái" -> 10
-    final totalDmWasteLoss = double.tryParse(dmWasteLoss.replaceAll(' Cái', '')) ?? 0;
-    final totalWasteActually = double.tryParse(wasteActually.replaceAll(' Cái', '')) ?? 0;
+    final totalDmWasteLoss = double.tryParse(dmWasteLoss.replaceAll(" Cái", "")) ?? 0;
+    final totalWasteActually = double.tryParse(wasteActually.replaceAll(" Cái", "")) ?? 0;
 
     // Màu nền cho cả hàng
     Color? rowColor;
@@ -358,14 +357,14 @@ class MachineBoxDatasource extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
+            } else if (cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
             }
 
             TextStyle? customTextStyle;
-            if (page == 'planning' && dataCell.columnName == 'dateShipping') {
+            if (page == "planning" && dataCell.columnName == "dateShipping") {
               final DateTime? shipDate = currentPlanning.order?.dateRequestShipping;
               if (shipDate != null) {
                 final now = DateTime.now();
@@ -385,7 +384,7 @@ class MachineBoxDatasource extends DataGridSource {
 
             Color cellColor = Colors.transparent;
             //tô màu cho waste loss
-            if (dataCell.columnName == 'wasteActually' && totalWasteActually > totalDmWasteLoss) {
+            if (dataCell.columnName == "wasteActually" && totalWasteActually > totalDmWasteLoss) {
               cellColor = Colors.red.withValues(alpha: 0.5);
             }
 
@@ -399,7 +398,7 @@ class MachineBoxDatasource extends DataGridSource {
               }
             }
 
-            if (dataCell.columnName == 'action') {
+            if (dataCell.columnName == "action") {
               return IconButton(
                 icon: const Icon(Icons.fact_check, color: Colors.blueAccent, size: 20),
                 onPressed: () {

@@ -18,7 +18,7 @@ class OrderModel {
   final double profit, price;
   final int quantityCustomer, quantityManufacture;
   final int numberChild;
-  final bool isBox, chongTham;
+  final bool chongTham, isBox, isFSC;
 
   final String? flute, QC_box, canLan;
   final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
@@ -83,8 +83,10 @@ class OrderModel {
     this.note,
     this.totalPrice,
     this.totalPriceVAT,
-    required this.isBox,
+
     required this.chongTham,
+    required this.isBox,
+    required this.isFSC,
 
     this.remainingQty,
     this.totalOutbound,
@@ -203,8 +205,9 @@ class OrderModel {
               ? DateTime.tryParse(json["dateRequestShipping"])
               : null,
       instructSpecial: json["instructSpecial"] ?? "",
-      isBox: json["isBox"] ?? false,
       chongTham: json["chongTham"] ?? false,
+      isBox: json["isBox"] ?? false,
+      isFSC: json["isFSC"] ?? false,
       status: json["status"] ?? "",
       rejectReason: json["rejectReason"] ?? "",
       orderIdCustomer: json["orderIdCustomer"] ?? "",
@@ -266,8 +269,9 @@ class OrderModel {
       "dateRequestShipping": DateFormat("yyyy-MM-dd").format(dateRequestShipping!),
       "instructSpecial": instructSpecial,
       "note": note,
-      "isBox": isBox,
       "chongTham": chongTham,
+      "isBox": isBox,
+      "isFSC": isFSC,
       "status": status,
       "rejectReason": rejectReason,
       "orderIdCustomer": orderIdCustomer,

@@ -44,6 +44,7 @@ class InspectionBoxDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "orderId", value: box?.orderId ?? ""),
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "structure", value: box?.formatterStructureOrder ?? ""),
       DataGridCell<String>(columnName: "qcBox", value: order?.QC_box ?? ""),
@@ -127,6 +128,12 @@ class InspectionBoxDataSource extends DataGridSource {
       return value == true ? "" : "❌";
     }
 
+    const checkColumns = ["isFSC"];
+    if (checkColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
     return value?.toString() ?? "";
   }
 
@@ -181,7 +188,7 @@ class InspectionBoxDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }

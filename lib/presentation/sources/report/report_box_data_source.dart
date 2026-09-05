@@ -1,11 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/report/report_box_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/report/report_box_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportBoxDatasource extends DataGridSource {
   List<ReportBoxModel> reportPapers = [];
@@ -15,7 +15,7 @@ class ReportBoxDatasource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayReported = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   ReportBoxDatasource({
@@ -27,7 +27,7 @@ class ReportBoxDatasource extends DataGridSource {
   }) {
     buildDataGridRows();
 
-    addColumnGroup(ColumnGroup(name: 'dateTimeRp', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: "dateTimeRp", sortGroupRows: false));
   }
 
   List<DataGridCell> buildReportInfoCell(ReportBoxModel reportBox, String machine, int index) {
@@ -36,7 +36,7 @@ class ReportBoxDatasource extends DataGridSource {
     final boxMachineTime = planningBoxCell.getBoxMachineTimeByMachine(machine);
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
       DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
       DataGridCell<String>(
@@ -45,7 +45,7 @@ class ReportBoxDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "dayStartProduction",
-        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : '',
+        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : "",
       ),
       DataGridCell<String>(
         columnName: "dayReported",
@@ -53,13 +53,14 @@ class ReportBoxDatasource extends DataGridSource {
       ),
       DataGridCell<String>(columnName: "structure", value: planningBoxCell.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
+      DataGridCell<bool>(columnName: "isFSC", value: orderCell.isFSC),
       DataGridCell<String>(columnName: "QC_box", value: orderCell.QC_box ?? ""),
-      DataGridCell<String>(columnName: "size", value: '${planningBoxCell.size} cm'),
+      DataGridCell<String>(columnName: "size", value: "${planningBoxCell.size} cm"),
       DataGridCell<String>(
         columnName: "length",
-        value: planningBoxCell.length > 0 ? '${planningBoxCell.length} cm' : "0",
+        value: planningBoxCell.length > 0 ? "${planningBoxCell.length} cm" : "0",
       ),
-      DataGridCell<int>(columnName: 'child', value: orderCell.numberChild),
+      DataGridCell<int>(columnName: "child", value: orderCell.numberChild),
       DataGridCell<int>(columnName: "quantityOrd", value: orderCell.quantityCustomer),
       DataGridCell<int>(columnName: "qtyPaper", value: planningBoxCell.qtyPaper),
       DataGridCell<String>(
@@ -67,7 +68,7 @@ class ReportBoxDatasource extends DataGridSource {
         value:
             boxMachineTime?.timeRunning != null
                 ? PlanningBoxModel.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
-                : '',
+                : "",
       ),
 
       ...buildBoxCells(reportBox, machine),
@@ -112,11 +113,11 @@ class ReportBoxDatasource extends DataGridSource {
 
       DataGridCell<String>(
         columnName: "dmWasteLoss",
-        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? '${boxMachineTime!.wasteBox} Cái' : "0",
+        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? "${boxMachineTime!.wasteBox} Cái" : "0",
       ),
       DataGridCell<String>(
         columnName: "wasteLossRp",
-        value: (reportBox.wasteLoss) > 0 ? '${reportBox.wasteLoss} Cái' : "0",
+        value: (reportBox.wasteLoss) > 0 ? "${reportBox.wasteLoss} Cái" : "0",
       ),
       DataGridCell<String>(columnName: "shiftManager", value: reportBox.shiftManagement),
       DataGridCell<String>(columnName: "reportedBy", value: reportBox.reportedBy),
@@ -172,30 +173,30 @@ class ReportBoxDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
+    const boolColumns = ["dan_1_Manh", "dan_2_Manh", "dongGhim1Manh", "dongGhim2Manh", "isFSC"];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
+    String displayDate = "";
+    String itemCount = "";
 
     if (match != null) {
-      final fullDate = match.group(1) ?? '';
-      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      final fullDate = match.group(1) ?? "";
+      displayDate = fullDate.split(" ").first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
     }
 
     return Container(
@@ -205,8 +206,8 @@ class ReportBoxDatasource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate – $itemCount'
-            : '📅 Ngày báo cáo: Không xác định',
+            ? "📅 Ngày báo cáo: $displayDate – $itemCount"
+            : "📅 Ngày báo cáo: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -215,18 +216,18 @@ class ReportBoxDatasource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final reportPaperId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'reportBoxId').value;
+        row.getCells().firstWhere((cell) => cell.columnName == "reportBoxId").value;
     final isSelected = selectedReportId == reportPaperId;
 
     final Map<String, String> machineColumnMap = {
-      'qtyPrinted': "Máy In",
-      'qtyCanLan': "Máy Cấn Lằn",
-      'qtyCanMang': "Máy Cán Màng",
-      'qtyXa': "Máy Xả",
-      'qtyCatKhe': "Máy Cắt Khe",
-      'qtyBe': "Máy Bế",
-      'qtyDan': "Máy Dán",
-      'qtyDongGhim': "Máy Đóng Ghim",
+      "qtyPrinted": "Máy In",
+      "qtyCanLan": "Máy Cấn Lằn",
+      "qtyCanMang": "Máy Cán Màng",
+      "qtyXa": "Máy Xả",
+      "qtyCatKhe": "Máy Cắt Khe",
+      "qtyBe": "Máy Bế",
+      "qtyDan": "Máy Dán",
+      "qtyDongGhim": "Máy Đóng Ghim",
     };
 
     Color backgroundColor;
@@ -281,7 +282,7 @@ class ReportBoxDatasource extends DataGridSource {
             }
 
             //highlight color for waste reported
-            if (dataCell.columnName == 'wasteLossRp') {
+            if (dataCell.columnName == "wasteLossRp") {
               cellColor = Colors.amberAccent.withValues(alpha: 0.3);
             }
 

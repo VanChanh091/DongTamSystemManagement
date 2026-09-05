@@ -45,6 +45,7 @@ class ReportInboundDataSource extends DataGridSource {
         columnName: "productName",
         value: orderCell?.product?.productName ?? "",
       ),
+      DataGridCell<bool>(columnName: "isFSC", value: orderCell?.isFSC ?? false),
       DataGridCell<String?>(columnName: "QcBox", value: orderCell?.QC_box ?? ""),
       DataGridCell<String>(columnName: 'flute', value: orderCell?.flute ?? ""),
       DataGridCell<String>(
@@ -83,6 +84,19 @@ class ReportInboundDataSource extends DataGridSource {
         }).toList();
 
     notifyListeners();
+  }
+
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = ["isFSC"];
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    return value?.toString() ?? '';
   }
 
   @override
@@ -131,6 +145,8 @@ class ReportInboundDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
@@ -138,7 +154,7 @@ class ReportInboundDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }
