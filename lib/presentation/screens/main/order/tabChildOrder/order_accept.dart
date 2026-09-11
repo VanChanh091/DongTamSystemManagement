@@ -415,6 +415,35 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                                 ),
                               ),
                             ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                "price",
+                                "pricePaper",
+                                "discounts",
+                                "profitOrd",
+                                "totalPrice",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Khoản Phí (VNĐ)',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                            StackedHeaderCell(
+                              columnNames: [
+                                "sizeCustomer",
+                                "sizeManufacture",
+                                "lengthCus",
+                                "lengthMf",
+                              ],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Quy Cách Giấy (cm)',
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ],

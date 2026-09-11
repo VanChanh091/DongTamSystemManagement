@@ -597,29 +597,11 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       ),
 
       //button
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            widget.isQC ? "Hủy" : "Đóng",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        if (widget.isQC)
-          ElevatedButton(
-            onPressed: isAllChecked ? submit : null,
-            // onPressed: submit,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text(
-              "Xác Nhận",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
-            ),
-          ),
-      ],
+      actions: buildDialogActions(
+        context: context,
+        onConfirm: isAllChecked ? submit : null,
+        cancelText: widget.isQC ? "Hủy" : "Đóng",
+      ),
 
       child: SingleChildScrollView(
         scrollDirection: Axis.vertical,

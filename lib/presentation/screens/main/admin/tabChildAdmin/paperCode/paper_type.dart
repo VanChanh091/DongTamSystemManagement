@@ -22,6 +22,7 @@ class _PaperTypeState extends State<PaperType> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
+  late bool isAdmin;
   int? selectedPaperType;
   bool selectedAll = false;
 
@@ -34,12 +35,9 @@ class _PaperTypeState extends State<PaperType> {
   @override
   void initState() {
     super.initState();
+    isAdmin = userController.hasAnyRole(roles: ["admin"]);
 
-    if (userController.hasAnyRole(roles: ["admin"])) {
-      loadPaperType();
-    } else {
-      futurePaperType = Future.error("NO_PERMISSION");
-    }
+    loadPaperType();
   }
 
   void loadPaperType() {
@@ -78,15 +76,13 @@ class _PaperTypeState extends State<PaperType> {
           ),
         ],
       ),
+
       floatingActionButton: Obx(
-        () =>
-            isAdmin
-                ? FloatingActionButton(
-                  onPressed: loadPaperType,
-                  backgroundColor: themeController.buttonColor.value,
-                  child: const Icon(Icons.refresh, color: Colors.white),
-                )
-                : const SizedBox.shrink(),
+        () => FloatingActionButton(
+          onPressed: loadPaperType,
+          backgroundColor: themeController.buttonColor.value,
+          child: const Icon(Icons.refresh, color: Colors.white),
+        ),
       ),
     );
   }
@@ -95,7 +91,7 @@ class _PaperTypeState extends State<PaperType> {
     return Column(
       children: [
         Text(
-          "CÁC LOẠI GIẤY",
+          "KÝ HIỆU LOẠI GIẤY",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,

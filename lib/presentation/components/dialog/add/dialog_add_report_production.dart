@@ -461,31 +461,11 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(
-            "Hủy",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: isReadOnly ? Colors.grey : Colors.black54,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: isReadOnly ? null : submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isReadOnly ? Colors.grey : Colors.red,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: Text(
-            isReadOnly ? "Chờ ${_countdown}s" : "Xác nhận",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-          ),
-        ),
-      ],
+      actions: buildDialogActions(
+        context: context,
+        onConfirm: submit,
+        confirmText: isReadOnly ? "Chờ ${_countdown}s" : "Xác nhận",
+      ),
     );
   }
 }

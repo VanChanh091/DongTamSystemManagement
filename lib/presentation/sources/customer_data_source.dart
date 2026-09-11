@@ -20,11 +20,8 @@ class CustomerDatasource extends DataGridSource {
   List<DataGridCell> buildCustomerCells(CustomerModel customer, int index) {
     final payment = customer.payment;
 
-    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(
-        columnName: columnName,
-        value: (value) > 0 ? OrderModel.formatCurrency(value) : "0",
-      );
+    DataGridCell<double> buildCurrencyCell(String columnName, double value) {
+      return DataGridCell<double>(columnName: columnName, value: value);
     }
 
     return [
@@ -50,17 +47,17 @@ class CustomerDatasource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "paymentTermDays",
-        value: payment?.paymentTermDays != null ? '${payment!.paymentTermDays} Ngày' : "",
+        value:
+            payment?.paymentTermDays != null && payment!.paymentTermDays > 0
+                ? '${payment.paymentTermDays} Ngày'
+                : "-",
       ),
 
       DataGridCell<String>(columnName: "companyName", value: customer.companyName),
       DataGridCell<String>(columnName: "companyAddress", value: customer.companyAddress),
       DataGridCell<String>(columnName: "shippingAddress", value: customer.shippingAddress),
-      DataGridCell<String>(
-        columnName: "distanceShip",
-        value:
-            (customer.distance ?? 0) > 0 ? OrderModel.formatCurrency(customer.distance ?? 0) : "0",
-      ),
+      buildCurrencyCell('distanceShip', customer.distance ?? 0),
+
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
       DataGridCell<String>(columnName: "customerSource", value: customer.customerSource),
       DataGridCell<String>(columnName: "rateCustomer", value: customer.rateCustomer ?? ""),
@@ -150,19 +147,23 @@ class CustomerDatasource extends DataGridSource {
     return DataGridRowAdapter(
       cells:
           row.getCells().map<Widget>((dataCell) {
-            String displayValue = dataCell.value?.toString() ?? "";
+            final value = dataCell.value;
+            String displayValue = "";
+
+            Alignment alignment = Alignment.centerLeft;
+            if (dataCell.value is num) {
+              alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = (numVal == 0) ? "-" : OrderModel.formatCurrency(numVal);
+            } else {
+              displayValue = value?.toString() ?? "";
+            }
 
             if (dataCell.columnName == 'paymentType') {
               displayValue = getStatusVi(displayValue);
             } else if (dataCell.columnName == 'closingDays') {
               displayValue = getClosingDaysVi(dataCell.value);
-            }
-
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
-            } else {
-              alignment = Alignment.centerLeft;
             }
 
             return formatDataTable(label: displayValue, alignment: alignment);

@@ -612,39 +612,7 @@ class _CustomerDialogState extends State<CustomerDialog> {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      actions:
-          isLoading
-              ? []
-              : [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    "Hủy",
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                    ),
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: submit,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  ),
-                  child: Text(
-                    isEdit ? "Cập nhật" : "Thêm",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-
+      actions: isLoading ? [] : buildDialogActions(context: context, onConfirm: submit),
       child:
           isLoading
               ? const Center(child: CircularProgressIndicator())

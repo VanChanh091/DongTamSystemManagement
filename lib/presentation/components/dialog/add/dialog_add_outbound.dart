@@ -379,8 +379,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final isEdit = widget.outbound != null;
-
     final List<Map<String, dynamic>> infoOrderRows = [
       {
         "leftKey": "Mã Đơn Hàng",
@@ -602,31 +600,7 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
           ),
 
           //action
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Hủy",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                isEdit ? "Cập nhật" : "Xuất Kho",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+          actions: buildDialogActions(context: context, onConfirm: submit),
 
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,

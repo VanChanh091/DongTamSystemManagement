@@ -1,5 +1,6 @@
 import "dart:io";
 
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/service/employee_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -181,27 +182,7 @@ class _DialogExportEmployeeState extends State<DialogExportEmployee> {
         },
       ),
 
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: const Text(
-            "Xác nhận",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
-          ),
-        ),
-      ],
+      actions: buildDialogActions(context: context, onConfirm: submit),
     );
   }
 }

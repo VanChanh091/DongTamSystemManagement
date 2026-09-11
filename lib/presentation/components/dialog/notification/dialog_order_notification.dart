@@ -299,28 +299,7 @@ class _DialogOrderNotificationState extends State<DialogOrderNotification> {
 
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       actionsAlignment: MainAxisAlignment.spaceBetween,
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xffEA4346),
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: 0,
-          ),
-          child: const Text(
-            "Xác nhận",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
-          ),
-        ),
-      ],
+      actions: buildDialogActions(context: context, onConfirm: submit),
     );
   }
 

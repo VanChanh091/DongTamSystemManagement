@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/sidebar_controller.dart';
 import 'package:dongtam/data/controller/unsaved_change_controller.dart';
+import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/utils/helper/home/leaf_menu_config.dart';
 import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +31,16 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
   Widget build(BuildContext context) {
     final sidebarController = Get.find<SidebarController>();
     final unsavedChangeController = Get.find<UnsavedChangeController>();
+    final userController = Get.find<UserController>();
 
     // Tạo Map tra cứu Index theo Type chỉ 1 lần duy nhất
     final Map<Type, int> pageTypeToIndex = {
       for (int i = 0; i < widget.pages.length; i++) widget.pages[i].runtimeType: i,
     };
+
+    // Lấy role và permissions để kiểm tra quyền hiển thị sidebar
+    final userRole = userController.role.value;
+    final userPermissions = userController.permissions.toList();
 
     return Obx(() {
       final selectedIndex = sidebarController.selectedIndex.value;
@@ -115,7 +121,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
           // Nếu là Menu độc lập cấp 1 (Dashboard, Đổi màu theme)
           if (item is LeafMenuConfig) {
-            if (item.onTap == null && !item.isVisible(pageTypeToIndex)) {
+            if (item.onTap == null && !item.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions)) {
               return const SizedBox.shrink();
             }
 
@@ -135,7 +141,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
           // Nếu là Menu Phòng ban cấp 1
           if (item is DepartmentMenuConfig) {
-            if (!item.isVisible(pageTypeToIndex)) return const SizedBox.shrink();
+            if (!item.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions)) return const SizedBox.shrink();
 
             final isDeptActive = activeKey.startsWith("${item.label} > ");
             final deptKey = "dept_${item.label}";
@@ -216,7 +222,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                   if (widget.isSidebarOpen && isDeptExpanded)
                     ...item.children.map<Widget>((child) {
                       if (child is GroupMenuConfig) {
-                        if (!child.isVisible(pageTypeToIndex)) return const SizedBox.shrink();
+                        if (!child.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions)) return const SizedBox.shrink();
 
                         final groupKey = "group_${item.label}_${child.label}";
                         final isGroupExpanded = sidebarController.isExpanded(groupKey);
@@ -293,7 +299,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                             ),
                             if (isGroupExpanded)
                               ...child.items.map<Widget>((leaf) {
-                                if (!leaf.isVisible(pageTypeToIndex)) {
+                                if (!leaf.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions)) {
                                   return const SizedBox.shrink();
                                 }
 
@@ -317,7 +323,7 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
                       // Xử lý Cấp 2 dạng Leaf trực thuộc Phòng ban
                       if (child is LeafMenuConfig) {
-                        if (!child.isVisible(pageTypeToIndex)) return const SizedBox.shrink();
+                        if (!child.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions)) return const SizedBox.shrink();
                         final leafKey = "${item.label} > ${child.label}";
 
                         return _buildLeafNode(

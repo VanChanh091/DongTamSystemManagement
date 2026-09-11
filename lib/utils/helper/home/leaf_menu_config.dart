@@ -12,6 +12,8 @@ class LeafMenuConfig extends SidebarItem {
   final VoidCallback? onTap;
   final bool showBadge;
   final RxInt? badge;
+  final List<String>? requiredRoles;
+  final List<String>? requiredPermissions;
 
   LeafMenuConfig({
     required this.icon,
@@ -20,6 +22,8 @@ class LeafMenuConfig extends SidebarItem {
     this.onTap,
     this.showBadge = false,
     this.badge,
+    this.requiredRoles,
+    this.requiredPermissions,
   });
 
   int getIndex(Map<Type, int> pageTypeMap) {
@@ -34,9 +38,24 @@ class LeafMenuConfig extends SidebarItem {
 
   int getBadgeValue() => (showBadge && badge != null) ? badge!.value : 0;
 
-  // Kiểm tra hiển thị
-  bool isVisible(Map<Type, int> pageTypeMap) {
+  // Kiểm tra hiển thị — kết hợp cả role/permission restriction lẫn page existence
+  bool isVisible(Map<Type, int> pageTypeMap, {String? userRole, List<String>? userPermissions}) {
     if (pageType == null) return true; // Các nút chức năng hệ thống luôn hiện
+
+    // Kiểm tra role restriction (nếu có)
+    if (requiredRoles != null && requiredRoles!.isNotEmpty) {
+      if (userRole == null || !requiredRoles!.contains(userRole)) {
+        return false;
+      }
+    }
+
+    // Kiểm tra permission restriction (nếu có)
+    if (requiredPermissions != null && requiredPermissions!.isNotEmpty) {
+      if (userPermissions == null || !userPermissions.any((p) => requiredPermissions!.contains(p))) {
+        return false;
+      }
+    }
+
     return pageTypeMap.containsKey(pageType); // Ẩn nếu User không có quyền vào trang này
   }
 }
@@ -57,9 +76,9 @@ class GroupMenuConfig {
     return items.fold(0, (sum, leaf) => sum + leaf.getBadgeValue());
   }
 
-  bool isVisible(Map<Type, int> pageTypeMap) {
+  bool isVisible(Map<Type, int> pageTypeMap, {String? userRole, List<String>? userPermissions}) {
     // Chỉ hiển thị Group nếu có ít nhất một chức năng con bên trong được phép truy cập
-    return items.any((leaf) => leaf.isVisible(pageTypeMap));
+    return items.any((leaf) => leaf.isVisible(pageTypeMap, userRole: userRole, userPermissions: userPermissions));
   }
 }
 
@@ -89,11 +108,11 @@ class DepartmentMenuConfig extends SidebarItem {
     });
   }
 
-  bool isVisible(Map<Type, int> pageTypeMap) {
+  bool isVisible(Map<Type, int> pageTypeMap, {String? userRole, List<String>? userPermissions}) {
     // Chỉ hiển thị Phòng Ban nếu có ít nhất một menu con bên trong khả dụng
     return children.any((child) {
-      if (child is GroupMenuConfig) return child.isVisible(pageTypeMap);
-      if (child is LeafMenuConfig) return child.isVisible(pageTypeMap);
+      if (child is GroupMenuConfig) return child.isVisible(pageTypeMap, userRole: userRole, userPermissions: userPermissions);
+      if (child is LeafMenuConfig) return child.isVisible(pageTypeMap, userRole: userRole, userPermissions: userPermissions);
       return false;
     });
   }

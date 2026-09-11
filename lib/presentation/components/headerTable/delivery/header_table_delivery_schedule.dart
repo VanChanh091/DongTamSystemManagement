@@ -37,7 +37,6 @@ const List<Map<String, dynamic>> _headerDeliverySchedule = [
   {"key": "deliveryId", "title": "Mã Giao Hàng", "visible": false},
   {"key": "deliveryItemId", "title": "", "visible": false},
   {"key": "deliveryDate", "title": "Ngày Giao Hàng", "visible": false},
-  {"key": "status", "title": "Trạng Thái", "visible": false}, //status of delivery item
   {"key": "vehicleName", "title": "Tên Xe", "visible": false},
   {"key": "sequence", "title": "Tài", "visible": false},
 ];

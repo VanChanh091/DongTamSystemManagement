@@ -91,6 +91,7 @@ class _DialogClosingDebtState extends State<DialogClosingDebt> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+
       title: Row(
         children: const [
           Icon(Symbols.attach_money, color: Colors.blue, size: 25),
@@ -98,6 +99,7 @@ class _DialogClosingDebtState extends State<DialogClosingDebt> {
           Text("Chốt Công Nợ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
         ],
       ),
+
       content: Form(
         key: _formKey,
         child: SizedBox(
@@ -320,38 +322,8 @@ class _DialogClosingDebtState extends State<DialogClosingDebt> {
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: _isLoading ? null : _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child:
-              _isLoading
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                  )
-                  : const Text(
-                    "Xác nhận",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
-                  ),
-        ),
-      ],
+
+      actions: buildDialogActions(context: context, isLoading: _isLoading, onConfirm: _submit),
     );
   }
 }

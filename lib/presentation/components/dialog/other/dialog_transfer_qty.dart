@@ -281,27 +281,7 @@ class _DialogTransferQtyState extends State<DialogTransferQty> {
           minHeight: 500,
 
           //button
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Hủy",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff78D761),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: const Text(
-                "Lưu",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-              ),
-            ),
-          ],
+          actions: buildDialogActions(context: context, onConfirm: submit, confirmText: "Lưu"),
 
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,

@@ -29,6 +29,7 @@ class HelperService {
     required T Function(Map<String, dynamic>) fromJson,
     required String dataKey,
     String? totalKey,
+    String? listKey,
   }) async {
     try {
       final token = await SecureStorageService().getToken();

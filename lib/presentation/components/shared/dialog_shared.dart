@@ -272,3 +272,53 @@ Future<bool?> showInputQtyDialog({
     },
   );
 }
+
+List<Widget> buildDialogActions({
+  required BuildContext context,
+  VoidCallback? onConfirm,
+  VoidCallback? onCancel,
+  bool isLoading = false,
+  String cancelText = "Hủy",
+  String confirmText = "Xác nhận",
+  Color confirmColor = Colors.red,
+  Widget? customConfirmButton,
+}) {
+  return [
+    OutlinedButton(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: const Color(0xFF475569),
+        side: const BorderSide(color: Color(0xFFCBD5E1)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+      ),
+      onPressed: isLoading ? null : (onCancel ?? () => Navigator.pop(context)),
+      child: Text(cancelText, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+    ),
+    if (customConfirmButton != null)
+      customConfirmButton
+    else
+      ElevatedButton(
+        onPressed: isLoading ? null : onConfirm,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: confirmColor,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child:
+            isLoading
+                ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                )
+                : Text(
+                  confirmText,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                    color: Colors.white,
+                  ),
+                ),
+      ),
+  ];
+}

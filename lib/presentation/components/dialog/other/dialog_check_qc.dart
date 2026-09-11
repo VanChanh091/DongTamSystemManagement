@@ -303,27 +303,11 @@ class _DialogCheckQcPaperState extends State<DialogCheckQC> {
         width: ResponsiveSize.getWidth(context, ResponsiveType.large),
         child: SingleChildScrollView(child: Form(key: formKey, child: buildQcContent())),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: isAllChecked ? submit : null,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: const Text(
-            "Nhập kho",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
-          ),
-        ),
-      ],
+      actions: buildDialogActions(
+        context: context,
+        onConfirm: isAllChecked ? submit : null,
+        confirmText: "Nhập kho",
+      ),
     );
   }
 }

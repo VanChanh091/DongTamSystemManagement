@@ -92,8 +92,8 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
 
     _loadSalesUsers();
@@ -152,7 +152,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   }
 
   void _fetchData() {
-    final date = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
+    final date = DateFormat("dd/MM/yyyy").parse(dayStartController.text);
     futureDebtSummary = ensureMinLoading(
       DebtService().getCustomerDebtSummary(
         page: currentPage,
@@ -455,9 +455,9 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                     ? CustomerDebtItemModel.fromJson(grandTotalRaw)
                                     : null;
 
-                            _lastTotalDebt = grandTotal?.totalDebt ?? 0;
-                            _lastDueDebt = grandTotal?.overdueDebt ?? 0;
-                            _lastNotDueDebt = grandTotal?.notDueDebt ?? 0;
+                            _lastTotalDebt = grandTotal?.totalDebt ?? 0; // tổng nợ
+                            _lastDueDebt = grandTotal?.overdueDebt ?? 0; // nợ quá hạn
+                            _lastNotDueDebt = grandTotal?.notDueDebt ?? 0; // nợ trong hạn
                           }
 
                           return AnimatedOpacity(
@@ -484,7 +484,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 const Text(
-                                  "Nợ đến hạn: ",
+                                  "Nợ quá hạn: ",
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 _buildAnimatedCounter(
@@ -568,6 +568,10 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
             customers: debts,
             currentPage: currentPg,
             pageSize: pageSize,
+            grandTotal:
+                data["grandTotal"] != null
+                    ? CustomerDebtItemModel.fromJson(data["grandTotal"] as Map<String, dynamic>)
+                    : null,
           );
         }
 
@@ -626,6 +630,69 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                         themeController: themeController,
                                       ),
                                     ),
+                                  ),
+                                ],
+                              ),
+                            ],
+
+                            //table summary
+                            tableSummaryRows: [
+                              GridTableSummaryRow(
+                                showSummaryInRow: false,
+                                title: "Tổng",
+                                position: GridTableSummaryRowPosition.bottom,
+                                columns: [
+                                  // Nợ trong hạn
+                                  const GridSummaryColumn(
+                                    name: "notDueDebt",
+                                    columnName: "notDueDebt",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "currentPeriodDebt",
+                                    columnName: "currentPeriodDebt",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "closedDebt",
+                                    columnName: "closedDebt",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "dueIn1_3",
+                                    columnName: "dueIn1_3",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  // Nợ quá hạn
+                                  const GridSummaryColumn(
+                                    name: "overdue1_30",
+                                    columnName: "overdue1_30",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "overdue31_60",
+                                    columnName: "overdue31_60",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "overdue61_90",
+                                    columnName: "overdue61_90",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "overdue91_120",
+                                    columnName: "overdue91_120",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "overdueOver120",
+                                    columnName: "overdueOver120",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  const GridSummaryColumn(
+                                    name: "dueDebt",
+                                    columnName: "dueDebt",
+                                    summaryType: GridSummaryType.sum,
                                   ),
                                 ],
                               ),

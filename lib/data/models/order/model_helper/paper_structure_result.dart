@@ -38,4 +38,19 @@ class PaperStructureResult {
       matE2: map["matE2"],
     );
   }
+
+  factory PaperStructureResult.empty() {
+    return PaperStructureResult(
+      formattedString: "",
+      day: null,
+      songE: null,
+      matE: null,
+      songB: null,
+      matB: null,
+      songC: null,
+      matC: null,
+      songE2: null,
+      matE2: null,
+    );
+  }
 }

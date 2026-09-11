@@ -7,6 +7,22 @@ import "package:get/get.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 import "package:intl/intl.dart";
 
+const Set<String> _boolColumns = {
+  "chongTham",
+  "canLanBox",
+  "canMang",
+  "xa",
+  "catKhe",
+  "be",
+  "dan_1_Manh",
+  "dan_2_Manh",
+  "dongGhimMotManh",
+  "dongGhimHaiManh",
+  "isBox",
+  "CTPaper",
+  "isFSC",
+};
+
 class OrderDataSource extends DataGridSource {
   final BuildContext context;
   late List<DataGridRow> orderDataGridRows;
@@ -22,22 +38,18 @@ class OrderDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildOrderCells(OrderModel order, int index) {
-    DataGridCell<String> buildCurrencyCell(String columnName, num value, String? unit) {
-      return DataGridCell<String>(
-        columnName: columnName,
-        value: (value) > 0 ? "${OrderModel.formatCurrency(value)} $unit" : "0",
-      );
-    }
-
-    DataGridCell<String> buildDateCell(String columnName, DateTime value) {
-      return DataGridCell<String>(columnName: columnName, value: formatter.format(value));
+    DataGridCell<double> buildCurrencyCell(String columnName, double value) {
+      return DataGridCell<double>(columnName: columnName, value: value);
     }
 
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: order.orderId),
 
-      buildDateCell("dateShipping", order.dateRequestShipping!),
+      DataGridCell<String>(
+        columnName: "dateShipping",
+        value: formatter.format(order.dateRequestShipping!),
+      ),
 
       DataGridCell<String>(columnName: "customerName", value: order.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "typeProduct", value: order.product?.typeProduct ?? ""),
@@ -51,33 +63,28 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "canLan", value: order.canLan ?? ""),
       DataGridCell<String>(columnName: "daoXaOrd", value: order.daoXa),
 
-      buildCurrencyCell("sizeCustomer", order.paperSizeCustomer, "cm"),
-      buildCurrencyCell("sizeManufacture", order.paperSizeManufacture, "cm"),
-      buildCurrencyCell("lengthCus", order.lengthPaperCustomer, "cm"),
-      buildCurrencyCell("lengthMf", order.lengthPaperManufacture, "cm"),
-      buildCurrencyCell("quantityCustomer", order.quantityCustomer, ""),
-      buildCurrencyCell("qtyManufacture", order.quantityManufacture, ""),
+      buildCurrencyCell("sizeCustomer", order.paperSizeCustomer),
+      buildCurrencyCell("sizeManufacture", order.paperSizeManufacture),
+      buildCurrencyCell("lengthCus", order.lengthPaperCustomer),
+      buildCurrencyCell("lengthMf", order.lengthPaperManufacture),
 
-      DataGridCell<String>(
-        columnName: "volume",
-        value: order.volume! > 0 ? OrderModel.formatCurrency(order.volume ?? 0) : "0",
-      ),
+      DataGridCell<int>(columnName: "quantityCustomer", value: order.quantityCustomer),
+      DataGridCell<int>(columnName: "qtyManufacture", value: order.quantityManufacture),
+
+      DataGridCell<double>(columnName: "volume", value: order.volume ?? 0),
       DataGridCell<int>(columnName: "child", value: order.numberChild),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
 
-      buildCurrencyCell("acreage", order.acreage ?? 0, ""),
-      buildCurrencyCell("price", order.price, "VNĐ"),
-      buildCurrencyCell("pricePaper", order.pricePaper ?? 0, "VNĐ"),
-      buildCurrencyCell("discounts", order.discount ?? 0, "VNĐ"),
-      DataGridCell<String>(
-        columnName: "profitOrd",
-        value: order.profit > 0 ? "${OrderModel.formatCurrency(order.profit)}%" : "0",
-      ),
-
+      buildCurrencyCell("acreage", order.acreage ?? 0),
       DataGridCell<String>(columnName: "vat", value: order.vat! > 0 ? "${order.vat ?? 0}%" : "0"),
-      DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ""),
 
-      buildCurrencyCell("totalPrice", order.totalPrice ?? 0, "VNĐ"),
+      buildCurrencyCell("price", order.price),
+      buildCurrencyCell("pricePaper", order.pricePaper ?? 0),
+      buildCurrencyCell("discounts", order.discount ?? 0),
+      buildCurrencyCell("profitOrd", order.profit),
+      buildCurrencyCell("totalPrice", order.totalPrice ?? 0),
+
+      DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ""),
 
       ...buildBoxCells(order),
     ];
@@ -141,33 +148,6 @@ class OrderDataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => orderDataGridRows;
 
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = [
-      "chongTham",
-      "canLanBox",
-      "canMang",
-      "xa",
-      "catKhe",
-      "be",
-      "dan_1_Manh",
-      "dan_2_Manh",
-      "dongGhimMotManh",
-      "dongGhimHaiManh",
-      "isBox",
-      "CTPaper",
-      "isFSC",
-    ];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
-  }
-
   void buildDataCell() {
     orderDataGridRows =
         orders.asMap().entries.map<DataGridRow>((entry) {
@@ -180,12 +160,101 @@ class OrderDataSource extends DataGridSource {
     });
   }
 
+  Widget _buildImageCell(String imageUrl) {
+    final hasImage = imageUrl.isNotEmpty && imageUrl != "Không có ảnh";
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child:
+          hasImage
+              ? TextButton(
+                onPressed: () => _showImageDialog(imageUrl),
+                child: const Text(
+                  "Xem ảnh",
+                  style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                ),
+              )
+              : const Text("Không có ảnh"),
+    );
+  }
+
+  void _showImageDialog(String imageUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder:
+          (_) => GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Scaffold(
+              backgroundColor: Colors.black54,
+              body: Center(
+                child: GestureDetector(
+                  onTap: () {}, // Ngăn đóng dialog khi bấm trúng ảnh
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 800,
+                      height: 800,
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder:
+                            (_, __, ___) => Container(
+                              width: 300,
+                              height: 300,
+                              color: Colors.grey.shade300,
+                              alignment: Alignment.center,
+                              child: const Text("Lỗi ảnh", style: TextStyle(color: Colors.black)),
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
+  Widget _buildCell(DataGridCell dataCell) {
+    // Xử lý cột ảnh
+    if (dataCell.columnName == "orderImage") {
+      return _buildImageCell(dataCell.value?.toString() ?? "");
+    }
+
+    final value = dataCell.value;
+    String displayValue = "";
+    Alignment alignment = Alignment.centerLeft;
+
+    // Xử lý cột dạng số
+    if (value is num) {
+      alignment = Alignment.centerRight;
+
+      final numVal = value.toDouble();
+      displayValue = (numVal == 0) ? "-" : OrderModel.formatCurrency(numVal);
+    }
+    //Xử lý cột dạng Boolean
+    else if (_boolColumns.contains(dataCell.columnName)) {
+      alignment = Alignment.center;
+      displayValue = (value == true) ? "✅" : "";
+    }
+    // Các cột văn bản thông thường
+    else {
+      displayValue = value?.toString() ?? "";
+    }
+
+    return formatDataTable(label: displayValue, alignment: alignment);
+  }
+
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     //get value cell
     final orderId = getCellValue<String>(row, "orderId", "");
-    final statusCell = getCellValue<String>(row, "status", "");
-    final status = statusCell.toString().toLowerCase();
+    final status = getCellValue<String>(row, "status", "").toLowerCase();
 
     // Chọn màu nền theo status
     Color backgroundColor;
@@ -206,88 +275,7 @@ class OrderDataSource extends DataGridSource {
 
     return DataGridRowAdapter(
       color: backgroundColor,
-      cells:
-          row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
-
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
-            } else if (cellText == "✅") {
-              alignment = Alignment.center;
-            } else {
-              alignment = Alignment.centerLeft;
-            }
-
-            if (dataCell.columnName == "orderImage") {
-              final imageUrl = dataCell.value?.toString() ?? "";
-              final hasImage = imageUrl.isNotEmpty && imageUrl != "Không có ảnh";
-
-              return Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child:
-                    hasImage
-                        ? TextButton(
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: true,
-                              builder: (_) {
-                                return GestureDetector(
-                                  onTap: () => Navigator.of(context).pop(),
-                                  child: Scaffold(
-                                    backgroundColor: Colors.black54,
-                                    body: Center(
-                                      child: GestureDetector(
-                                        onTap: () {}, // Ngăn đóng dialog khi bấm ảnh
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(12),
-                                          child: SizedBox(
-                                            width: 800,
-                                            height: 800,
-                                            child: Image.network(
-                                              imageUrl,
-                                              fit: BoxFit.contain,
-                                              errorBuilder: (context, error, stackTrace) {
-                                                return Container(
-                                                  width: 300,
-                                                  height: 300,
-                                                  color: Colors.grey.shade300,
-                                                  alignment: Alignment.center,
-                                                  child: const Text(
-                                                    "Lỗi ảnh",
-                                                    style: TextStyle(color: Colors.black),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                          child: const Text(
-                            "Xem ảnh",
-                            style: TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        )
-                        : Text("Không có ảnh"),
-              );
-            }
-
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
-          }).toList(),
+      cells: row.getCells().map(_buildCell).toList(),
     );
   }
 }

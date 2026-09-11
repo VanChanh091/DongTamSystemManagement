@@ -1,14 +1,14 @@
-import 'dart:io';
+import "dart:io";
 
-import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/utils/handleError/dio_client.dart';
-import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import "package:dio/dio.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/planning/planning_stages.dart";
+import "package:dongtam/utils/handleError/dio_client.dart";
+import "package:dongtam/utils/helper/helper_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
 
 class SyntheticService {
   final Dio dioService = DioClient().dio;
@@ -27,24 +27,24 @@ class SyntheticService {
     return HelperService().fetchPaginatedData<OrderModel>(
       endpoint: "synthetic/orders",
       queryParameters: {
-        'status': status,
-        'page': page,
-        'pageSize': pageSize,
-        'allOrders': allOrders,
-        if (field != null && keyword != null) 'field': field,
-        if (field != null && keyword != null) 'keyword': keyword,
-        if (startDate != null) 'startDate': startDate.toIso8601String(),
-        if (endDate != null) 'endDate': endDate.toIso8601String(),
+        "status": status,
+        "page": page,
+        "pageSize": pageSize,
+        "allOrders": allOrders,
+        if (field != null && keyword != null) "field": field,
+        if (field != null && keyword != null) "keyword": keyword,
+        if (startDate != null) "startDate": startDate.toIso8601String(),
+        if (endDate != null) "endDate": endDate.toIso8601String(),
       },
       fromJson: (json) => OrderModel.fromJson(json),
-      dataKey: 'orders',
+      dataKey: "orders",
     );
   }
 
   Future<PlanningBoxModel?> getSyntheticBoxDetail({required String orderId}) async {
     return HelperService().fetchingSingleListData(
       endpoint: "synthetic/orders",
-      queryParameters: {'orderId': orderId},
+      queryParameters: {"orderId": orderId},
       fromJson: (json) => PlanningBoxModel.fromJson(json),
     );
   }
@@ -68,7 +68,7 @@ class SyntheticService {
         "/api/synthetic/orders/export",
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -97,9 +97,9 @@ class SyntheticService {
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "synthetic/planning",
-      queryParameters: {'page': page, 'pageSize': pageSize, 'status': status},
+      queryParameters: {"page": page, "pageSize": pageSize, "status": status},
       fromJson: (json) => PlanningPaperModel.fromJson(json),
-      dataKey: 'dashboard',
+      dataKey: "dashboard",
     );
   }
 
@@ -107,7 +107,7 @@ class SyntheticService {
   Future<List<PlanningStageModel>> getSyntheticPlanningDetail({required int planningId}) async {
     return HelperService().fetchingData(
       endpoint: "synthetic/planning",
-      queryParameters: {'planningId': planningId},
+      queryParameters: {"planningId": planningId},
       fromJson: (json) => PlanningStageModel.fromJson(json),
     );
   }
@@ -121,9 +121,9 @@ class SyntheticService {
   }) async {
     return HelperService().fetchPaginatedData<PlanningPaperModel>(
       endpoint: "synthetic/planning",
-      queryParameters: {'field': field, 'keyword': keyword, 'page': page, 'pageSize': pageSize},
+      queryParameters: {"field": field, "keyword": keyword, "page": page, "pageSize": pageSize},
       fromJson: (json) => PlanningPaperModel.fromJson(json),
-      dataKey: 'dashboard',
+      dataKey: "dashboard",
     );
   }
 
@@ -141,11 +141,11 @@ class SyntheticService {
       // final Map<String, dynamic> body = {"all": all};
       final Map<String, dynamic> body = {};
       if (username != null) {
-        body['username'] = username;
+        body["username"] = username;
       } else if (machine != null) {
-        body['machine'] = machine;
+        body["machine"] = machine;
       } else if (customerName != null) {
-        body['customerName'] = customerName;
+        body["customerName"] = customerName;
       } else if (dayStart != null) {
         body["dayStart"] = dayStart.toIso8601String();
       }
@@ -154,7 +154,7 @@ class SyntheticService {
         "/api/synthetic/planning/export",
         data: body,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -172,5 +172,37 @@ class SyntheticService {
       AppLogger.e("failed to export db planning", error: e, stackTrace: s);
       return null;
     }
+  }
+
+  //=========================REPORTS=========================
+  Future<Map<String, dynamic>> getRevenueReport<T>({
+    required String type, // "daily" | "yearly"
+    required String dataKey,
+    required T Function(Map<String, dynamic>) fromJson,
+    int? page,
+    int? pageSize,
+    int? month,
+    int? year,
+    int? fromYear,
+    int? toYear,
+    String? targetUserId,
+  }) async {
+    final Map<String, dynamic> queryParameters = {
+      "type": type,
+      "page": page,
+      "pageSize": pageSize,
+      if (month != null) "month": month,
+      if (year != null) "year": year,
+      if (fromYear != null) "fromYear": fromYear,
+      if (toYear != null) "toYear": toYear,
+      if (targetUserId != null) "targetUserId": targetUserId,
+    };
+
+    return HelperService().fetchPaginatedData<T>(
+      endpoint: "synthetic/report-revenue",
+      queryParameters: queryParameters,
+      fromJson: fromJson,
+      dataKey: dataKey,
+    );
   }
 }

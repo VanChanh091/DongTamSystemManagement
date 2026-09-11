@@ -819,7 +819,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             color: themeController.backgroundColor.value,
             child: Center(
               child: Text(
-                "Không có đơn hàng nào",
+                "Không có dữ liệu",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
               ),
             ),

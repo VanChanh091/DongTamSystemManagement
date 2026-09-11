@@ -387,6 +387,30 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                               formatColumn(label: 'Công Đoạn 2', themeController: themeController),
                         ),
                       ),
+                      StackedHeaderCell(
+                        columnNames: [
+                          "price",
+                          "pricePaper",
+                          "discounts",
+                          "profitOrd",
+                          "totalPrice",
+                        ],
+                        child: Obx(
+                          () => formatColumn(
+                            label: 'Khoản Phí (VNĐ)',
+                            themeController: themeController,
+                          ),
+                        ),
+                      ),
+                      StackedHeaderCell(
+                        columnNames: ["sizeCustomer", "sizeManufacture", "lengthCus", "lengthMf"],
+                        child: Obx(
+                          () => formatColumn(
+                            label: 'Quy Cách Giấy (cm)',
+                            themeController: themeController,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ],

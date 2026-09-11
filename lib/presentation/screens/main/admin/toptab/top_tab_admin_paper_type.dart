@@ -30,8 +30,8 @@ class _TopTabAdminPaperTypeState extends State<TopTabAdminPaperType> {
               overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [
                 Tab(text: "Nhà Cung Cấp"),
-                Tab(text: "Loại Giấy"),
-                Tab(text: "Định Lượng Giấy"),
+                Tab(text: "Ký Hiệu Loại Giấy"),
+                Tab(text: "Ký Hiệu Định Lượng"),
               ],
             ),
           ),

@@ -1,49 +1,50 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/notification_controller.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_show_notification.dart';
-import 'package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_criteria.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_order.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_mange_user.dart';
-import 'package:dongtam/presentation/screens/main/admin/admin_vehicle.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_code.dart';
-import 'package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_type.dart';
-import 'package:dongtam/presentation/screens/main/customer/customer.dart';
-import 'package:dongtam/presentation/screens/main/dashboard/dashboard.dart';
-import 'package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart';
-import 'package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart';
-import 'package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart';
-import 'package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart';
-import 'package:dongtam/presentation/screens/main/delivery/delivery_planning.dart';
-import 'package:dongtam/presentation/screens/main/employee/employee.dart';
-import 'package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart';
-import 'package:dongtam/presentation/screens/main/manufacture/paper_production.dart';
-import 'package:dongtam/presentation/screens/main/order/top_tab_order.dart';
-import 'package:dongtam/presentation/screens/main/planning/planning_stop.dart';
-import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart';
-import 'package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart';
-import 'package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart';
-import 'package:dongtam/presentation/screens/main/product/product.dart';
-import 'package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart';
-import 'package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart';
-import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart';
-import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart';
-import 'package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart';
-import 'package:dongtam/presentation/screens/main/warehouse/inventory.dart';
-import 'package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart';
-import 'package:dongtam/presentation/screens/main/warehouse/outbound_history.dart';
-import 'package:dongtam/utils/helper/home/leaf_menu_config.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/notification_controller.dart";
+import "package:dongtam/presentation/components/dialog/other/dialog_show_notification.dart";
+import "package:dongtam/presentation/screens/main/QC/inspectionCheck/top_tab_inspection_check.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_criteria.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_order.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_mange_user.dart";
+import "package:dongtam/presentation/screens/main/admin/admin_vehicle.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_box.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_criteria_check.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_code.dart";
+import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_type.dart";
+import "package:dongtam/presentation/screens/main/customer/customer.dart";
+import "package:dongtam/presentation/screens/main/dashboard/dashboard.dart";
+import "package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart";
+import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart";
+import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
+import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
+import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
+import "package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_prepare_goods.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_schedule.dart";
+import "package:dongtam/presentation/screens/main/delivery/delivery_planning.dart";
+import "package:dongtam/presentation/screens/main/employee/employee.dart";
+import "package:dongtam/presentation/screens/main/manufacture/box_printing_production.dart";
+import "package:dongtam/presentation/screens/main/manufacture/paper_production.dart";
+import "package:dongtam/presentation/screens/main/order/top_tab_order.dart";
+import "package:dongtam/presentation/screens/main/planning/planning_stop.dart";
+import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_box.dart";
+import "package:dongtam/presentation/screens/main/planning/production_queue/production_queue_paper.dart";
+import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
+import "package:dongtam/presentation/screens/main/product/product.dart";
+import "package:dongtam/presentation/screens/main/report/reportWarehouse/report_inbound_history.dart";
+import "package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_history_report.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
+import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
+import "package:dongtam/presentation/screens/main/synthetic/top_tab_synthetic_revenue.dart";
+import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
+import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
+import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
+import "package:dongtam/utils/helper/home/leaf_menu_config.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChangeTheme) {
   final notifController = Get.find<NotificationController>();
@@ -82,6 +83,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.dual_screen,
               label: "Tổng Hợp Sản Xuất",
               pageType: SyntheticPlanning,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.category,
+              label: "Phân Loại Giấy",
+              pageType: TopTabAdminPaperType,
             ),
           ],
         ),
@@ -138,7 +144,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
       icon: Icons.business,
       label: "Kinh Doanh",
       children: [
-        // GroupMenuConfig(icon: Icons.shopping_cart, label: "Quản Lý Đơn Hàng", items: []),
         LeafMenuConfig(
           icon: Icons.gavel,
           label: "Duyệt Đơn",
@@ -158,6 +163,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Symbols.account_balance_wallet,
           label: "Công Nợ Khách Hàng",
           pageType: DebtCustomerSummary,
+        ),
+        LeafMenuConfig(
+          icon: Symbols.analytics,
+          label: "Báo Cáo Doanh Số",
+          pageType: TopTabSyntheticRevenue,
         ),
       ],
     ),
@@ -331,22 +341,43 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Icons.gif_box,
               label: "Máy Sóng và Phế Liệu",
               pageType: TopTabAdminPaper,
+              requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Icons.gif_box,
               label: "In Ấn và Phế Liệu",
               pageType: TopTabAdminBox,
+              requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Symbols.directions_car,
               label: "Xe Giao Hàng",
               pageType: AdminVehicle,
+              requiredRoles: ["admin", "manager"],
             ),
-            LeafMenuConfig(icon: Icons.people, label: "Người Dùng", pageType: AdminMangeUser),
+            LeafMenuConfig(
+              icon: Icons.people,
+              label: "Người Dùng",
+              pageType: AdminMangeUser,
+              requiredRoles: ["admin"],
+            ),
             LeafMenuConfig(
               icon: Symbols.account_balance_wallet,
               label: "Công Nợ Khách Hàng",
               pageType: DebtCustomerSummary,
+              requiredRoles: ["admin"],
+            ),
+          ],
+        ),
+        GroupMenuConfig(
+          icon: Icons.analytics_outlined,
+          label: "Thống Kê",
+          items: [
+            LeafMenuConfig(
+              icon: Symbols.analytics,
+              label: "Báo Cáo Doanh Số",
+              pageType: TopTabSyntheticRevenue,
+              requiredRoles: ["admin", "manager"],
             ),
           ],
         ),
@@ -356,13 +387,15 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           items: [
             LeafMenuConfig(
               icon: Symbols.category,
-              label: "Loại Giấy và Định Lượng",
+              label: "Phân Loại Giấy",
               pageType: TopTabAdminPaperType,
+              requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Symbols.category,
               label: "Phân Loại Mã Giấy",
               pageType: TopTabAdminPaperCode,
+              requiredRoles: ["admin"],
             ),
           ],
         ),
@@ -370,11 +403,17 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Icons.rule_folder,
           label: "Tiêu Chí Kiểm Tra",
           items: [
-            LeafMenuConfig(icon: Icons.rule, label: "Kiểm Tra Thành Phẩm", pageType: AdminCriteria),
+            LeafMenuConfig(
+              icon: Icons.rule,
+              label: "Kiểm Tra Thành Phẩm",
+              pageType: AdminCriteria,
+              requiredRoles: ["admin"],
+            ),
             LeafMenuConfig(
               icon: Icons.rule,
               label: "Tiến Trình Sản Xuất",
               pageType: TopTabCriteriaCheck,
+              requiredRoles: ["admin"],
             ),
           ],
         ),

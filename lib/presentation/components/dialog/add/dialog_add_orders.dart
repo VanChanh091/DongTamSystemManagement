@@ -10,6 +10,7 @@ import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/product/product_model.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_product.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/service/config/upload_cloudinary_service.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/order_service.dart";
@@ -1088,31 +1089,7 @@ class _OrderDialogState extends State<OrderDialog> {
           minHeight: 600,
 
           //btn
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                "Hủy",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              child: Text(
-                isEdit ? "Cập nhật" : "Thêm",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
+          actions: buildDialogActions(context: context, onConfirm: submit),
 
           //scroll view
           child: Material(

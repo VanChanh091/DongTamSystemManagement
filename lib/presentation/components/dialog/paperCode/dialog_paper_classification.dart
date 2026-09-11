@@ -310,27 +310,11 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: _submit,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          child: Text(
-            widget.isEdit ? "Cập nhật" : "Lưu tất cả",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white),
-          ),
-        ),
-      ],
+      actions: buildDialogActions(
+        context: context,
+        onConfirm: _submit,
+        confirmText: widget.isEdit ? "Cập nhật" : "Lưu tất cả",
+      ),
       child:
           isLoadingData
               ? const Center(child: CircularProgressIndicator())

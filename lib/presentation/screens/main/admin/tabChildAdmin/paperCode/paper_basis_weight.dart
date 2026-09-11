@@ -22,6 +22,7 @@ class _PaperBasisWeightState extends State<PaperBasisWeight> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
+  late bool isAdmin;
   int? selectedBasisWeight;
   bool selectedAll = false;
 
@@ -34,12 +35,9 @@ class _PaperBasisWeightState extends State<PaperBasisWeight> {
   @override
   void initState() {
     super.initState();
+    isAdmin = userController.hasAnyRole(roles: ["admin"]);
 
-    if (userController.hasAnyRole(roles: ["admin"])) {
-      loadBasisWeight();
-    } else {
-      futureBasisWeight = Future.error("NO_PERMISSION");
-    }
+    loadBasisWeight();
   }
 
   void loadBasisWeight() {
@@ -78,15 +76,13 @@ class _PaperBasisWeightState extends State<PaperBasisWeight> {
           ),
         ],
       ),
+
       floatingActionButton: Obx(
-        () =>
-            isAdmin
-                ? FloatingActionButton(
-                  onPressed: loadBasisWeight,
-                  backgroundColor: themeController.buttonColor.value,
-                  child: const Icon(Icons.refresh, color: Colors.white),
-                )
-                : const SizedBox.shrink(),
+        () => FloatingActionButton(
+          onPressed: loadBasisWeight,
+          backgroundColor: themeController.buttonColor.value,
+          child: const Icon(Icons.refresh, color: Colors.white),
+        ),
       ),
     );
   }
@@ -95,7 +91,7 @@ class _PaperBasisWeightState extends State<PaperBasisWeight> {
     return Column(
       children: [
         Text(
-          "ĐỊNH LƯỢNG GIẤY",
+          "KÝ HIỆU ĐỊNH LƯỢNG GIẤY",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,

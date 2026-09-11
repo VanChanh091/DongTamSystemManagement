@@ -1,7 +1,7 @@
-import 'package:dongtam/data/models/order/model_helper/paper_classification_item.dart';
-import 'package:dongtam/data/models/order/model_helper/paper_structure_result.dart';
-import 'package:dongtam/utils/helper/orderHelper/paper_picker_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:dongtam/utils/helper/orderHelper/paper_picker_dialog.dart';
+import 'package:dongtam/data/models/order/model_helper/paper_structure_result.dart';
+import 'package:dongtam/data/models/order/model_helper/paper_classification_item.dart';
 
 class PaperStructureHelper extends StatefulWidget {
   final List<PaperClassificationItem> allPapers;
@@ -457,76 +457,101 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
             ),
             const SizedBox(height: 12),
 
-            // Preview kết quả và nút áp dụng
+            // Preview kết quả và nút áp dụng / xóa kết cấu
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFFEFF6FF),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFFBFDBFE)),
+                color: const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Row(
                 children: [
+                  const Text(
+                    "KẾT CẤU TỰ SINH:",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "KẾT CẤU TỰ SINH:",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2563EB),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          previewResult,
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF1E3A8A),
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text(
-                      "Hủy",
-                      style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2563EB),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
-                    onPressed:
-                        isFull
-                            ? () {
-                              final data = {
-                                for (int i = 0; i < activeSlots.length; i++)
-                                  activeSlots[i]["field"] as String: chosenSlots[i]?.paperCode,
-                              };
-
-                              Navigator.pop(
-                                context,
-                                PaperStructureResult.fromMap(previewResult, data),
-                              );
-                            }
-                            : null,
-                    child: const Text(
-                      "Áp dụng vào đơn",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    child: Text(
+                      previewResult,
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1E3A8A),
+                        letterSpacing: 0.5,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // --- 2. HÀNG NÚT BẤM CHUẨN UX (TRÁI: XÓA | PHẢI: HỦY & ÁP DỤNG) ---
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFFDC2626),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  ),
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18),
+                  label: const Text("Xóa kết cấu", style: TextStyle(fontWeight: FontWeight.w600)),
+                  onPressed: () {
+                    Navigator.pop(context, PaperStructureResult.empty());
+                  },
+                ),
+
+                Row(
+                  children: [
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      ),
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text(
+                        "Hủy",
+                        style: TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2563EB),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 11),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed:
+                          isFull
+                              ? () {
+                                final data = {
+                                  for (int i = 0; i < activeSlots.length; i++)
+                                    activeSlots[i]["field"] as String: chosenSlots[i]?.paperCode,
+                                };
+                                Navigator.pop(
+                                  context,
+                                  PaperStructureResult.fromMap(previewResult, data),
+                                );
+                              }
+                              : null,
+                      child: const Text(
+                        "Áp dụng vào đơn",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),

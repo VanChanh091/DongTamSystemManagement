@@ -1,6 +1,7 @@
 import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_code.dart";
 import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_type.dart";
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
+import "package:dongtam/presentation/screens/main/synthetic/top_tab_synthetic_revenue.dart";
 import "package:get/get.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
@@ -151,7 +152,13 @@ class _HomePageState extends State<HomePage> {
 
       //synthetic
       SyntheticPlanning(),
+      TopTabAdminPaperType(),
       _buildPage(permissions: ["sale", "accountant", "plan"], child: SyntheticOrder()),
+      _buildPage(
+        permissions: ["sale"],
+        roles: ["admin", "manager"],
+        child: TopTabSyntheticRevenue(),
+      ),
 
       // admin
       _buildPage(roles: ["admin", "manager"], child: AdminOrder()),
@@ -161,6 +168,8 @@ class _HomePageState extends State<HomePage> {
       _buildPage(roles: ["admin"], child: AdminCriteria()),
       _buildPage(roles: ["admin"], child: TopTabCriteriaCheck()),
       _buildPage(roles: ["admin"], child: AdminMangeUser()),
+
+      //paper code
       _buildPage(roles: ["admin"], child: TopTabAdminPaperType()),
       _buildPage(roles: ["admin"], child: TopTabAdminPaperCode()),
     ].whereType<Widget>().toList(); // lọc bỏ null

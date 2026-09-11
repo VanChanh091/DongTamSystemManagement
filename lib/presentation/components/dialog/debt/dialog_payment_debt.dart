@@ -296,15 +296,10 @@ class _DialogPaymentDebtState extends State<DialogPaymentDebt> {
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _isLoading ? null : () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
-        AnimatedContainer(
+      actions: buildDialogActions(
+        context: context,
+        isLoading: _isLoading,
+        customConfirmButton: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           child: ElevatedButton(
             onPressed: _isLoading ? null : _submit,
@@ -338,7 +333,7 @@ class _DialogPaymentDebtState extends State<DialogPaymentDebt> {
                     ),
           ),
         ),
-      ],
+      ),
     );
   }
 

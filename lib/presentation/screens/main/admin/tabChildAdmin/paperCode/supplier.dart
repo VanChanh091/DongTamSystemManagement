@@ -23,6 +23,7 @@ class _SupplierState extends State<Supplier> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
+  late bool isAdmin;
   int? selectedSupplier;
   bool selectedAll = false;
 
@@ -35,12 +36,9 @@ class _SupplierState extends State<Supplier> {
   @override
   void initState() {
     super.initState();
+    isAdmin = userController.hasAnyRole(roles: ["admin"]);
 
-    if (userController.hasAnyRole(roles: ["admin"])) {
-      loadSupplier();
-    } else {
-      futureSupplier = Future.error("NO_PERMISSION");
-    }
+    loadSupplier();
   }
 
   void loadSupplier() {
@@ -80,14 +78,11 @@ class _SupplierState extends State<Supplier> {
         ],
       ),
       floatingActionButton: Obx(
-        () =>
-            isAdmin
-                ? FloatingActionButton(
-                  onPressed: loadSupplier,
-                  backgroundColor: themeController.buttonColor.value,
-                  child: const Icon(Icons.refresh, color: Colors.white),
-                )
-                : SizedBox.shrink(),
+        () => FloatingActionButton(
+          onPressed: loadSupplier,
+          backgroundColor: themeController.buttonColor.value,
+          child: const Icon(Icons.refresh, color: Colors.white),
+        ),
       ),
     );
   }

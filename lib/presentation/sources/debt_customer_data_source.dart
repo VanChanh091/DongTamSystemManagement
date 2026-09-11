@@ -9,6 +9,7 @@ class DebtCustomerDataSource extends DataGridSource {
   final String? selectedCustomerId;
   final int currentPage;
   final int pageSize;
+  final CustomerDebtItemModel? grandTotal;
 
   late List<DataGridRow> customerDataGridRows;
 
@@ -17,6 +18,7 @@ class DebtCustomerDataSource extends DataGridSource {
     required this.currentPage,
     required this.pageSize,
     this.selectedCustomerId,
+    this.grandTotal,
   }) {
     buildDataGridRows();
   }
@@ -64,22 +66,19 @@ class DebtCustomerDataSource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             final columnName = dataCell.columnName;
+
             final value = dataCell.value;
-
             String displayValue = "";
-            Alignment alignment = Alignment.centerLeft;
-            Color? textColor;
 
-            // 3. Căn phải & Format tiền tệ cho các cột tiền / tuổi nợ
+            Color? textColor;
+            Alignment alignment = Alignment.centerLeft;
+
+            // format cho các cột tiền
             if (value is num) {
               alignment = Alignment.centerRight;
 
               final numVal = value.toDouble();
-              if (numVal == 0) {
-                displayValue = "-";
-              } else {
-                displayValue = OrderModel.formatCurrency(numVal);
-              }
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
 
               // Nổi bật cột "Nợ đến hạn" hoặc các cột nợ quá hạn có tiền > 0
               if (columnName == "dueDebt" && numVal > 0) {
@@ -95,5 +94,45 @@ class DebtCustomerDataSource extends DataGridSource {
             return formatDataTable(label: displayValue, alignment: alignment, textColor: textColor);
           }).toList(),
     );
+  }
+
+  @override
+  Widget? buildTableSummaryCellWidget(
+    GridTableSummaryRow summaryRow,
+    GridSummaryColumn? summaryColumn,
+    RowColumnIndex rowColumnIndex,
+    String summaryValue,
+  ) {
+    if (summaryColumn == null || grandTotal == null) return null;
+
+    // Lấy giá trị từ grandTotal theo columnName
+    final value = _getGrandTotalValue(summaryColumn.columnName);
+    final displayValue = value == 0 ? "-" : OrderModel.formatCurrency(value);
+
+    return Container(
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Text(
+        displayValue,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+      ),
+    );
+  }
+
+  double _getGrandTotalValue(String columnName) {
+    final gt = grandTotal!;
+    return switch (columnName) {
+      "notDueDebt" => gt.notDueDebt,
+      "currentPeriodDebt" => gt.currentPeriodDebt,
+      "closedDebt" => gt.closedDebt,
+      "dueIn1_3" => gt.aging.dueIn1_3,
+      "overdue1_30" => gt.aging.overdue1_30,
+      "overdue31_60" => gt.aging.overdue31_60,
+      "overdue61_90" => gt.aging.overdue61_90,
+      "overdue91_120" => gt.aging.overdue91_120,
+      "overdueOver120" => gt.aging.overdueOver120,
+      "dueDebt" => gt.overdueDebt,
+      _ => 0,
+    };
   }
 }

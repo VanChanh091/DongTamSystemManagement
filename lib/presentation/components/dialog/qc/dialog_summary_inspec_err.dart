@@ -134,13 +134,6 @@ class _DialogSummaryInspecErrState extends State<DialogSummaryInspecErr> {
       ),
 
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text(
-            "Hủy",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Colors.black54),
-          ),
-        ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context),
           style: ElevatedButton.styleFrom(

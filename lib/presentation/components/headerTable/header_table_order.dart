@@ -35,15 +35,15 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "dvt", "title": "ĐVT"},
 
   {"key": "acreage", "title": "Diện Tích"},
+  {"key": "vat", "title": "VAT"},
+
   {"key": "price", "title": "Giá m²/pcs"},
   {"key": "pricePaper", "title": "Đơn Giá"},
   {"key": "discounts", "title": "Chiết Khấu"},
   {"key": "profitOrd", "title": "Lợi Nhuận"},
-
-  {"key": "vat", "title": "VAT"},
-  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-
   {"key": "totalPrice", "title": "Tổng Tiền"},
+
+  {"key": "instructSpecial", "title": "HD Đặc Biệt"},
 
   // Box
   {"key": "inMatTruoc", "title": "In Mặt Trước"},
