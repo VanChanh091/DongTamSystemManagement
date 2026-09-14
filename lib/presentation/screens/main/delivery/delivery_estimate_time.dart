@@ -1,36 +1,36 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_estimate.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart';
-import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
-import 'package:dongtam/service/synthetic_service.dart';
-import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/planning/planning_stages.dart";
+import "package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_estimate.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/delivery/delivery_estimate_data_source.dart";
+import "package:dongtam/presentation/sources/planning/stages_data_source.dart";
+import "package:dongtam/service/synthetic_service.dart";
+import "package:dongtam/service/delivery_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DeliveryEstimateTime extends StatefulWidget {
   const DeliveryEstimateTime({super.key});
@@ -58,7 +58,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
   //filter
   String allOrders = "false";
-  final Map<String, String> filterOptions = {'false': 'Đơn Bản Thân', 'true': 'Tất Cả Đơn'};
+  final Map<String, String> filterOptions = {"false": "Đơn Bản Thân", "true": "Tất Cả Đơn"};
 
   //search
   String searchType = "Tất cả";
@@ -104,13 +104,13 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
     columnsPaper = buildDeliveryEstimateColumn(themeController: themeController);
     columnsStages = buildStageColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'estimateTime', columns: columnsPaper).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "estimateTime", columns: columnsPaper).then((w) {
       setState(() {
         columnWidthsPlanning = w;
       });
     });
 
-    ColumnWidthTable.loadWidths(tableKey: 'stage', columns: columnsStages).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "stage", columns: columnsStages).then((w) {
       setState(() {
         columnWidthsStage = w;
       });
@@ -118,16 +118,16 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
-    estimateTimeController.text = '17:00';
+    estimateTimeController.text = "17:00";
 
     loadPlanningEstimate();
   }
 
   void _fetchData() {
-    final dayStart = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
+    final dayStart = DateFormat("dd/MM/yyyy").parse(dayStartController.text);
 
     final String keyword = searchController.text.trim().toLowerCase();
     final String selectedField = searchFieldMap[searchType] ?? "";
@@ -164,7 +164,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
       return;
     }
 
-    final timeRegex = RegExp(r'^([01]?[0-9]|2[0-3]):[0-5][0-9]$');
+    final timeRegex = RegExp(r"^([01]?[0-9]|2[0-3]):[0-5][0-9]$");
     if (!timeRegex.hasMatch(estimateTimeController.text)) {
       showSnackBarError(context, "Giờ bắt đầu không đúng định dạng (hh:mm). Ví dụ: 08:00");
       return;
@@ -180,7 +180,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   void _updateSelectedIdsFromRows(List<DataGridRow> selectedRows) async {
     final List<int> ids =
         selectedRows.map((row) {
-          return row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value as int;
+          return row.getCells().firstWhere((cell) => cell.columnName == "planningId").value as int;
         }).toList();
 
     // Cập nhật danh sách ID và tạm thời xóa chi tiết cũ
@@ -334,11 +334,11 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                           //left button
                           LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên Khách Hàng'],
+                            types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
+                                isTextFieldEnabled = value != "Tất cả";
 
                                 if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                                   searchController.clear();
@@ -370,7 +370,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                         !hasSelection || selectedPlanningIds.length > 1
                                             ? null
                                             : () => _handleRegister(selectedPlanningIds),
-                                    label: 'Đăng Ký Giao',
+                                    label: "Đăng Ký Giao",
                                     icon: Symbols.confirmation_number,
                                     backgroundColor: themeController.buttonColor,
                                   ),
@@ -397,7 +397,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                   //filter
                                   buildDropdownItems(
                                     value: allOrders,
-                                    items: const ['false', 'true'],
+                                    items: const ["false", "true"],
                                     onChanged:
                                         (value) => {
                                           setState(() {
@@ -451,8 +451,8 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                               );
                               if (selected != null) {
                                 dayStartController.text =
-                                    "${selected.day.toString().padLeft(2, '0')}/"
-                                    "${selected.month.toString().padLeft(2, '0')}/"
+                                    "${selected.day.toString().padLeft(2, "0")}/"
+                                    "${selected.month.toString().padLeft(2, "0")}/"
                                     "${selected.year}";
                               }
                             },
@@ -493,7 +493,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['plannings'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["plannings"].isEmpty) {
           return Container(
             color: const Color(0xFFF5F5F7),
             child: Center(
@@ -507,11 +507,11 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
         final data = snapshot.data!;
 
-        final dbPlanning = data['plannings'] as List<PlanningPaperModel>;
+        final dbPlanning = data["plannings"] as List<PlanningPaperModel>;
         planningList = dbPlanning;
 
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         if (_cachedPapers == null || _cachedPapers != dbPlanning) {
           _cachedPapers = dbPlanning;
@@ -557,15 +557,24 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                               StackedHeaderRow(
                                 cells: [
                                   StackedHeaderCell(
+                                    columnNames: ["size", "length"],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: "Quy Cách (cm)",
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
                                     columnNames: [
-                                      'quantityOrd',
-                                      'qtyProduced',
-                                      'qtyOutbound',
+                                      "quantityOrd",
+                                      "qtyProduced",
+                                      "qtyOutbound",
                                       "qtyInventory",
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Số Lượng',
+                                        label: "Số Lượng",
                                         themeController: themeController,
                                       ),
                                     ),
@@ -588,7 +597,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                             onColumnResizeEnd:
                                 (details) => GridResizeHelper.onResizeEnd(
                                   details: details,
-                                  tableKey: 'estimateTime',
+                                  tableKey: "estimateTime",
                                   columnWidths: columnWidthsPlanning,
                                   setState: setState,
                                 ),
@@ -698,7 +707,16 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           ],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Ngày',
+                                              label: "Ngày",
+                                              themeController: themeController,
+                                            ),
+                                          ),
+                                        ),
+                                        StackedHeaderCell(
+                                          columnNames: ["size", "length"],
+                                          child: Obx(
+                                            () => formatColumn(
+                                              label: "Quy Cách (cm)",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -707,7 +725,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           columnNames: ["timeRunning", "timeRunningOvfl"],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Thời Gian',
+                                              label: "Thời Gian",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -716,7 +734,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           columnNames: ["runningPlan", "qtyProduced"],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Số Lượng',
+                                              label: "Số Lượng",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -725,7 +743,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                           columnNames: ["wasteBox", "rpWasteLoss"],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Phế Liệu',
+                                              label: "Phế Liệu",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -748,7 +766,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
                                   onColumnResizeEnd:
                                       (details) => GridResizeHelper.onResizeEnd(
                                         details: details,
-                                        tableKey: 'stage',
+                                        tableKey: "stage",
                                         columnWidths: columnWidthsStage,
                                         setState: setState,
                                       ),

@@ -186,6 +186,7 @@ class SyntheticService {
     int? fromYear,
     int? toYear,
     String? targetUserId,
+    String? keyword,
   }) async {
     final Map<String, dynamic> queryParameters = {
       "type": type,
@@ -196,6 +197,7 @@ class SyntheticService {
       if (fromYear != null) "fromYear": fromYear,
       if (toYear != null) "toYear": toYear,
       if (targetUserId != null) "targetUserId": targetUserId,
+      if (keyword != null) "keyword": keyword,
     };
 
     return HelperService().fetchPaginatedData<T>(

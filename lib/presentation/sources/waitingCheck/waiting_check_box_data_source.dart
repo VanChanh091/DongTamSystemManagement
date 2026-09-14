@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
@@ -37,11 +38,10 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
       DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
       DataGridCell<String>(columnName: "QC_box", value: order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: "size", value: '${planning.size} cm'),
-      DataGridCell<String>(
-        columnName: "length",
-        value: planning.length > 0 ? '${planning.length} cm' : "0",
-      ),
+
+      DataGridCell<double>(columnName: "size", value: planning.size > 0 ? planning.size : 0),
+      DataGridCell<double>(columnName: "length", value: planning.length > 0 ? planning.length : 0),
+
       DataGridCell<int>(columnName: 'child', value: order?.numberChild ?? 0),
       DataGridCell<int>(columnName: "quantityOrd", value: order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
@@ -89,8 +89,12 @@ class WaitingCheckBoxDataSource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
+    if (value is num) {
+      final numVal = value.toDouble();
+      return numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+    }
 
+    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
       return value == true ? '✅' : '';

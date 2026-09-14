@@ -6,9 +6,12 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 // Cột cố định (không phụ thuộc vào danh sách năm)
 const List<Map<String, dynamic>> _fixedHeaderYearlyRevenue = [
   {"key": "index", "title": "STT"},
-  {"key": "customerId", "title": "Mã KH"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "currentDebt", "title": "Công Nợ"},
+  {"key": "grandTotal", "title": "Tổng Cộng"},
+
+  //hidden
+  {"key": "customerId", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildYearlyRevenueColumn({
@@ -26,22 +29,16 @@ List<GridColumn> buildYearlyRevenueColumn({
 
     // Cột động: 12 tháng + tổng cho mỗi năm
     for (final y in years) ...[
-      GridColumn(
-        columnName: "y_${y}_total",
-        label: Obx(() => formatColumn(label: "Tổng $y", themeController: themeController)),
-      ),
       for (int m = 1; m <= 12; m++)
         GridColumn(
           columnName: "y_${y}_m_$m",
           label: Obx(() => formatColumn(label: "T$m", themeController: themeController)),
         ),
+      GridColumn(
+        columnName: "y_${y}_total",
+        label: Obx(() => formatColumn(label: "Tổng $y", themeController: themeController)),
+      ),
     ],
-
-    // Cột Grand Total cuối bảng
-    GridColumn(
-      columnName: "grandTotal",
-      label: Obx(() => formatColumn(label: "Tổng Cộng", themeController: themeController)),
-    ),
   ];
 
   return columns;

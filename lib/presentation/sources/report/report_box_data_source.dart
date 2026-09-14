@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_box_model.dart";
 import "package:dongtam/data/models/report/report_box_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
@@ -30,44 +32,46 @@ class ReportBoxDatasource extends DataGridSource {
     addColumnGroup(ColumnGroup(name: "dateTimeRp", sortGroupRows: false));
   }
 
+  @override
+  List<DataGridRow> get rows => reportDataGridRows;
+
   List<DataGridCell> buildReportInfoCell(ReportBoxModel reportBox, String machine, int index) {
     final orderCell = reportBox.planningBox!.order;
     final planningBoxCell = reportBox.planningBox!;
     final boxMachineTime = planningBoxCell.getBoxMachineTimeByMachine(machine);
 
+    DataGridCell<String> buildDateCell({required String columnName, DateTime? value}) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: value != null ? formatter.format(value) : "",
+      );
+    }
+
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
       DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
-      DataGridCell<String>(
-        columnName: "dateShipping",
-        value: formatter.format(orderCell.dateRequestShipping!),
-      ),
-      DataGridCell<String>(
-        columnName: "dayStartProduction",
-        value: boxMachineTime?.dayStart != null ? formatter.format(boxMachineTime!.dayStart!) : "",
-      ),
-      DataGridCell<String>(
-        columnName: "dayReported",
-        value: formatterDayReported.format(reportBox.dayReport),
-      ),
+
+      // buildDateCell(columnName: "dateShipping", value: orderCell.dateRequestShipping!),
+      buildDateCell(columnName: "dayStartProduction", value: boxMachineTime!.dayStart!),
+      buildDateCell(columnName: "dayReported", value: reportBox.dayReport),
+
       DataGridCell<String>(columnName: "structure", value: planningBoxCell.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
       DataGridCell<bool>(columnName: "isFSC", value: orderCell.isFSC),
       DataGridCell<String>(columnName: "QC_box", value: orderCell.QC_box ?? ""),
-      DataGridCell<String>(columnName: "size", value: "${planningBoxCell.size} cm"),
-      DataGridCell<String>(
-        columnName: "length",
-        value: planningBoxCell.length > 0 ? "${planningBoxCell.length} cm" : "0",
-      ),
+
+      DataGridCell<double>(columnName: "size", value: planningBoxCell.size),
+      DataGridCell<double>(columnName: "length", value: planningBoxCell.length),
+
       DataGridCell<int>(columnName: "child", value: orderCell.numberChild),
       DataGridCell<int>(columnName: "quantityOrd", value: orderCell.quantityCustomer),
       DataGridCell<int>(columnName: "qtyPaper", value: planningBoxCell.qtyPaper),
       DataGridCell<String>(
         columnName: "timeRunnings",
         value:
-            boxMachineTime?.timeRunning != null
-                ? PlanningBoxModel.formatTimeOfDay(timeOfDay: boxMachineTime!.timeRunning!)
+            boxMachineTime.timeRunning != null
+                ? PlanningBoxModel.formatTimeOfDay(timeOfDay: boxMachineTime.timeRunning!)
                 : "",
       ),
 
@@ -83,41 +87,41 @@ class ReportBoxDatasource extends DataGridSource {
     final boxMachineTime = planningCell.getBoxMachineTimeByMachine(machine);
 
     /// Hàm dùng chung lấy qtyProduced
-    String getQtyProduced(String machineName, {bool blankIfMissing = true}) {
+    int getQtyProduced(String machineName, {bool blankIfMissing = true}) {
       //check boxTimes theo machine
       if (machineName == machine) {
         if ((reportBox.qtyProduced) > 0) {
-          return reportBox.qtyProduced.toString();
+          return reportBox.qtyProduced;
         }
       } else {
         final all = planningCell.getAllBoxMachineTime(machineName);
         if (all != null && (all.qtyProduced ?? 0) > 0) {
-          return all.qtyProduced.toString();
+          return all.qtyProduced ?? 0;
         }
       }
-      return blankIfMissing ? "" : "0";
+      return blankIfMissing ? 0 : -1;
     }
 
     return [
-      DataGridCell<String>(columnName: "qtyPrinted", value: getQtyProduced("Máy In")),
-      DataGridCell<String>(columnName: "qtyCanLan", value: getQtyProduced("Máy Cấn Lằn")),
-      DataGridCell<String>(columnName: "qtyCanMang", value: getQtyProduced("Máy Cán Màng")),
-      DataGridCell<String>(columnName: "qtyXa", value: getQtyProduced("Máy Xả")),
-      DataGridCell<String>(columnName: "qtyCatKhe", value: getQtyProduced("Máy Cắt Khe")),
-      DataGridCell<String>(columnName: "qtyBe", value: getQtyProduced("Máy Bế")),
-      DataGridCell<String>(columnName: "qtyDan", value: getQtyProduced("Máy Dán")),
-      DataGridCell<String>(columnName: "qtyDongGhim", value: getQtyProduced("Máy Đóng Ghim")),
+      DataGridCell<int>(columnName: "qtyPrinted", value: getQtyProduced("Máy In")),
+      DataGridCell<int>(columnName: "qtyCanLan", value: getQtyProduced("Máy Cấn Lằn")),
+      DataGridCell<int>(columnName: "qtyCanMang", value: getQtyProduced("Máy Cán Màng")),
+      DataGridCell<int>(columnName: "qtyXa", value: getQtyProduced("Máy Xả")),
+      DataGridCell<int>(columnName: "qtyCatKhe", value: getQtyProduced("Máy Cắt Khe")),
+      DataGridCell<int>(columnName: "qtyBe", value: getQtyProduced("Máy Bế")),
+      DataGridCell<int>(columnName: "qtyDan", value: getQtyProduced("Máy Dán")),
+      DataGridCell<int>(columnName: "qtyDongGhim", value: getQtyProduced("Máy Đóng Ghim")),
       DataGridCell<int>(columnName: "lackOfQty", value: reportBox.lackOfQty),
 
       ...buildChildBoxCells(planningCell, machine),
 
       DataGridCell<String>(
         columnName: "dmWasteLoss",
-        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? "${boxMachineTime!.wasteBox} Cái" : "0",
+        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? "${toInt(boxMachineTime!.wasteBox)} Cái" : "0",
       ),
       DataGridCell<String>(
         columnName: "wasteLossRp",
-        value: (reportBox.wasteLoss) > 0 ? "${reportBox.wasteLoss} Cái" : "0",
+        value: (reportBox.wasteLoss) > 0 ? "${toInt(reportBox.wasteLoss)} Cái" : "0",
       ),
       DataGridCell<String>(columnName: "shiftManager", value: reportBox.shiftManagement),
       DataGridCell<String>(columnName: "reportedBy", value: reportBox.reportedBy),
@@ -155,9 +159,6 @@ class ReportBoxDatasource extends DataGridSource {
     ];
   }
 
-  @override
-  List<DataGridRow> get rows => reportDataGridRows;
-
   void buildDataGridRows() {
     final int offset = (currentPage - 1) * pageSize;
 
@@ -168,19 +169,6 @@ class ReportBoxDatasource extends DataGridSource {
         }).toList();
 
     notifyListeners();
-  }
-
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["dan_1_Manh", "dan_2_Manh", "dongGhim1Manh", "dongGhim2Manh", "isFSC"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
   }
 
   @override
@@ -215,10 +203,6 @@ class ReportBoxDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final reportPaperId =
-        row.getCells().firstWhere((cell) => cell.columnName == "reportBoxId").value;
-    final isSelected = selectedReportId == reportPaperId;
-
     final Map<String, String> machineColumnMap = {
       "qtyPrinted": "Máy In",
       "qtyCanLan": "Máy Cấn Lằn",
@@ -229,75 +213,73 @@ class ReportBoxDatasource extends DataGridSource {
       "qtyDan": "Máy Dán",
       "qtyDongGhim": "Máy Đóng Ghim",
     };
-
-    Color backgroundColor;
-    if (isSelected == true) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
+    final Set<String> boolColumns = {
+      "dan_1_Manh",
+      "dan_2_Manh",
+      "dongGhim1Manh",
+      "dongGhim2Manh",
+      "isFSC",
+    };
 
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final value = dataCell.value;
+            String displayValue = "";
+            String columnName = dataCell.columnName;
+
             Color cellColor = Colors.transparent;
+            Alignment alignment = Alignment.centerLeft;
 
-            if (dataCell.columnName == "lackOfQty") {
-              final int value = dataCell.value ?? 0;
-              final String display = value < 0 ? "+${value.abs()}" : value.toString();
+            if (value is num) {
+              alignment = Alignment.centerRight;
 
-              Color textColor = Colors.black;
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
 
-              if (value > 0) {
-                textColor = Colors.redAccent;
-              } else if (value < 0) {
-                textColor = Colors.green;
+              if (columnName == "lackOfQty") {
+                final String display = value < 0 ? "+${value.abs()}" : value.toString();
+
+                Color textColor = Colors.black;
+                value > 0 ? textColor = Colors.redAccent : textColor = Colors.green;
+
+                return Container(
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
+                  ),
+                  child: Text(
+                    display,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: value < 0 ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                );
               }
 
-              return Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
-                ),
-                child: Text(
-                  display,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: value < 0 ? FontWeight.w600 : FontWeight.w400,
-                  ),
-                ),
-              );
-            }
+              //hightlight color for qtyProduct reported
+              final machineColumnName = machineColumnMap[dataCell.columnName];
+              if (machineColumnName != null && machineColumnName == machine) {
+                if (value > 0) {
+                  cellColor = Colors.amberAccent.withValues(alpha: 0.3);
+                }
+              }
 
-            //hight color for qtyProduct reported
-            final machineColumnName = machineColumnMap[dataCell.columnName];
-            if (machineColumnName != null && machineColumnName == machine) {
-              final qtyStr = dataCell.value?.toString() ?? "0";
-              final qty = int.tryParse(qtyStr) ?? 0;
-              if (qty > 0) {
+              //highlight color for waste reported
+              if (dataCell.columnName == "wasteLossRp") {
                 cellColor = Colors.amberAccent.withValues(alpha: 0.3);
               }
-            }
-
-            //highlight color for waste reported
-            if (dataCell.columnName == "wasteLossRp") {
-              cellColor = Colors.amberAccent.withValues(alpha: 0.3);
-            }
-
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
+            } else if (boolColumns.contains(columnName)) {
+              alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(
-              label: _formatCellValueBool(dataCell),
-              alignment: alignment,
-              cellColor: cellColor,
-            );
+            return formatDataTable(label: displayValue, alignment: alignment, cellColor: cellColor);
           }).toList(),
     );
   }

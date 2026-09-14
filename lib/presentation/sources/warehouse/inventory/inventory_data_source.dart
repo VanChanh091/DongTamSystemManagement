@@ -29,11 +29,8 @@ class InventoryDataSource extends DataGridSource {
   List<DataGridCell> buildInventoryCells(InventoryModel inventory, int index) {
     final order = inventory.order;
 
-    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(
-        columnName: columnName,
-        value: (value) > 0 ? "${OrderModel.formatCurrency(value)} cm" : "0",
-      );
+    DataGridCell<num> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<num>(columnName: columnName, value: value);
     }
 
     return [
@@ -46,7 +43,7 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "QcBox", value: order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: "flute", value: order?.flute != "0" ? order?.flute : "-"),
       DataGridCell<String>(columnName: "structure", value: order?.formatterStructureOrder ?? ""),
 
       buildCurrencyCell("size", order?.paperSizeManufacture ?? 0),
@@ -65,9 +62,9 @@ class InventoryDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: "valueInventory",
         value:
-            inventory.valueInventory == 0
-                ? "0"
-                : "${OrderModel.formatCurrency(inventory.valueInventory)} VNĐ",
+            inventory.valueInventory != 0
+                ? "${OrderModel.formatCurrency(inventory.valueInventory)} VNĐ"
+                : "-",
       ),
 
       DataGridCell<String>(columnName: "fullName", value: order?.user?.fullName ?? ""),
@@ -93,45 +90,30 @@ class InventoryDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["isFSC"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
-  }
-
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final inventoryId = row.getCells().firstWhere((cell) => cell.columnName == "inventoryId").value;
-    final isSelected = selectedInventoryId?.contains(inventoryId);
-
-    Color backgroundColor;
-    if (isSelected == true) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+            final value = dataCell.value;
 
+            String displayValue = "";
             Alignment alignment;
-            if (dataCell.value is num) {
+
+            if (value is num) {
               alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+            } else if (["isFSC"].contains(dataCell.columnName)) {
+              alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: cellText, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

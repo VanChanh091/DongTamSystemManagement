@@ -389,6 +389,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                                 "lengthPaper",
                                 "runningPlan",
                                 "qcBox",
+                                "isFSC",
                               ],
                               child: Obx(
                                 () => formatColumn(

@@ -1,8 +1,8 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 final List<Map<String, dynamic>> _headerOrder = [
   // Order
@@ -23,9 +23,9 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "daoXaOrd", "title": "Dao Xả"},
 
-  {"key": "sizeCustomer", "title": "Khổ (KH)"},
+  {"key": "sizeCustomer", "title": "Khổ TT"},
+  {"key": "lengthCus", "title": "Dài TT"},
   {"key": "sizeManufacture", "title": "Khổ (SX)"},
-  {"key": "lengthCus", "title": "Dài (KH)"},
   {"key": "lengthMf", "title": "Dài (SX)"},
   {"key": "quantityCustomer", "title": "Số Lượng (KH)"},
   {"key": "qtyManufacture", "title": "Số Lượng (SX)"},

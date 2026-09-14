@@ -63,6 +63,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   late bool isAdmin;
   late bool isPlan;
   late bool isDelivery;
+  late bool canOutbound;
   int? currentDeliveryId;
   String? selectedStatus;
   bool isLoading = false;
@@ -79,6 +80,12 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
   void initState() {
     super.initState();
 
+    // check role and permission
+    isAdmin = userController.hasAnyRole(roles: ["admin"]);
+    isPlan = userController.hasAnyPermission(permission: ["plan"]);
+    isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
+    canOutbound = userController.hasAnyPermission(permission: ["plan", "delivery", "accountant"]);
+
     final now = DateTime.now();
     dayStartController.text =
         "${now.day.toString().padLeft(2, "0")}/"
@@ -94,11 +101,6 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
     _initSocket.registerSocket();
     loadDeliverySchedule();
-
-    // check role and permission
-    isAdmin = userController.hasAnyRole(roles: ["admin"]);
-    isPlan = userController.hasAnyPermission(permission: ["plan"]);
-    isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
 
     columns = buildDeliveryScheduleColumn(themeController: themeController, page: "schedule");
     ColumnWidthTable.loadWidths(tableKey: "deliverySchedule", columns: columns).then((w) {
@@ -364,67 +366,69 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                               const SizedBox(width: 8),
 
                               //outbound
-                              AnimatedButton(
-                                onPressed: () async {
-                                  if (!context.mounted) return;
+                              if (canOutbound) ...[
+                                AnimatedButton(
+                                  onPressed: () async {
+                                    if (!context.mounted) return;
 
-                                  if (selectedDeliveryIds.isNotEmpty) {
-                                    try {
-                                      final data = await futureDelivery;
-                                      final allItems =
-                                          data
-                                              .expand(
-                                                (plan) =>
-                                                    plan.deliveryItems ?? <DeliveryItemModel>[],
-                                              )
-                                              .toList();
-                                      final selectedItems =
-                                          allItems
-                                              .where(
-                                                (item) => selectedDeliveryIds.contains(
-                                                  item.deliveryItemId,
-                                                ),
-                                              )
-                                              .toList();
+                                    if (selectedDeliveryIds.isNotEmpty) {
+                                      try {
+                                        final data = await futureDelivery;
+                                        final allItems =
+                                            data
+                                                .expand(
+                                                  (plan) =>
+                                                      plan.deliveryItems ?? <DeliveryItemModel>[],
+                                                )
+                                                .toList();
+                                        final selectedItems =
+                                            allItems
+                                                .where(
+                                                  (item) => selectedDeliveryIds.contains(
+                                                    item.deliveryItemId,
+                                                  ),
+                                                )
+                                                .toList();
 
-                                      initialItems =
-                                          selectedItems
-                                              .map(
-                                                (item) =>
-                                                    OutboundTempItemModel.fromDeliveryItemModel(
-                                                      item,
-                                                    ),
-                                              )
-                                              .toList();
-                                    } catch (e) {
-                                      if (!context.mounted) return;
-                                      showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
-                                      return;
+                                        initialItems =
+                                            selectedItems
+                                                .map(
+                                                  (item) =>
+                                                      OutboundTempItemModel.fromDeliveryItemModel(
+                                                        item,
+                                                      ),
+                                                )
+                                                .toList();
+                                      } catch (e) {
+                                        if (!context.mounted) return;
+                                        showSnackBarError(context, "Lấy dữ liệu xuất kho thất bại");
+                                        return;
+                                      }
                                     }
-                                  }
 
-                                  if (!context.mounted) return;
-                                  showDialog(
-                                    barrierDismissible: false,
-                                    context: context,
-                                    builder:
-                                        (_) => OutBoundDialog(
-                                          outbound: null,
-                                          onOutboundHistory: () {
-                                            //cập nhật lại badge
-                                            badgesController.fetchPrepareGoods();
-                                            loadDeliverySchedule();
-                                          },
-                                          initialItems: initialItems,
-                                        ),
-                                  );
-                                },
+                                    if (!context.mounted) return;
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder:
+                                          (_) => OutBoundDialog(
+                                            outbound: null,
+                                            onOutboundHistory: () {
+                                              //cập nhật lại badge
+                                              badgesController.fetchPrepareGoods();
+                                              loadDeliverySchedule();
+                                            },
+                                            initialItems: initialItems,
+                                          ),
+                                    );
+                                  },
 
-                                label: "Xuất Kho",
-                                icon: Symbols.input,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 8),
+                                  label: "Xuất Kho",
+                                  icon: Symbols.input,
+                                  backgroundColor: themeController.buttonColor,
+                                ),
+                                const SizedBox(width: 8),
+                              ],
 
                               //request prepare goods
                               AnimatedButton(
@@ -481,6 +485,7 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
                               isPlan
                                   ? Row(
                                     children: [
+                                      //turn on/off group
                                       AnimatedButton(
                                         onPressed: () {
                                           setState(() {

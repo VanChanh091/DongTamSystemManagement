@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
@@ -42,13 +43,13 @@ class WaitingCheckPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
       DataGridCell<String>(columnName: "khoCapGiay", value: "${planning.ghepKho} cm"),
 
-      DataGridCell<String>(
+      DataGridCell<double>(
         columnName: "size",
-        value: planning.sizePaperPLaning > 0 ? "${planning.sizePaperPLaning} cm" : "0",
+        value: planning.sizePaperPLaning > 0 ? planning.sizePaperPLaning : 0,
       ),
-      DataGridCell<String>(
+      DataGridCell<double>(
         columnName: "length",
-        value: planning.lengthPaperPlanning > 0 ? "${planning.lengthPaperPlanning} cm" : "0",
+        value: planning.lengthPaperPlanning > 0 ? planning.lengthPaperPlanning : 0,
       ),
 
       DataGridCell<String>(columnName: "canLan", value: order?.canLan ?? ""),
@@ -99,8 +100,12 @@ class WaitingCheckPaperDataSource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ["chongTham", "haveMadeBox", "isFSC"];
+    if (value is num) {
+      final numVal = value.toDouble();
+      return numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+    }
 
+    const boolColumns = ["chongTham", "haveMadeBox", "isFSC"];
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return "";
       return value == true ? "✅" : "";

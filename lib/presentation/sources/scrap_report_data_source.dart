@@ -1,11 +1,12 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/scrap/scrap_report_model.dart";
+import "package:dongtam/utils/helper/build_color_row.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ScrapReportDataSource extends DataGridSource {
   List<ScrapReportModel> scrapReports = [];
@@ -14,8 +15,8 @@ class ScrapReportDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> scrapDataGridRows;
-  final formatterHHmm = DateFormat('dd/MM/yyyy HH:mm:ss');
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatterHHmm = DateFormat("dd/MM/yyyy HH:mm:ss");
+  final formatter = DateFormat("dd/MM/yyyy");
 
   ScrapReportDataSource({
     required this.scrapReports,
@@ -25,12 +26,15 @@ class ScrapReportDataSource extends DataGridSource {
   }) {
     buildDataGridRows();
 
-    addColumnGroup(ColumnGroup(name: 'reportAt', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: "reportAt", sortGroupRows: false));
   }
+
+  @override
+  List<DataGridRow> get rows => scrapDataGridRows;
 
   List<DataGridCell> buildScrapReportCells(ScrapReportModel scrapReport, int index) {
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "status", value: scrapReport.status),
 
       DataGridCell<String>(
@@ -64,9 +68,6 @@ class ScrapReportDataSource extends DataGridSource {
     ];
   }
 
-  @override
-  List<DataGridRow> get rows => scrapDataGridRows;
-
   void buildDataGridRows() {
     final int offset = (currentPage - 1) * pageSize;
 
@@ -81,17 +82,17 @@ class ScrapReportDataSource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
+    String displayDate = "";
+    String itemCount = "";
 
     if (match != null) {
-      final fullDate = match.group(1) ?? '';
-      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
-      final count = match.group(2) ?? '0';
-      itemCount = '$count báo cáo';
+      final fullDate = match.group(1) ?? "";
+      displayDate = fullDate.split(" ").first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? "0";
+      itemCount = "$count báo cáo";
     }
 
     return Container(
@@ -101,8 +102,8 @@ class ScrapReportDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate – $itemCount'
-            : '📅 Ngày báo cáo: Không xác định',
+            ? "📅 Ngày báo cáo: $displayDate – $itemCount"
+            : "📅 Ngày báo cáo: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -151,17 +152,23 @@ class ScrapReportDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            String displayValue = dataCell.value?.toString() ?? "";
+            final value = dataCell.value;
 
-            if (dataCell.columnName == 'status') {
-              displayValue = getStatusVi(displayValue);
-            }
-
+            String displayValue = "";
             Alignment alignment;
-            if (dataCell.value is num) {
+
+            if (value is num) {
               alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
+            }
+
+            if (dataCell.columnName == "status") {
+              displayValue = getStatusVi(displayValue);
             }
 
             return formatDataTable(label: displayValue, alignment: alignment);

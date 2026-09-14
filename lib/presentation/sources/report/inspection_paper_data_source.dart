@@ -1,10 +1,33 @@
 // ignore_for_file: deprecated_member_use
 
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_paper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
+
+const Set<String> _boolColumns = {
+  "blishter",
+  "wrongWidth",
+  "wrongLength",
+  "wrongScoringSpec",
+  "poorScoring",
+  "drityLiner",
+  "losseLiner",
+  "earDefect",
+  "skewedFlute",
+  "warppage",
+  "wrongStructure",
+  "waveHeight",
+  "poorTrim",
+  "misalignment",
+  "glueDripping",
+  "trimScrap",
+  "poorBundling",
+  "totalWidthErr",
+  "wrongProductInfo",
+};
 
 class InspectionPaperDataSource extends DataGridSource {
   List<QcInspectionPaperModel> inspectionPapers = [];
@@ -41,15 +64,13 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
-      DataGridCell<bool>(columnName: 'isFSC', value: order?.isFSC ?? false),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "structure", value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+
       DataGridCell<double>(columnName: "sizePaper", value: paper.sizePaperPLaning),
-      DataGridCell<String>(
-        columnName: "lengthPaper",
-        value: paper.lengthPaperPlanning > 0 ? "${paper.lengthPaperPlanning}" : "0",
-      ),
+      DataGridCell<double>(columnName: "lengthPaper", value: paper.lengthPaperPlanning),
       DataGridCell<int>(columnName: "runningPlan", value: paper.runningPlan),
 
       DataGridCell<int>(columnName: "numberPallet", value: inspecPaper.numberPallet),
@@ -126,45 +147,6 @@ class InspectionPaperDataSource extends DataGridSource {
     notifyListeners();
   }
 
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = [
-      "blishter",
-      "wrongWidth",
-      "wrongLength",
-      "wrongScoringSpec",
-      "poorScoring",
-      "drityLiner",
-      "losseLiner",
-      "earDefect",
-      "skewedFlute",
-      "warppage",
-      "wrongStructure",
-      "waveHeight",
-      "poorTrim",
-      "misalignment",
-      "glueDripping",
-      "trimScrap",
-      "poorBundling",
-      "totalWidthErr",
-      "wrongProductInfo",
-    ];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "" : "❌";
-    }
-
-    const checkColumns = ["isFSC"];
-    if (checkColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
-    }
-
-    return value?.toString() ?? "";
-  }
-
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
@@ -191,33 +173,30 @@ class InspectionPaperDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final inspecPaperId =
-        row.getCells().firstWhere((cell) => cell.columnName == "inspecPaperId").value;
-    final isSelected = selectedPaperIds == inspecPaperId;
-
-    Color backgroundColor;
-    if (isSelected == true) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+            final value = dataCell.value;
+            final colName = dataCell.columnName;
 
-            Alignment alignment;
-            if (dataCell.value is num) {
+            final String displayValue;
+            final Alignment alignment;
+
+            if (value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == "❌") {
+              displayValue = value == 0 ? "-" : OrderModel.formatCurrency(value.toDouble());
+            } else if (_boolColumns.contains(colName)) {
               alignment = Alignment.center;
+              displayValue = value == false ? "❌" : "";
+            } else if (colName == "isFSC") {
+              alignment = Alignment.center;
+              displayValue = value == true ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: cellText, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

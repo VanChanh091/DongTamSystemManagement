@@ -33,6 +33,7 @@ final List<Map<String, dynamic>> _headerSyntheticOrder = [
   {"key": "unit", "title": "DVT"},
   {"key": "volume", "title": "Thể tích (m³)"},
   {"key": "vat", "title": "VAT"},
+
   {"key": "price", "title": "Giá m²/pcs"},
   {"key": "pricePaper", "title": "Đơn Giá"},
   {"key": "totalPrice", "title": "Tổng Tiền"},

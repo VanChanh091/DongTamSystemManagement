@@ -9,6 +9,9 @@ const List<Map<String, dynamic>> _fixedStartHeaders = [
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "totalDebt", "title": "Công Nợ"},
   {"key": "totalSales", "title": "Tổng Tiền"},
+
+  //hidden
+  {"key": "customerId", "title": "", "visible": false},
 ];
 
 List<GridColumn> buildDailyRevenueColumn({

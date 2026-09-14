@@ -154,11 +154,7 @@ class _HomePageState extends State<HomePage> {
       SyntheticPlanning(),
       TopTabAdminPaperType(),
       _buildPage(permissions: ["sale", "accountant", "plan"], child: SyntheticOrder()),
-      _buildPage(
-        permissions: ["sale"],
-        roles: ["admin", "manager"],
-        child: TopTabSyntheticRevenue(),
-      ),
+      _buildPage(permissions: ["sale"], child: TopTabSyntheticRevenue()),
 
       // admin
       _buildPage(roles: ["admin", "manager"], child: AdminOrder()),

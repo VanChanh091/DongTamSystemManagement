@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/requirements/paper_requirement_layers.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
@@ -41,8 +42,12 @@ class LayerRequirementDataSource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ["isEnoughQty"];
+    if (value is num) {
+      final numVal = value.toDouble();
+      return numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+    }
 
+    const boolColumns = ["isEnoughQty"];
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
       return value == true ? '✅' : '❌';

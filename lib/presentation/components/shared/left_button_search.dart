@@ -3,14 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class LeftButtonSearch extends StatelessWidget {
-  final String selectedType;
-  final List<String> types;
+  final String? selectedType;
+  final List<String>? types;
 
   final TextEditingController controller;
-  final ValueChanged<String> onTypeChanged;
+  final ValueChanged<String>? onTypeChanged;
   final VoidCallback onSearch;
 
   final bool textFieldEnabled;
+  final bool showDropdown;
+  final String hintText;
   final String buttonLabel;
   final IconData buttonIcon;
   final Rx<Color>? buttonColor;
@@ -25,12 +27,14 @@ class LeftButtonSearch extends StatelessWidget {
 
   const LeftButtonSearch({
     super.key,
-    required this.selectedType,
-    required this.types,
+    this.selectedType,
+    this.types,
     required this.controller,
-    required this.onTypeChanged,
+    this.onTypeChanged,
     required this.onSearch,
-    required this.textFieldEnabled,
+    this.textFieldEnabled = true,
+    this.showDropdown = true,
+    this.hintText = "Tìm kiếm...",
     this.buttonLabel = "Tìm kiếm",
     this.buttonIcon = Icons.search,
     this.buttonColor,
@@ -46,6 +50,8 @@ class LeftButtonSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasDropdown = showDropdown && (types?.isNotEmpty ?? false) && selectedType != null;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
       child: LayoutBuilder(
@@ -67,56 +73,71 @@ class LeftButtonSearch extends StatelessWidget {
                   enabled: textFieldEnabled,
                   onSubmitted: (_) => onSearch(),
                   decoration: InputDecoration(
-                    hintText: 'Tìm kiếm...',
+                    hintText: hintText,
                     filled: true,
                     fillColor: textFieldEnabled ? Colors.white : Colors.grey.shade200,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    prefixIcon: !hasDropdown ? const Icon(Icons.search, size: 20) : null,
+                    suffixIcon:
+                        controller.text.isNotEmpty
+                            ? IconButton(
+                              icon: const Icon(Icons.clear, size: 18),
+                              onPressed: () {
+                                controller.clear();
+                                onSearch();
+                              },
+                            )
+                            : null,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 10),
                   ),
+                  onChanged: (_) => (context as Element).markNeedsBuild(),
                 ),
               );
 
           return Row(
             children: [
               // Dropdown
-              SizedBox(
-                width: dropdownWidth,
-                child: DropdownButtonFormField<String>(
-                  isExpanded: true,
-                  initialValue: selectedType,
-                  items:
-                      types
-                          .map(
-                            (value) => DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value, overflow: TextOverflow.ellipsis, maxLines: 1),
-                            ),
-                          )
-                          .toList(),
-                  onChanged: (value) {
-                    if (value != null) onTypeChanged(value);
-                  },
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              if (hasDropdown) ...[
+                SizedBox(
+                  width: dropdownWidth,
+                  child: DropdownButtonFormField<String>(
+                    isExpanded: true,
+                    initialValue: selectedType,
+                    items:
+                        types!
+                            .map(
+                              (value) => DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, overflow: TextOverflow.ellipsis, maxLines: 1),
+                              ),
+                            )
+                            .toList(),
+                    onChanged: (value) {
+                      if (value != null && onTypeChanged != null) onTypeChanged!(value);
+                    },
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
+                const SizedBox(width: 10),
+              ],
 
               // Input
-              ...[inputWidget, const SizedBox(width: 10)],
+              inputWidget,
+              const SizedBox(width: 10),
 
               // Button
               AnimatedButton(
                 onPressed: onSearch,
                 label: buttonLabel,
-                icon: Icons.search,
+                icon: buttonIcon,
                 backgroundColor: buttonColor,
               ),
 
-              const SizedBox(width: 10),
+              if (extraWidgets.isNotEmpty) const SizedBox(width: 10),
               ...extraWidgets,
             ],
           );

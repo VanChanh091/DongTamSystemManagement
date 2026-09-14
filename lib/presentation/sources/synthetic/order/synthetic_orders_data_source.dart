@@ -38,15 +38,8 @@ class SyntheticOrdersDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildOrderCells(OrderModel order, int index) {
-    DataGridCell<String> buildDimensionCell(String columnName, double? value) {
-      return DataGridCell<String>(
-        columnName: columnName,
-        value: (value != null && value > 0) ? "${OrderModel.formatCurrency(value)} cm" : "0",
-      );
-    }
-
-    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(columnName: columnName, value: OrderModel.formatCurrency(value));
+    DataGridCell<num> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<num>(columnName: columnName, value: value);
     }
 
     final inventory = order.Inventory;
@@ -68,14 +61,14 @@ class SyntheticOrdersDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "productName", value: order.product?.productName ?? ""),
       DataGridCell<bool>(columnName: "isFSC", value: order.isFSC),
 
-      DataGridCell<String>(columnName: "flute", value: order.flute ?? ""),
+      DataGridCell<String>(columnName: "flute", value: order.flute != "0" ? order.flute : "-"),
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
 
-      buildDimensionCell("sizeCust", order.paperSizeCustomer),
-      buildDimensionCell("lengthCust", order.lengthPaperCustomer),
-      buildDimensionCell("sizeManu", order.paperSizeManufacture),
-      buildDimensionCell("lengthManu", order.lengthPaperManufacture),
+      buildCurrencyCell("sizeCust", order.paperSizeCustomer),
+      buildCurrencyCell("lengthCust", order.lengthPaperCustomer),
+      buildCurrencyCell("sizeManu", order.paperSizeManufacture),
+      buildCurrencyCell("lengthManu", order.lengthPaperManufacture),
 
       buildCurrencyCell("quantityCustomer", order.quantityCustomer),
       buildCurrencyCell("qtyInventory", inventory?.qtyInventory ?? 0),
@@ -83,13 +76,14 @@ class SyntheticOrdersDataSource extends DataGridSource {
       buildCurrencyCell("qtyVariance", inventory?.qtyVariance ?? 0),
 
       DataGridCell<String>(columnName: "unit", value: order.dvt),
-      DataGridCell<String>(
-        columnName: "volume",
-        value: order.volume! > 0 ? OrderModel.formatCurrency(order.volume ?? 0) : "0",
-      ),
-      DataGridCell<String>(columnName: "vat", value: order.vat != null ? "${order.vat}%" : ""),
+      buildCurrencyCell("volume", order.volume ?? 0),
 
-      buildCurrencyCell("pricePer", order.price),
+      DataGridCell<String>(
+        columnName: "vat",
+        value: order.vat != null && order.vat != 0 ? "${order.vat}%" : "-",
+      ),
+
+      buildCurrencyCell("price", order.price),
       buildCurrencyCell("pricePaper", order.pricePaper ?? 0),
       buildCurrencyCell("totalPrice", order.totalPrice ?? 0),
       buildCurrencyCell("totalPriceVAT", order.totalPriceVAT ?? 0),
@@ -104,19 +98,6 @@ class SyntheticOrdersDataSource extends DataGridSource {
 
   @override
   List<DataGridRow> get rows => orderDataGridRows;
-
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["isBox", "isFSC"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
-  }
 
   void buildDataCell() {
     final int offset = (currentPage - 1) * pageSize;
@@ -162,18 +143,24 @@ class SyntheticOrdersDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+            final value = dataCell.value;
+            String displayValue = "";
 
-            Alignment alignment;
-            if (dataCell.value is num) {
+            Alignment alignment = Alignment.centerLeft;
+            if (value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == "✅") {
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+            } else if (["isBox", "isFSC"].contains(dataCell.columnName)) {
               alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

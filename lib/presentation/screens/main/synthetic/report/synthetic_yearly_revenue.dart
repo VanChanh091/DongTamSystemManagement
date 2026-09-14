@@ -3,6 +3,7 @@ import "package:dongtam/presentation/components/dialog/other/dialog_picker_year.
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/reportRevenue/report_yearly_revenue_model.dart";
 import "package:dongtam/presentation/components/headerTable/synthetic/report/header_table_yearly_revenue.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
@@ -128,10 +129,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
   }
 
   void _fetchData() {
-    // final String keyword = searchController.text.trim().toLowerCase();
-    // final String selectedField = searchFieldMap[searchType] ?? "";
-    // final bool shouldSearch = (searchType != "Tất cả");
-    // final bool isDateSearch = searchType == "Ngày Tạo";
+    final keyword = searchController.text.trim();
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerYearRevenue>(
@@ -141,6 +139,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
         fromYear: fromYear,
         toYear: toYear,
         targetUserId: selectedUserId,
+        keyword: keyword.isNotEmpty ? keyword : null,
         dataKey: "yearlyRevenue",
         fromJson: (json) => CustomerYearRevenue.fromJson(json),
       ),
@@ -154,12 +153,8 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
   }
 
   void searchRevenue() {
-    String keyword = searchController.text.trim().toLowerCase();
-    if (isTextFieldEnabled && keyword.isEmpty) return;
-
     setState(() {
       currentPage = 1;
-      // isSearching = (searchType != "Tất cả");
       _fetchData();
     });
   }
@@ -287,7 +282,14 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //search
-                      const SizedBox(), const SizedBox(width: 12),
+                      LeftButtonSearch(
+                        showDropdown: false,
+                        controller: searchController,
+                        hintText: "Tìm theo khách hàng...",
+                        buttonColor: themeController.buttonColor,
+                        onSearch: searchRevenue,
+                      ),
+                      const SizedBox(width: 12),
 
                       //buttons
                       ValueListenableBuilder(

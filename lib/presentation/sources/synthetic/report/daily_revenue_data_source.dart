@@ -45,6 +45,9 @@ class DailyRevenueDataSource extends DataGridSource {
       DataGridCell<double>(columnName: "totalDebt", value: customer.totalCustomerDebt),
       DataGridCell<double>(columnName: "totalSales", value: customer.totalCustomerSales),
 
+      //hidden
+      DataGridCell<String>(columnName: "customerId", value: customer.customerId),
+
       for (int d = 1; d <= daysInMonth; d++)
         DataGridCell<double>(columnName: "d_$d", value: customer.dailyAmounts[d] ?? 0),
     ];
@@ -92,20 +95,15 @@ class DailyRevenueDataSource extends DataGridSource {
 
     // Ô số liệu lấy từ summary
     if (summary != null) {
-      final value = _getSummaryValue(summaryColumn.columnName);
-      final displayValue = value == 0 ? "-" : OrderModel.formatCurrency(value);
+      final colName = summaryColumn.columnName;
 
-      final bool isTotalSales = summaryColumn.columnName == "totalSales";
-      final bool isTotalDebt = summaryColumn.columnName == "totalDebt";
+      final value = _getSummaryValue(colName);
+      final displayValue = value == 0 ? "-" : OrderModel.formatCurrency(value);
 
       return formatDataTable(
         label: displayValue,
         alignment: Alignment.centerRight,
-        textStyle: TextStyle(
-          fontSize: 13.5,
-          fontWeight: (isTotalSales || isTotalDebt) ? FontWeight.bold : FontWeight.w600,
-          color: (isTotalDebt && value > 0) ? Colors.redAccent.shade700 : null,
-        ),
+        textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
       );
     }
 

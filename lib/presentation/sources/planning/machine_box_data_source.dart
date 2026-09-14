@@ -40,9 +40,12 @@ class MachineBoxDatasource extends DataGridSource {
     }
   }
 
+  @override
+  List<DataGridRow> get rows => planningDataGridRows;
+
   List<DataGridCell> buildPlanningCells(PlanningBoxModel planning, String machine) {
-    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? "$value" : "0");
+    DataGridCell<num> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<num>(columnName: columnName, value: value);
     }
 
     final order = planning.order;
@@ -121,11 +124,11 @@ class MachineBoxDatasource extends DataGridSource {
 
       DataGridCell<String>(
         columnName: "dmWasteLoss",
-        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? "${boxMachineTime!.wasteBox} Cái" : "0",
+        value: (boxMachineTime?.wasteBox ?? 0) > 0 ? "${boxMachineTime!.wasteBox} Cái" : "-",
       ),
       DataGridCell<String>(
         columnName: "wasteActually",
-        value: (boxMachineTime?.rpWasteLoss ?? 0) > 0 ? "${boxMachineTime!.rpWasteLoss} Cái" : "0",
+        value: (boxMachineTime?.rpWasteLoss ?? 0) > 0 ? "${boxMachineTime!.rpWasteLoss} Cái" : "-",
       ),
       DataGridCell<String>(
         columnName: "shiftManager",
@@ -148,8 +151,8 @@ class MachineBoxDatasource extends DataGridSource {
           columnName: "totalPrice",
           value:
               (planning.order?.totalPrice ?? 0) > 0
-                  ? "${OrderModel.formatCurrency(planning.order?.totalPrice ?? 0)} VND"
-                  : "0",
+                  ? OrderModel.formatCurrency(planning.order?.totalPrice ?? 0)
+                  : "-",
         ),
       ],
 
@@ -194,9 +197,6 @@ class MachineBoxDatasource extends DataGridSource {
     ];
   }
 
-  @override
-  List<DataGridRow> get rows => planningDataGridRows;
-
   void buildDataGridRows() {
     planningDataGridRows =
         planning
@@ -239,6 +239,11 @@ class MachineBoxDatasource extends DataGridSource {
 
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
+
+    if (value is num) {
+      final numVal = value.toDouble();
+      return numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+    }
 
     const boolColumns = ["dan_1_Manh", "dan_2_Manh", "dongGhim1Manh", "dongGhim2Manh", "isFSC"];
 
@@ -354,6 +359,7 @@ class MachineBoxDatasource extends DataGridSource {
           row.getCells().asMap().entries.map<Widget>((entry) {
             final DataGridCell dataCell = entry.value;
             final cellText = _formatCellValueBool(dataCell);
+
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;

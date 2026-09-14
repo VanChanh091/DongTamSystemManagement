@@ -58,9 +58,10 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   };
 
   //flag
+  late bool isPlan;
   bool _isLoading = true;
-  bool _isPendingLoading = false;
   bool _isSaving = false;
+  bool _isPendingLoading = false;
   bool isTextFieldEnabled = false;
   bool _isDraggingSelected = false;
 
@@ -72,6 +73,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   @override
   void initState() {
     super.initState();
+    isPlan = userController.hasPermission(permission: "plan");
 
     final now = DateTime.now();
     dayStartController.text =
@@ -228,8 +230,6 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPlan = userController.hasPermission(permission: "plan");
-
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Column(

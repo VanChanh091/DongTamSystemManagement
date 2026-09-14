@@ -1,26 +1,26 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_orders.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/order_data_source.dart';
-import 'package:dongtam/service/order_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_orders.dart";
+import "package:dongtam/presentation/components/headerTable/header_table_order.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/order_data_source.dart";
+import "package:dongtam/service/order_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class OrderRejectAndPending extends StatefulWidget {
   const OrderRejectAndPending({super.key});
@@ -34,7 +34,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
   late List<GridColumn> columns;
 
   //controllers
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final _dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -58,10 +58,10 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     super.initState();
     loadOrders(ownOnly: isSeenOrder);
 
-    isManager = userController.hasAnyRole(roles: ['manager', 'admin']);
+    isManager = userController.hasAnyRole(roles: ["manager", "admin"]);
 
     columns = buildOrderColumns(themeController: themeController, userController: userController);
-    ColumnWidthTable.loadWidths(tableKey: 'order', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "order", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -366,25 +366,12 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                   StackedHeaderRow(
                     cells: [
                       StackedHeaderCell(
-                        columnNames: [
-                          'inMatTruoc',
-                          'inMatSau',
-                          'canMang',
-                          'canLanBox',
-                          'xa',
-                          'catKhe',
-                          'be',
-                          'dan_1_Manh',
-                          'dan_2_Manh',
-                          'dongGhimMotManh',
-                          'dongGhimHaiManh',
-                          'chongTham',
-                          'dongGoi',
-                          'maKhuon',
-                        ],
+                        columnNames: ["sizeCustomer", "sizeManufacture", "lengthCus", "lengthMf"],
                         child: Obx(
-                          () =>
-                              formatColumn(label: 'Công Đoạn 2', themeController: themeController),
+                          () => formatColumn(
+                            label: "Quy Cách Giấy (cm)",
+                            themeController: themeController,
+                          ),
                         ),
                       ),
                       StackedHeaderCell(
@@ -397,18 +384,31 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                         ],
                         child: Obx(
                           () => formatColumn(
-                            label: 'Khoản Phí (VNĐ)',
+                            label: "Khoản Phí (VNĐ)",
                             themeController: themeController,
                           ),
                         ),
                       ),
                       StackedHeaderCell(
-                        columnNames: ["sizeCustomer", "sizeManufacture", "lengthCus", "lengthMf"],
+                        columnNames: [
+                          "inMatTruoc",
+                          "inMatSau",
+                          "canMang",
+                          "canLanBox",
+                          "xa",
+                          "catKhe",
+                          "be",
+                          "dan_1_Manh",
+                          "dan_2_Manh",
+                          "dongGhimMotManh",
+                          "dongGhimHaiManh",
+                          "chongTham",
+                          "dongGoi",
+                          "maKhuon",
+                        ],
                         child: Obx(
-                          () => formatColumn(
-                            label: 'Quy Cách Giấy (cm)',
-                            themeController: themeController,
-                          ),
+                          () =>
+                              formatColumn(label: "Công Đoạn 2", themeController: themeController),
                         ),
                       ),
                     ],
@@ -429,7 +429,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                 onColumnResizeEnd:
                     (details) => GridResizeHelper.onResizeEnd(
                       details: details,
-                      tableKey: 'order',
+                      tableKey: "order",
                       columnWidths: columnWidths,
                       setState: setState,
                     ),
@@ -440,7 +440,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                     final orderId =
                         selectedRow
                             .getCells()
-                            .firstWhere((cell) => cell.columnName == 'orderId')
+                            .firstWhere((cell) => cell.columnName == "orderId")
                             .value
                             .toString();
 
@@ -476,7 +476,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     } catch (e, s) {
       AppLogger.e("Lỗi không tìm thấy đơn hàng", error: e, stackTrace: s);
       if (mounted) {
-        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại sau');
+        showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại sau");
       }
     }
   }

@@ -1,23 +1,23 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/presentation/components/dialog/notification/dialog_order_notification.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_order.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/order_data_source.dart';
-import 'package:dongtam/service/order_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/presentation/components/dialog/notification/dialog_order_notification.dart";
+import "package:dongtam/presentation/components/headerTable/header_table_order.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/order_data_source.dart";
+import "package:dongtam/service/order_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class OrderAccept extends StatefulWidget {
   const OrderAccept({super.key});
@@ -31,7 +31,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   late List<GridColumn> columns;
 
   //controllers
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
@@ -67,10 +67,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     super.initState();
     loadOrders(ownOnly: isSeenOrder);
 
-    isManager = userController.hasAnyRole(roles: ['manager', 'admin']);
+    isManager = userController.hasAnyRole(roles: ["manager", "admin"]);
 
     columns = buildOrderColumns(themeController: themeController, userController: userController);
-    ColumnWidthTable.loadWidths(tableKey: 'order', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "order", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -247,7 +247,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                       LeftButtonSearch(
                         selectedType: searchType,
                         types: const [
-                          'Tất cả',
+                          "Tất cả",
                           "Mã Đơn Hàng",
                           "Tên Khách Hàng",
                           "Tên Sản Phẩm",
@@ -256,7 +256,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = value != 'Tất cả';
+                            isTextFieldEnabled = value != "Tất cả";
 
                             if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                               searchController.clear();
@@ -345,7 +345,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['orders'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["orders"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -358,7 +358,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
         }
 
         final data = snapshot.data!;
-        final orders = data['orders'] as List<OrderModel>;
+        final orders = data["orders"] as List<OrderModel>;
 
         if (_cachedOrders == null || _cachedOrders != orders) {
           _cachedOrders = orders;
@@ -393,24 +393,14 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                           cells: [
                             StackedHeaderCell(
                               columnNames: [
-                                'inMatTruoc',
-                                'inMatSau',
-                                'canMang',
-                                'canLanBox',
-                                'xa',
-                                'catKhe',
-                                'be',
-                                'dan_1_Manh',
-                                'dan_2_Manh',
-                                'dongGhimMotManh',
-                                'dongGhimHaiManh',
-                                'chongTham',
-                                'dongGoi',
-                                'maKhuon',
+                                "sizeCustomer",
+                                "sizeManufacture",
+                                "lengthCus",
+                                "lengthMf",
                               ],
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Công Đoạn 2',
+                                  label: "Quy Cách Giấy (cm)",
                                   themeController: themeController,
                                 ),
                               ),
@@ -425,21 +415,31 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                               ],
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Khoản Phí (VNĐ)',
+                                  label: "Khoản Phí (VNĐ)",
                                   themeController: themeController,
                                 ),
                               ),
                             ),
                             StackedHeaderCell(
                               columnNames: [
-                                "sizeCustomer",
-                                "sizeManufacture",
-                                "lengthCus",
-                                "lengthMf",
+                                "inMatTruoc",
+                                "inMatSau",
+                                "canMang",
+                                "canLanBox",
+                                "xa",
+                                "catKhe",
+                                "be",
+                                "dan_1_Manh",
+                                "dan_2_Manh",
+                                "dongGhimMotManh",
+                                "dongGhimHaiManh",
+                                "chongTham",
+                                "dongGoi",
+                                "maKhuon",
                               ],
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Quy Cách Giấy (cm)',
+                                  label: "Công Đoạn 2",
                                   themeController: themeController,
                                 ),
                               ),
@@ -462,7 +462,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'order',
+                            tableKey: "order",
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
@@ -473,7 +473,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                           final orderId =
                               selectedRow
                                   .getCells()
-                                  .firstWhere((cell) => cell.columnName == 'orderId')
+                                  .firstWhere((cell) => cell.columnName == "orderId")
                                   .value
                                   .toString();
 

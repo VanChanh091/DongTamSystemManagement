@@ -1,12 +1,12 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ObHistoryDataSource extends DataGridSource {
   List<OutboundHistoryModel> outbounds = [];
@@ -17,7 +17,7 @@ class ObHistoryDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> dbPaperDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   ObHistoryDataSource({
     required this.outbounds,
@@ -27,14 +27,17 @@ class ObHistoryDataSource extends DataGridSource {
     required this.pageSize,
   }) {
     buildDataGridRows();
-    addColumnGroup(ColumnGroup(name: 'dateOutbound', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: "dateOutbound", sortGroupRows: false));
   }
 
+  @override
+  List<DataGridRow> get rows => dbPaperDataGridRows;
+
   List<DataGridCell> buildDbPaperCells(OutboundHistoryModel outbound, int index) {
-    DataGridCell<String> buildDimensionCell(String columnName, double? value) {
-      return DataGridCell<String>(
+    DataGridCell<num> buildDimensionCell(String columnName, num? value) {
+      return DataGridCell<num>(
         columnName: columnName,
-        value: (value != null && value > 0) ? OrderModel.formatCurrency(value) : '0',
+        value: (value != null && value > 0) ? value : 0,
       );
     }
 
@@ -44,7 +47,7 @@ class ObHistoryDataSource extends DataGridSource {
     final customer = detail?.order?.customer;
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "outboundSlipCode", value: outbound.outboundSlipCode),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "companyName", value: customer?.companyName ?? ""),
@@ -73,9 +76,6 @@ class ObHistoryDataSource extends DataGridSource {
     ];
   }
 
-  @override
-  List<DataGridRow> get rows => dbPaperDataGridRows;
-
   void buildDataGridRows() {
     final int offset = (currentPage - 1) * pageSize;
 
@@ -93,34 +93,34 @@ class ObHistoryDataSource extends DataGridSource {
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
+    String displayDate = "";
+    String itemCount = "";
     num totalAmount = 0;
 
     if (match != null) {
-      final fullDate = match.group(1) ?? '';
-      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
-      final count = match.group(2) ?? '0';
-      itemCount = '$count Phiếu';
+      final fullDate = match.group(1) ?? "";
+      displayDate = fullDate.split(" ").first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? "0";
+      itemCount = "$count Phiếu";
     }
 
     try {
       if (displayDate.isNotEmpty) {
         // Ép formatter dùng đúng định dạng dd/MM/yyyy của UI cho chắc chắn
-        final parsedDate = DateFormat('dd/MM/yyyy').parse(displayDate.trim());
-        final lookupKey = DateFormat('yyyy-MM-dd').format(parsedDate);
+        final parsedDate = DateFormat("dd/MM/yyyy").parse(displayDate.trim());
+        final lookupKey = DateFormat("yyyy-MM-dd").format(parsedDate);
 
         totalAmount = (totalPriceByDate[lookupKey] as num?) ?? 0;
       }
     } catch (e) {
-      AppLogger.e('Lỗi khi parse ngày hoặc truy xuất tổng tiền: $e');
+      AppLogger.e("Lỗi khi parse ngày hoặc truy xuất tổng tiền: $e");
       totalAmount = 0;
     }
 
-    final formattedTotal = totalAmount > 0 ? OrderModel.formatCurrency(totalAmount) : '0';
+    final formattedTotal = totalAmount > 0 ? OrderModel.formatCurrency(totalAmount) : "0";
 
     return Container(
       width: double.infinity,
@@ -129,8 +129,8 @@ class ObHistoryDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày xuất kho: $displayDate – $itemCount – Tổng Tiền: $formattedTotal VNĐ'
-            : '📅 Ngày xuất kho: Không xác định',
+            ? "📅 Ngày xuất kho: $displayDate – $itemCount – Tổng Tiền: $formattedTotal VNĐ"
+            : "📅 Ngày xuất kho: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -164,17 +164,23 @@ class ObHistoryDataSource extends DataGridSource {
       color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            String displayValue = dataCell.value?.toString() ?? "";
+            final value = dataCell.value;
 
-            if (dataCell.columnName == "status") {
-              displayValue = getStatusVi(displayValue);
-            }
-
+            String displayValue = "";
             Alignment alignment;
-            if (dataCell.value is num) {
+
+            if (value is num) {
               alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
+
+              if (dataCell.columnName == "status") {
+                displayValue = getStatusVi(displayValue);
+              }
             }
 
             return formatDataTable(label: displayValue, alignment: alignment);

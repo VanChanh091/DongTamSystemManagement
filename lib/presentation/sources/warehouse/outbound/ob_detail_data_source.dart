@@ -54,7 +54,7 @@ class ObDetailDataSource extends DataGridSource {
       ),
       DataGridCell<String>(
         columnName: "discount",
-        value: '${OrderModel.formatCurrency(order.discount ?? 0)} VNĐ',
+        value: order.discount! > 0 ? '${OrderModel.formatCurrency(order.discount ?? 0)} VNĐ' : "-",
       ),
       DataGridCell<String>(
         columnName: "totalPriceOutbound",
@@ -81,34 +81,28 @@ class ObDetailDataSource extends DataGridSource {
         }).toList();
   }
 
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["isFSC"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
-  }
-
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     return DataGridRowAdapter(
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+            final value = dataCell.value;
+            final boolColumns = ["isFSC"];
 
+            String displayValue = "";
             Alignment alignment;
+
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
+            } else if (boolColumns.contains(dataCell.columnName)) {
+              alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: cellText, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

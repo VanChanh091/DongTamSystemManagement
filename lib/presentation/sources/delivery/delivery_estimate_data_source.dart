@@ -1,10 +1,10 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/utils/helper/build_color_row.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DeliveryEstimateDataSource extends DataGridSource {
   List<PlanningPaperModel> delivery = [];
@@ -13,7 +13,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> dbPaperDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   DeliveryEstimateDataSource({
@@ -25,13 +25,16 @@ class DeliveryEstimateDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
+  @override
+  List<DataGridRow> get rows => dbPaperDataGridRows;
+
   List<DataGridCell> buildDbPaperCells(PlanningPaperModel paper, int index) {
     final order = paper.order;
     final inventory = order?.Inventory;
 
     return [
       // Order
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "orderIdCust", value: order?.orderIdCustomer ?? ""),
       DataGridCell<String>(
@@ -46,28 +49,22 @@ class DeliveryEstimateDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
 
       DataGridCell<String>(columnName: "QcBox", value: order?.QC_box ?? ""),
-      DataGridCell<String>(columnName: 'size', value: '${order!.paperSizeManufacture} cm'),
-      DataGridCell<String>(columnName: 'length', value: '${order.lengthPaperManufacture} cm'),
+      DataGridCell<double>(columnName: "size", value: order!.paperSizeManufacture),
+      DataGridCell<double>(columnName: "length", value: order.lengthPaperManufacture),
 
       //quantity
-      DataGridCell<int>(columnName: 'quantityOrd', value: order.quantityManufacture),
+      DataGridCell<int>(columnName: "quantityOrd", value: order.quantityManufacture),
       DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
       DataGridCell<int>(columnName: "qtyOutbound", value: inventory?.totalQtyOutbound ?? 0),
       DataGridCell<int>(columnName: "qtyInventory", value: inventory?.qtyInventory ?? 0),
 
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
-      DataGridCell<String>(
-        columnName: 'volume',
-        value:
-            order.volume != null && order.volume! > 0
-                ? '${OrderModel.formatCurrency(order.volume ?? 0)} m³'
-                : "0",
-      ),
+      DataGridCell<double>(columnName: "volume", value: order.volume ?? 0),
 
       //structure
-      DataGridCell<String>(columnName: 'structure', value: paper.formatterStructureOrder),
-      DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ''),
-      DataGridCell<String>(columnName: "note", value: order.note ?? ''),
+      DataGridCell<String>(columnName: "structure", value: paper.formatterStructureOrder),
+      DataGridCell<String>(columnName: "instructSpecial", value: order.instructSpecial ?? ""),
+      DataGridCell<String>(columnName: "note", value: order.note ?? ""),
 
       //user
       DataGridCell<String>(columnName: "staffOrder", value: order.user?.fullName ?? ""),
@@ -76,9 +73,6 @@ class DeliveryEstimateDataSource extends DataGridSource {
       DataGridCell<int>(columnName: "planningId", value: paper.planningId),
     ];
   }
-
-  @override
-  List<DataGridRow> get rows => dbPaperDataGridRows;
 
   void buildDataGridRows() {
     final int offset = (currentPage - 1) * pageSize;
@@ -96,22 +90,13 @@ class DeliveryEstimateDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final planningId = row.getCells().firstWhere((cell) => cell.columnName == 'planningId').value;
-    final isSelected = selectedPaperIds.contains(planningId);
+    final status = getCellValue<String>(row, "delivered", "");
 
-    final status = getCellValue<String>(row, 'delivered', "");
-
-    Color rowColor;
-    if (isSelected) {
-      rowColor = Colors.blue.withValues(alpha: 0.3);
-    } else if (status.isNotEmpty) {
-      if (status == "pending") {
-        rowColor = Colors.orange.withValues(alpha: 0.3);
-      } else if (status == "planned") {
-        rowColor = Colors.green.withValues(alpha: 0.3);
-      } else {
-        rowColor = Colors.transparent;
-      }
+    Color rowColor = Colors.transparent;
+    if (status == "pending") {
+      rowColor = Colors.orange.withValues(alpha: 0.3);
+    } else if (status == "planned") {
+      rowColor = Colors.green.withValues(alpha: 0.3);
     } else {
       rowColor = Colors.transparent;
     }
@@ -133,17 +118,23 @@ class DeliveryEstimateDataSource extends DataGridSource {
       color: rowColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            String displayValue = dataCell.value?.toString() ?? "";
+            final value = dataCell.value;
 
-            if (dataCell.columnName == 'delivered') {
-              displayValue = getStatusVi(displayValue);
-            }
-
+            String displayValue = "";
             Alignment alignment;
-            if (dataCell.value is num) {
+
+            if (value is num) {
               alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
+
+              if (dataCell.columnName == "delivered") {
+                displayValue = getStatusVi(displayValue);
+              }
             }
 
             return formatDataTable(label: displayValue, alignment: alignment);

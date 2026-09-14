@@ -1,4 +1,5 @@
 import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/warehouse/inventory/inventory_model.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
@@ -40,6 +41,7 @@ class _InventoryState extends State<Inventory> {
   late List<GridColumn> columns;
 
   //controllers
+  final userController = Get.find<UserController>();
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
 
@@ -76,6 +78,7 @@ class _InventoryState extends State<Inventory> {
   final reasonController = TextEditingController();
 
   //flag
+  late bool canEdit;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool _isSelectionChange = false;
@@ -88,6 +91,8 @@ class _InventoryState extends State<Inventory> {
   @override
   void initState() {
     super.initState();
+    canEdit = userController.hasAnyPermission(permission: ["plan", "delivery", "accountant"]);
+
     loadInventory();
 
     columns = buildInventoryColumn(themeController: themeController);
@@ -316,294 +321,304 @@ class _InventoryState extends State<Inventory> {
                           const SizedBox(width: 20),
 
                           //right button
-                          ValueListenableBuilder(
-                            valueListenable: _selectedInventoryIdsNotifier,
-                            builder: (context, selectedInventoryId, _) {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  //outbound
-                                  AnimatedButton(
-                                    onPressed: () async {
-                                      if (!context.mounted) return;
+                          if (canEdit) ...[
+                            ValueListenableBuilder(
+                              valueListenable: _selectedInventoryIdsNotifier,
+                              builder: (context, selectedInventoryId, _) {
+                                return Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    //outbound
+                                    AnimatedButton(
+                                      onPressed: () async {
+                                        if (!context.mounted) return;
 
-                                      if (selectedInventoryId.isNotEmpty) {
-                                        try {
-                                          final data = await futureInventory;
-                                          final inventoryList =
-                                              data["inventories"] as List<InventoryModel>;
-                                          final selectedModels =
-                                              inventoryList
-                                                  .where(
-                                                    (i) =>
-                                                        selectedInventoryId.contains(i.inventoryId),
-                                                  )
-                                                  .toList();
-                                          initialItems =
-                                              selectedModels
-                                                  .map(
-                                                    (i) =>
-                                                        OutboundTempItemModel.fromInventoryModel(i),
-                                                  )
-                                                  .toList();
-                                        } catch (e) {
-                                          if (!context.mounted) return;
-                                          showSnackBarError(
-                                            context,
-                                            "Lấy dữ liệu xuất kho thất bại",
-                                          );
-                                          return;
-                                        }
-                                      }
-
-                                      if (!context.mounted) return;
-                                      showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder:
-                                            (_) => OutBoundDialog(
-                                              outbound: null,
-                                              onOutboundHistory: () {
-                                                loadInventory();
-                                              },
-                                              initialItems: initialItems,
-                                            ),
-                                      );
-                                    },
-                                    label: "Xuất Kho",
-                                    icon: Symbols.input,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 8),
-
-                                  //transfer qty to other order
-                                  AnimatedButton(
-                                    onPressed:
-                                        selectedInventoryId.length == 1
-                                            ? () async {
-                                              final inventory = await futureInventory;
-                                              final selectedInv = inventory["inventories"]
-                                                  .firstWhere(
-                                                    (i) =>
-                                                        i.inventoryId == selectedInventoryId.first,
-                                                  );
-
-                                              if (context.mounted) {
-                                                showDialog(
-                                                  context: context,
-                                                  builder:
-                                                      (_) => DialogTransferQty(
-                                                        inventory: selectedInv,
-                                                        onLoad: () => loadInventory(),
-                                                      ),
-                                                );
-                                              }
-                                            }
-                                            : null,
-                                    label: "Chuyển SL",
-                                    icon: Symbols.input,
-                                    backgroundColor: themeController.buttonColor,
-                                  ),
-                                  const SizedBox(width: 8),
-
-                                  //filter
-                                  buildDropdownItems(
-                                    width: 140,
-                                    value: filterType,
-                                    items: const ["gtZero", "ltZero"],
-                                    onChanged:
-                                        (value) => {
-                                          setState(() {
-                                            filterType = value!;
-                                            selectedInventoryId.clear();
-                                            loadInventory();
-                                          }),
-                                        },
-                                    itemLabelBuilder: (value) => filterOptions[value] ?? value,
-                                  ),
-                                  const SizedBox(width: 8),
-
-                                  //popup menu
-                                  PopupMenuButton<String>(
-                                    icon: const Icon(Icons.more_vert, color: Colors.black),
-                                    color: Colors.white,
-                                    onSelected: (value) async {
-                                      if (value == "liquidation") {
-                                        if (selectedInventoryId.length > 1) {
-                                          showSnackBarError(
-                                            context,
-                                            "Chỉ được chọn 1 tồn kho để thanh lý trong 1 thời điểm",
-                                          );
-                                          return;
-                                        }
-
-                                        await showInputQtyDialog(
-                                          context: context,
-                                          title: "Thanh Lý Tồn Kho",
-                                          onConfirm: (inputQty, inputReason) async {
-                                            try {
-                                              final success = await WarehouseService()
-                                                  .handleChangeQtyInventory(
-                                                    action: "TRANSFER_TO_LIQUIDATION",
-                                                    inventoryId: [selectedInventoryId.first],
-                                                    qtyTransfer: inputQty,
-                                                    reason: inputReason,
-                                                  );
-
-                                              if (success) {
-                                                if (context.mounted) {
-                                                  showSnackBarSuccess(
-                                                    context,
-                                                    "Xác nhận thanh lý tồn kho thành công",
-                                                  );
-                                                }
-
-                                                if (context.mounted) {
-                                                  // Show loading
-                                                  showLoadingDialog(context);
-                                                  await Future.delayed(const Duration(seconds: 1));
-
-                                                  if (!context.mounted) return false;
-                                                  Navigator.pop(context); // Hide loading
-                                                }
-
-                                                loadInventory();
-                                                return true;
-                                              }
-                                              return false;
-                                            } on ApiException catch (e) {
-                                              final errorText = switch (e.errorCode) {
-                                                "INSUFFICIENT_QUANTITY" =>
-                                                  "Không đủ số lượng trong tồn kho để chuyển giao",
-                                                _ => "Có lỗi xảy ra, vui lòng thử lại",
-                                              };
-
-                                              if (!context.mounted) return false;
-
-                                              showSnackBarError(context, errorText);
-                                              return false;
-                                            } catch (e) {
-                                              if (context.mounted) {
-                                                showSnackBarError(
-                                                  context,
-                                                  "Thanh lý tồn kho thất bại",
-                                                );
-                                              }
-                                              return false;
-                                            }
-                                          },
-                                        );
-                                      } else if (value == "transferToVariance") {
-                                        final bool success = await showConfirmDialog(
-                                          context: context,
-                                          title: "Xử lý giá trị tồn âm",
-                                          content:
-                                              "Xác nhận chuyển số lượng tồn âm này sang sai số?",
-                                          confirmText: "Xác nhận",
-                                        );
-
-                                        if (success) {
+                                        if (selectedInventoryId.isNotEmpty) {
                                           try {
-                                            await WarehouseService().handleChangeQtyInventory(
-                                              action: "TRANSFER_TO_VARIANCE",
-                                              inventoryId: selectedInventoryId,
-                                            );
-
-                                            if (context.mounted) {
-                                              showSnackBarSuccess(
-                                                context,
-                                                "Xử lý tồn âm thành công",
-                                              );
-
-                                              loadInventory();
-                                            }
+                                            final data = await futureInventory;
+                                            final inventoryList =
+                                                data["inventories"] as List<InventoryModel>;
+                                            final selectedModels =
+                                                inventoryList
+                                                    .where(
+                                                      (i) => selectedInventoryId.contains(
+                                                        i.inventoryId,
+                                                      ),
+                                                    )
+                                                    .toList();
+                                            initialItems =
+                                                selectedModels
+                                                    .map(
+                                                      (i) =>
+                                                          OutboundTempItemModel.fromInventoryModel(
+                                                            i,
+                                                          ),
+                                                    )
+                                                    .toList();
                                           } catch (e) {
-                                            if (context.mounted) {
-                                              showSnackBarError(context, "Xử lý tồn âm thất bại");
-                                            }
+                                            if (!context.mounted) return;
+                                            showSnackBarError(
+                                              context,
+                                              "Lấy dữ liệu xuất kho thất bại",
+                                            );
+                                            return;
                                           }
                                         }
-                                      } else if (value == "export") {
+
+                                        if (!context.mounted) return;
                                         showDialog(
                                           context: context,
-                                          builder: (_) => DialogExportInventory(),
+                                          barrierDismissible: false,
+                                          builder:
+                                              (_) => OutBoundDialog(
+                                                outbound: null,
+                                                onOutboundHistory: () {
+                                                  loadInventory();
+                                                },
+                                                initialItems: initialItems,
+                                              ),
                                         );
-                                      }
-                                    },
-                                    itemBuilder:
-                                        (BuildContext context) => [
-                                          const PopupMenuItem<String>(
-                                            value: "liquidation",
-                                            child: ListTile(
-                                              leading: Icon(Symbols.output),
-                                              title: Text("Thanh Lý Tồn"),
+                                      },
+                                      label: "Xuất Kho",
+                                      icon: Symbols.input,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 8),
+
+                                    //transfer qty to other order
+                                    AnimatedButton(
+                                      onPressed:
+                                          selectedInventoryId.length == 1
+                                              ? () async {
+                                                final inventory = await futureInventory;
+                                                final selectedInv = inventory["inventories"]
+                                                    .firstWhere(
+                                                      (i) =>
+                                                          i.inventoryId ==
+                                                          selectedInventoryId.first,
+                                                    );
+
+                                                if (context.mounted) {
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (_) => DialogTransferQty(
+                                                          inventory: selectedInv,
+                                                          onLoad: () => loadInventory(),
+                                                        ),
+                                                  );
+                                                }
+                                              }
+                                              : null,
+                                      label: "Chuyển SL",
+                                      icon: Symbols.input,
+                                      backgroundColor: themeController.buttonColor,
+                                    ),
+                                    const SizedBox(width: 8),
+
+                                    //filter
+                                    buildDropdownItems(
+                                      width: 140,
+                                      value: filterType,
+                                      items: const ["gtZero", "ltZero"],
+                                      onChanged:
+                                          (value) => {
+                                            setState(() {
+                                              filterType = value!;
+                                              selectedInventoryId.clear();
+                                              loadInventory();
+                                            }),
+                                          },
+                                      itemLabelBuilder: (value) => filterOptions[value] ?? value,
+                                    ),
+                                    const SizedBox(width: 8),
+
+                                    //popup menu
+                                    PopupMenuButton<String>(
+                                      icon: const Icon(Icons.more_vert, color: Colors.black),
+                                      color: Colors.white,
+                                      onSelected: (value) async {
+                                        if (value == "liquidation") {
+                                          if (selectedInventoryId.length > 1) {
+                                            showSnackBarError(
+                                              context,
+                                              "Chỉ được chọn 1 tồn kho để thanh lý trong 1 thời điểm",
+                                            );
+                                            return;
+                                          }
+
+                                          await showInputQtyDialog(
+                                            context: context,
+                                            title: "Thanh Lý Tồn Kho",
+                                            onConfirm: (inputQty, inputReason) async {
+                                              try {
+                                                final success = await WarehouseService()
+                                                    .handleChangeQtyInventory(
+                                                      action: "TRANSFER_TO_LIQUIDATION",
+                                                      inventoryId: [selectedInventoryId.first],
+                                                      qtyTransfer: inputQty,
+                                                      reason: inputReason,
+                                                    );
+
+                                                if (success) {
+                                                  if (context.mounted) {
+                                                    showSnackBarSuccess(
+                                                      context,
+                                                      "Xác nhận thanh lý tồn kho thành công",
+                                                    );
+                                                  }
+
+                                                  if (context.mounted) {
+                                                    // Show loading
+                                                    showLoadingDialog(context);
+                                                    await Future.delayed(
+                                                      const Duration(seconds: 1),
+                                                    );
+
+                                                    if (!context.mounted) return false;
+                                                    Navigator.pop(context); // Hide loading
+                                                  }
+
+                                                  loadInventory();
+                                                  return true;
+                                                }
+                                                return false;
+                                              } on ApiException catch (e) {
+                                                final errorText = switch (e.errorCode) {
+                                                  "INSUFFICIENT_QUANTITY" =>
+                                                    "Không đủ số lượng trong tồn kho để chuyển giao",
+                                                  _ => "Có lỗi xảy ra, vui lòng thử lại",
+                                                };
+
+                                                if (!context.mounted) return false;
+
+                                                showSnackBarError(context, errorText);
+                                                return false;
+                                              } catch (e) {
+                                                if (context.mounted) {
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Thanh lý tồn kho thất bại",
+                                                  );
+                                                }
+                                                return false;
+                                              }
+                                            },
+                                          );
+                                        } else if (value == "transferToVariance") {
+                                          final bool success = await showConfirmDialog(
+                                            context: context,
+                                            title: "Xử lý giá trị tồn âm",
+                                            content:
+                                                "Xác nhận chuyển số lượng tồn âm này sang sai số?",
+                                            confirmText: "Xác nhận",
+                                          );
+
+                                          if (success) {
+                                            try {
+                                              await WarehouseService().handleChangeQtyInventory(
+                                                action: "TRANSFER_TO_VARIANCE",
+                                                inventoryId: selectedInventoryId,
+                                              );
+
+                                              if (context.mounted) {
+                                                showSnackBarSuccess(
+                                                  context,
+                                                  "Xử lý tồn âm thành công",
+                                                );
+
+                                                loadInventory();
+                                              }
+                                            } catch (e) {
+                                              if (context.mounted) {
+                                                showSnackBarError(context, "Xử lý tồn âm thất bại");
+                                              }
+                                            }
+                                          }
+                                        } else if (value == "export") {
+                                          showDialog(
+                                            context: context,
+                                            builder: (_) => DialogExportInventory(),
+                                          );
+                                        }
+                                      },
+                                      itemBuilder:
+                                          (BuildContext context) => [
+                                            const PopupMenuItem<String>(
+                                              value: "liquidation",
+                                              child: ListTile(
+                                                leading: Icon(Symbols.output),
+                                                title: Text("Thanh Lý Tồn"),
+                                              ),
                                             ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: "transferToVariance",
-                                            child: ListTile(
-                                              leading: Icon(Symbols.swap_horiz),
-                                              title: Text("Xử Lý Tồn Âm"),
+                                            const PopupMenuItem<String>(
+                                              value: "transferToVariance",
+                                              child: ListTile(
+                                                leading: Icon(Symbols.swap_horiz),
+                                                title: Text("Xử Lý Tồn Âm"),
+                                              ),
                                             ),
-                                          ),
-                                          const PopupMenuItem<String>(
-                                            value: "export",
-                                            child: ListTile(
-                                              leading: Icon(Symbols.file_download),
-                                              title: Text("Xuất Excel"),
+                                            const PopupMenuItem<String>(
+                                              value: "export",
+                                              child: ListTile(
+                                                leading: Icon(Symbols.file_download),
+                                                title: Text("Xuất Excel"),
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                  ),
-                                  const SizedBox(width: 5),
-                                ],
-                              );
-                            },
-                          ),
+                                          ],
+                                    ),
+                                    const SizedBox(width: 5),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
                         ],
                       ),
                     ),
 
                     //total price
-                    Padding(
-                      padding: const EdgeInsets.only(right: 7),
-                      child: FutureBuilder(
-                        future: futureInventory,
-                        builder: (context, snapshot) {
-                          final isLoading = snapshot.connectionState == ConnectionState.waiting;
+                    if (canEdit) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 7),
+                        child: FutureBuilder(
+                          future: futureInventory,
+                          builder: (context, snapshot) {
+                            final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
-                          if (snapshot.hasData) {
-                            final rawValue = snapshot.data?["totalValueInventory"];
-                            final double totalValue =
-                                double.tryParse(rawValue?.toString() ?? "") ?? 0.0;
+                            if (snapshot.hasData) {
+                              final rawValue = snapshot.data?["totalValueInventory"];
+                              final double totalValue =
+                                  double.tryParse(rawValue?.toString() ?? "") ?? 0.0;
 
-                            _lastTotalPrice = totalValue;
-                          }
+                              _lastTotalPrice = totalValue;
+                            }
 
-                          return AnimatedOpacity(
-                            duration: const Duration(milliseconds: 400),
-                            opacity: isLoading ? 0.4 : 1.0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                const Text(
-                                  "Tổng Giá Trị Tồn: ",
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
-                                _buildAnimatedCounter(
-                                  targetValue: _lastTotalPrice,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Colors.green.shade500,
+                            return AnimatedOpacity(
+                              duration: const Duration(milliseconds: 400),
+                              opacity: isLoading ? 0.4 : 1.0,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  const Text(
+                                    "Tổng Giá Trị Tồn: ",
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                   ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                                  _buildAnimatedCounter(
+                                    targetValue: _lastTotalPrice,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Colors.green.shade500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

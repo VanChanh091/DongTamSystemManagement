@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/data/models/report/report_paper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
@@ -34,30 +35,29 @@ class ReportPaperDatasource extends DataGridSource {
     final orderCell = reportPaper.planningPaper!.order;
     final planningPaper = reportPaper.planningPaper;
 
+    DataGridCell<String> buildDateCell({required String columnName, DateTime? value}) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: value != null ? formatter.format(value) : "",
+      );
+    }
+
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "orderId", value: orderCell!.orderId),
       DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
 
-      DataGridCell<String>(
-        columnName: "dayStartProduction",
-        value: formatter.format(planningPaper!.dayStart!),
-      ),
-      DataGridCell<String?>(
-        columnName: "dayReported",
-        value: formatterDayReported.format(reportPaper.dayReport),
-      ),
+      buildDateCell(columnName: "dayStartProduction", value: planningPaper!.dayStart!),
+      buildDateCell(columnName: "dayReported", value: reportPaper.dayReport),
 
       DataGridCell<String>(columnName: "structure", value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),
       DataGridCell<bool>(columnName: "isFSC", value: orderCell.isFSC),
       DataGridCell<String>(columnName: "daoXa", value: orderCell.daoXa),
 
-      DataGridCell<String>(columnName: "size", value: "${planningPaper.sizePaperPLaning}"),
-      DataGridCell<String>(
-        columnName: "length",
-        value: planningPaper.lengthPaperPlanning > 0 ? "${planningPaper.lengthPaperPlanning}" : "0",
-      ),
+      DataGridCell<double>(columnName: "size", value: planningPaper.sizePaperPLaning),
+      DataGridCell<double>(columnName: "length", value: planningPaper.lengthPaperPlanning),
+
       DataGridCell<int>(columnName: "numberChild", value: planningPaper.numberChild),
       DataGridCell<String>(columnName: "khoCapGiay", value: "${planningPaper.ghepKho} cm"),
 
@@ -107,19 +107,6 @@ class ReportPaperDatasource extends DataGridSource {
         value: formatter.format(reportPaper.dayReport),
       ),
     ];
-  }
-
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["hasMadeBox", "isFSC"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
   }
 
   @override
@@ -213,70 +200,60 @@ class ReportPaperDatasource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final reportPaperId =
-        row.getCells().firstWhere((cell) => cell.columnName == "reportPaperId").value;
-    final isSelected = selectedReportId == reportPaperId;
-
-    Color backgroundColor;
-    if (isSelected == true) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+            final boolColumns = ["hasMadeBox", "isFSC"];
+            final value = dataCell.value;
 
-            Alignment alignment;
-            if (dataCell.value is num) {
-              alignment = Alignment.centerRight;
-            } else if (cellText == "✅") {
-              alignment = Alignment.center;
-            } else {
-              alignment = Alignment.centerLeft;
-            }
+            String displayValue = "";
+            String colName = dataCell.columnName;
 
             Color cellColor = Colors.transparent;
-            if (dataCell.columnName == "qtyReported") {
-              final qty = dataCell.value;
-              if (qty > 0) {
+            Alignment alignment = Alignment.centerLeft;
+
+            if (value is num) {
+              alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+            } else if (boolColumns.contains(colName)) {
+              alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
+
+              if (colName == "qtyReported" && value > 0) {
                 cellColor = Colors.amberAccent.withValues(alpha: 0.3);
-              }
-            } else if (dataCell.columnName == "lackOfQty") {
-              final int value = dataCell.value ?? 0;
-              final String display = value < 0 ? "+${value.abs()}" : value.toString();
+              } else if (colName == "lackOfQty") {
+                final String display = value < 0 ? "+${value.abs()}" : value.toString();
 
-              Color textColor = Colors.black;
-              if (value > 0) {
-                textColor = Colors.redAccent;
-              } else if (value < 0) {
-                textColor = Colors.green;
-              }
+                Color textColor = Colors.black;
+                if (value > 0) {
+                  textColor = Colors.redAccent;
+                } else if (value < 0) {
+                  textColor = Colors.green;
+                }
 
-              return Container(
-                alignment: alignment,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
-                ),
-                child: Text(
-                  display,
-                  style: TextStyle(
-                    color: textColor,
-                    fontWeight: value < 0 ? FontWeight.w600 : FontWeight.w400,
+                return Container(
+                  alignment: alignment,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  decoration: BoxDecoration(
+                    border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
                   ),
-                ),
-              );
+                  child: Text(
+                    display,
+                    style: TextStyle(
+                      color: textColor,
+                      fontWeight: value < 0 ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                );
+              }
+            } else {
+              alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(
-              label: _formatCellValueBool(dataCell),
-              alignment: alignment,
-              cellColor: cellColor,
-            );
+            return formatDataTable(label: displayValue, alignment: alignment, cellColor: cellColor);
           }).toList(),
     );
   }

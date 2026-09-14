@@ -1,7 +1,7 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 final List<Map<String, dynamic>> _planningColumns = [
   // order
@@ -25,8 +25,7 @@ final List<Map<String, dynamic>> _planningColumns = [
   {"key": "dvt", "title": "ĐVT"},
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
   {"key": "note", "title": "Ghi Chú"},
-  {"key": "totalPrice", "title": "Tổng Tiền"},
-  {"key": "totalPriceAfterVAT", "title": "Tổng Tiền VAT"},
+  {"key": "totalPrice", "title": "Tổng Tiền (VNĐ)"},
   {"key": "haveMadeBox", "title": "Làm Thùng?"},
 ];
 

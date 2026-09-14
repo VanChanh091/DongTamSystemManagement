@@ -630,7 +630,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: "Quy Cách",
+                                        label: "Quy Cách Giấy (cm)",
                                         themeController: themeController,
                                       ),
                                     ),
@@ -646,6 +646,20 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                     child: Obx(
                                       () => formatColumn(
                                         label: "Số Lượng",
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
+                                    columnNames: [
+                                      "price",
+                                      "pricePaper",
+                                      "totalPrice",
+                                      "totalPriceVAT",
+                                    ],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: "Khoản Phí (VNĐ)",
                                         themeController: themeController,
                                       ),
                                     ),

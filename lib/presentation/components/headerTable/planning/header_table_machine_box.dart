@@ -54,7 +54,7 @@ final List<Map<String, dynamic>> _machineBoxColumns = [
   {"key": "dayCompletedProd", "title": "Ngày Hoàn Thành"},
   {
     "key": "totalPrice",
-    "title": "Tổng Tiền",
+    "title": "Tổng Tiền (VNĐ)",
     "visiblePages": ["planning"],
   },
 

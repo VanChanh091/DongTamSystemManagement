@@ -42,12 +42,15 @@ class MachinePaperDatasource extends DataGridSource {
     }
   }
 
+  @override
+  List<DataGridRow> get rows => planningDataGridRows;
+
   // create list cell for planning
   List<DataGridCell> buildPlanningInfoCells(PlanningPaperModel planning) {
     final order = planning.order;
 
-    DataGridCell<String> buildCurrencyCell(String columnName, num value) {
-      return DataGridCell<String>(columnName: columnName, value: (value) > 0 ? "$value" : "0");
+    DataGridCell<num> buildCurrencyCell(String columnName, num value) {
+      return DataGridCell<num>(columnName: columnName, value: value);
     }
 
     return [
@@ -66,8 +69,8 @@ class MachinePaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC),
-      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
       DataGridCell<String>(columnName: "khoCapGiay", value: "${planning.ghepKho} cm"),
+      DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
 
       buildCurrencyCell("size", planning.sizePaperPLaning),
       buildCurrencyCell("length", planning.lengthPaperPlanning),
@@ -121,8 +124,8 @@ class MachinePaperDatasource extends DataGridSource {
   }
 
   List<DataGridCell> buildWasteNormCell(PlanningPaperModel planning) {
-    DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
-      return DataGridCell<String>(columnName: columnName, value: value != 0 ? "$value" : "0");
+    DataGridCell<double> buildWasteCell({required String columnName, required double value}) {
+      return DataGridCell<double>(columnName: columnName, value: value);
     }
 
     return [
@@ -156,9 +159,6 @@ class MachinePaperDatasource extends DataGridSource {
       ],
     ];
   }
-
-  @override
-  List<DataGridRow> get rows => planningDataGridRows;
 
   void buildDataGridRows() {
     planningDataGridRows =
@@ -212,8 +212,12 @@ class MachinePaperDatasource extends DataGridSource {
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
-    const boolColumns = ["chongTham", "haveMadeBox", "isFSC"];
+    if (value is num) {
+      final numVal = value.toDouble();
+      return numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+    }
 
+    const boolColumns = ["chongTham", "haveMadeBox", "isFSC"];
     if (boolColumns.contains(dataCell.columnName)) {
       if (value == null) return "";
       return value == true ? "✅" : "";
@@ -338,17 +342,14 @@ class MachinePaperDatasource extends DataGridSource {
     final sortPlanning = getCellValue<int>(row, "index", 0);
     final runningPlan = getCellValue<int>(row, "runningPlanProd", 0);
     final qtyProduced = getCellValue<int>(row, "qtyProduced", 0);
-    final totalLoss = getCellValue<String>(row, "totalLoss", "0");
-    final qtyWastes = getCellValue<String>(row, "qtyWastes", "0");
+    final totalLoss = getCellValue<double>(row, "totalLoss", 0);
+    final qtyWastes = getCellValue<double>(row, "qtyWastes", 0);
 
     //status
     final status = getCellValue<String>(row, "status", "");
     final statusCheck = getCellValue<String>(row, "statusCheck", "");
 
     final bool isFailed = statusCheck == "failed";
-
-    final totalWasteLossVal = double.tryParse(totalLoss.replaceAll(" kg", "")) ?? 0;
-    final qtyWastesVal = double.tryParse(qtyWastes.replaceAll(" kg", "")) ?? 0;
 
     Color? rowColor;
     if (isSelected) {
@@ -373,7 +374,9 @@ class MachinePaperDatasource extends DataGridSource {
     // ===== Build cells =====
     final widgets =
         row.getCells().asMap().entries.map<Widget>((entry) {
-          final DataGridCell dataCell = entry.value;
+          final dataCell = entry.value;
+          final columnName = dataCell.columnName;
+
           final cellText = _formatCellValueBool(dataCell);
 
           Alignment alignment;
@@ -386,7 +389,7 @@ class MachinePaperDatasource extends DataGridSource {
           }
 
           TextStyle? customTextStyle;
-          if (page == "planning" && dataCell.columnName == "dateShipping") {
+          if (page == "planning" && columnName == "dateShipping") {
             final DateTime? shipDate = currentPlanning.order?.dateRequestShipping;
             if (shipDate != null) {
               final now = DateTime.now();
@@ -410,13 +413,13 @@ class MachinePaperDatasource extends DataGridSource {
           }
 
           Color cellColor = Colors.transparent;
-          if (dataCell.columnName == "qtyProduced" && qtyProduced < runningPlan) {
+          if (columnName == "qtyProduced" && qtyProduced < runningPlan) {
             cellColor = Colors.red.withValues(alpha: 0.5);
-          } else if (dataCell.columnName == "qtyWastes" && qtyWastesVal > totalWasteLossVal) {
+          } else if (columnName == "qtyWastes" && qtyWastes > totalLoss) {
             cellColor = Colors.red.withValues(alpha: 0.5);
           }
 
-          if (dataCell.columnName == "action") {
+          if (columnName == "action") {
             return IconButton(
               icon: const Icon(Icons.fact_check, color: Colors.blueAccent, size: 20),
               onPressed: () {

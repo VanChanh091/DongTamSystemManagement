@@ -5,6 +5,7 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/reportRevenue/report_daily_revenue_model.dart';
 import 'package:dongtam/presentation/components/headerTable/synthetic/report/header_table_daily_revenue.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -125,6 +126,8 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
   }
 
   void _fetchData() {
+    final keyword = searchController.text.trim();
+
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerDailyRevenueRow>(
         type: "daily",
@@ -133,6 +136,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
         month: selectedMonth,
         year: selectedYear,
         targetUserId: selectedUserId,
+        keyword: keyword.isNotEmpty ? keyword : null,
         dataKey: "dailyRevenue",
         fromJson: (json) => CustomerDailyRevenueRow.fromJson(json),
       ),
@@ -143,6 +147,13 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
 
   void _loadDailyRevenue() {
     setState(() => _fetchData());
+  }
+
+  void _searchCustomer() {
+    setState(() {
+      currentPage = 1;
+      _fetchData();
+    });
   }
 
   void _updateZoom(double newZoom) {
@@ -266,7 +277,13 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // search
-                      const SizedBox(),
+                      LeftButtonSearch(
+                        showDropdown: false,
+                        controller: searchController,
+                        hintText: "Tìm theo khách hàng...",
+                        buttonColor: themeController.buttonColor,
+                        onSearch: _searchCustomer,
+                      ),
                       const SizedBox(width: 12),
 
                       //buttons

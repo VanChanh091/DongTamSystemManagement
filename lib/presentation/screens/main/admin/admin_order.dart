@@ -568,7 +568,7 @@ class _ManageOrderState extends State<AdminOrder> {
         valueColor: Colors.redAccent,
       ),
       _infoRow(
-        '✂️ Dài Tính Tiền:',
+        '✂️ Dài (Tính Tiền):',
         OrderModel.formatCurrency(order.lengthPaperCustomer),
         unit: "cm",
       ),
@@ -580,7 +580,11 @@ class _ManageOrderState extends State<AdminOrder> {
       _infoRow('📝 HD đặc biệt:', order.instructSpecial!),
 
       //right
-      _infoRow('📏 Khổ Tính Tiền:', OrderModel.formatCurrency(order.paperSizeCustomer), unit: "cm"),
+      _infoRow(
+        '📏 Khổ (Tính Tiền):',
+        OrderModel.formatCurrency(order.paperSizeCustomer),
+        unit: "cm",
+      ),
       _infoRow(
         '📏 Khổ (Sản Xuất):',
         OrderModel.formatCurrency(order.paperSizeManufacture),

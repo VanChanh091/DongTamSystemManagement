@@ -50,7 +50,9 @@ class LeafMenuConfig extends SidebarItem {
     }
 
     // Kiểm tra permission restriction (nếu có)
-    if (requiredPermissions != null && requiredPermissions!.isNotEmpty) {
+    // admin và manager có toàn quyền truy cập, chỉ áp dụng requiredPermissions cho user có role khác
+    final isAdminOrManager = userRole == "admin" || userRole == "manager";
+    if (!isAdminOrManager && requiredPermissions != null && requiredPermissions!.isNotEmpty) {
       if (userPermissions == null || !userPermissions.any((p) => requiredPermissions!.contains(p))) {
         return false;
       }

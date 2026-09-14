@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
@@ -44,26 +45,18 @@ class LiquidationInvDataSource extends DataGridSource {
       DataGridCell<String>(columnName: 'orderId', value: liquidation.orderId),
       DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: 'productName', value: order?.product?.productName ?? ""),
-      DataGridCell<String>(columnName: 'flute', value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: 'flute', value: order?.flute != "0" ? order?.flute : "-"),
       DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
-      DataGridCell<String>(
-        columnName: 'size',
-        value:
-            order?.paperSizeCustomer != null && order!.paperSizeCustomer > 0
-                ? "${order.paperSizeCustomer} cm"
-                : "0",
-      ),
-      DataGridCell<String>(
-        columnName: 'length',
-        value:
-            order?.lengthPaperCustomer != null && order!.lengthPaperCustomer > 0
-                ? "${order.lengthPaperCustomer} cm"
-                : "0",
-      ),
+
+      DataGridCell<double>(columnName: 'size', value: order?.paperSizeCustomer ?? 0),
+      DataGridCell<double>(columnName: 'length', value: order?.lengthPaperCustomer ?? 0),
+
       DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
+
       DataGridCell<int>(columnName: 'qtyTransferred', value: liquidation.qtyTransferred),
       DataGridCell<int>(columnName: 'qtySold', value: liquidation.qtySold),
       DataGridCell<int>(columnName: 'qtyRemaining', value: liquidation.qtyRemaining),
+
       DataGridCell<double>(columnName: 'liquidationValue', value: liquidation.liquidationValue),
       DataGridCell<String>(columnName: 'reason', value: liquidation.reason),
       DataGridCell<String>(columnName: 'status', value: formatStatus(liquidation.status)),
@@ -91,29 +84,25 @@ class LiquidationInvDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final liquidationId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'liquidationId').value;
-    final isSelected = selectedLiquidationId?.contains(liquidationId);
-
-    Color backgroundColor;
-    if (isSelected == true) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
+            final value = dataCell.value;
+
+            String displayValue = "";
             Alignment alignment;
-            if (dataCell.value is num) {
+
+            if (value is num) {
               alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

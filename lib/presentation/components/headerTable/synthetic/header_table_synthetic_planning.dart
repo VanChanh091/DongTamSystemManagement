@@ -3,7 +3,7 @@ import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-const List<Map<String, dynamic>> _headerDbPaper = [
+const List<Map<String, dynamic>> _headerSyntheticPaper = [
   // Order
   {"key": "index", "title": "STT"},
   {"key": "orderId", "title": "Mã Đơn Hàng"},
@@ -27,9 +27,11 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
   {"key": "QcBox", "title": "QC Thùng"},
   {"key": "daoXa", "title": "Dao Xả"},
+  {"key": "child", "title": "Số Con"},
+  {"key": "dvt", "title": "DVT"},
+
   {"key": "size", "title": "Khổ"},
   {"key": "length", "title": "Dài"},
-  {"key": "child", "title": "Số Con"},
 
   // Quantity
   {"key": "quantityOrd", "title": "Đơn Hàng"},
@@ -42,7 +44,6 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "timeRunningOvfl", "title": "Tràn"},
 
   {"key": "instructSpecial", "title": "HD Đặc Biệt"},
-  {"key": "dvt", "title": "DVT"},
 
   //Waste
   {"key": "bottom", "title": "Đáy"},
@@ -66,12 +67,12 @@ const List<Map<String, dynamic>> _headerDbPaper = [
   {"key": "planningId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildDbPaperColumn({
+List<GridColumn> buildSyntheticPaperColumn({
   required ThemeController themeController,
   required String page,
 }) {
   return [
-    for (var item in _headerDbPaper)
+    for (var item in _headerSyntheticPaper)
       if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
         GridColumn(
           columnName: item["key"]!,

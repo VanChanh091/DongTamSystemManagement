@@ -129,12 +129,23 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
       icon: Icons.account_balance_wallet,
       label: "Kế Toán",
       children: [
-        LeafMenuConfig(icon: Symbols.lab_profile, label: "Xuất Kho", pageType: OutboundHistory),
-        LeafMenuConfig(icon: Symbols.garage_home, label: "Kho Thành Phẩm", pageType: Inventory),
+        LeafMenuConfig(
+          icon: Symbols.lab_profile,
+          label: "Xuất Kho",
+          pageType: OutboundHistory,
+          requiredPermissions: ["accountant"],
+        ),
+        LeafMenuConfig(
+          icon: Symbols.garage_home,
+          label: "Kho Thành Phẩm",
+          pageType: Inventory,
+          requiredPermissions: ["accountant"],
+        ),
         LeafMenuConfig(
           icon: Symbols.account_balance_wallet,
           label: "Công Nợ Khách Hàng",
           pageType: DebtCustomerSummary,
+          requiredPermissions: ["accountant"],
         ),
       ],
     ),
@@ -154,20 +165,43 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
         LeafMenuConfig(icon: Icons.assignment_turned_in, label: "Đơn Hàng", pageType: TopTabOrder),
         LeafMenuConfig(icon: Icons.person, label: "Khách Hàng", pageType: CustomerPage),
         LeafMenuConfig(icon: Icons.inventory_2, label: "Sản Phẩm", pageType: ProductPage),
-        LeafMenuConfig(
-          icon: Symbols.pending_actions,
-          label: "Đăng Ký Giao Hàng",
-          pageType: DeliveryEstimateTime,
+
+        GroupMenuConfig(
+          icon: Icons.local_shipping,
+          label: "Giao Hàng",
+          items: [
+            LeafMenuConfig(
+              icon: Symbols.pending_actions,
+              label: "Đăng Ký Giao Hàng",
+              pageType: DeliveryEstimateTime,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.calendar_add_on,
+              label: "Xếp Xe Giao Hàng",
+              pageType: DeliveryPlanning,
+              showBadge: true,
+              badge: badges.numberDeliveryRequest,
+              requiredPermissions: ["sale"],
+            ),
+          ],
         ),
-        LeafMenuConfig(
-          icon: Symbols.account_balance_wallet,
-          label: "Công Nợ Khách Hàng",
-          pageType: DebtCustomerSummary,
-        ),
-        LeafMenuConfig(
-          icon: Symbols.analytics,
-          label: "Báo Cáo Doanh Số",
-          pageType: TopTabSyntheticRevenue,
+
+        GroupMenuConfig(
+          icon: Icons.bar_chart,
+          label: "Thống Kê",
+          items: [
+            LeafMenuConfig(
+              icon: Symbols.account_balance_wallet,
+              label: "Công Nợ Khách Hàng",
+              pageType: DebtCustomerSummary,
+              requiredPermissions: ["sale"],
+            ),
+            LeafMenuConfig(
+              icon: Symbols.analytics,
+              label: "Báo Cáo Doanh Số",
+              pageType: TopTabSyntheticRevenue,
+            ),
+          ],
         ),
       ],
     ),
@@ -202,6 +236,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.pending_actions,
               label: "Đăng Ký Giao Hàng",
               pageType: DeliveryEstimateTime,
+              requiredPermissions: ["plan"],
             ),
             LeafMenuConfig(
               icon: Symbols.calendar_add_on,
@@ -209,9 +244,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               pageType: DeliveryPlanning,
               showBadge: true,
               badge: badges.numberDeliveryRequest,
+              requiredPermissions: ["plan"],
             ),
           ],
         ),
+
         LeafMenuConfig(
           icon: Icons.queue,
           label: "Hàng Chờ Xử Lý",
@@ -224,7 +261,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           label: "Định Mức Giấy Sản Xuất",
           pageType: PaperRequirements,
         ),
-        LeafMenuConfig(icon: Icons.list_alt, label: "Tổng Hợp Đơn Hàng", pageType: SyntheticOrder),
+        LeafMenuConfig(
+          icon: Icons.list_alt,
+          label: "Tổng Hợp Đơn Hàng",
+          pageType: SyntheticOrder,
+          requiredPermissions: ["plan"],
+        ),
       ],
     ),
 
@@ -312,6 +354,14 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Symbols.airport_shuttle,
           items: [
             LeafMenuConfig(
+              icon: Symbols.calendar_add_on,
+              label: "Xếp Xe Giao Hàng",
+              pageType: DeliveryPlanning,
+              showBadge: true,
+              badge: badges.numberDeliveryRequest,
+              requiredPermissions: ["delivery"],
+            ),
+            LeafMenuConfig(
               icon: Symbols.schedule,
               label: "Lịch Giao Hàng",
               pageType: DeliverySchedule,
@@ -377,7 +427,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.analytics,
               label: "Báo Cáo Doanh Số",
               pageType: TopTabSyntheticRevenue,
-              requiredRoles: ["admin", "manager"],
+              requiredRoles: ["admin"],
             ),
           ],
         ),

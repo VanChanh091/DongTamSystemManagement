@@ -1,3 +1,4 @@
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
@@ -27,11 +28,23 @@ class DashboardPaperDataSource extends DataGridSource {
 
   List<DataGridCell> buildDbPaperCells(PlanningPaperModel paper, int index) {
     final order = paper.order;
+    final timeOverflow = paper.timeOverflowPlanning;
 
-    DataGridCell<String> buildGridCell(String columnName, DateTime? value) {
+    DataGridCell<String> buildDateCell({required String columnName, DateTime? value}) {
       return DataGridCell<String>(
         columnName: columnName,
         value: value != null ? formatter.format(value) : "",
+      );
+    }
+
+    DataGridCell<num> buildNumberCell({required String columnName, required num value}) {
+      return DataGridCell<num>(columnName: columnName, value: value);
+    }
+
+    DataGridCell<String> buildTimeCell({required String columnName, TimeOfDay? value}) {
+      return DataGridCell<String>(
+        columnName: columnName,
+        value: value != null ? PlanningPaperModel.formatTimeOfDay(timeOfDay: value) : "",
       );
     }
 
@@ -48,10 +61,10 @@ class DashboardPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "structure", value: paper.formatterStructureOrder),
 
       //day
-      buildGridCell("dayReceive", order?.dayReceiveOrder),
-      buildGridCell("dayStartProduction", paper.dayStart),
-      buildGridCell("dayCompletedProd", paper.dayCompleted),
-      buildGridCell("dayCompletedOvfl", paper.timeOverflowPlanning?.overflowDayCompleted),
+      buildDateCell(columnName: "dayReceive", value: order?.dayReceiveOrder),
+      buildDateCell(columnName: "dayStartProduction", value: paper.dayStart),
+      buildDateCell(columnName: "dayCompletedProd", value: paper.dayCompleted),
+      buildDateCell(columnName: "dayCompletedOvfl", value: timeOverflow?.overflowDayCompleted),
 
       //other fields
       DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
@@ -61,41 +74,26 @@ class DashboardPaperDataSource extends DataGridSource {
         value: order?.QC_box != null && order!.QC_box!.isNotEmpty ? "${order.QC_box} cm" : "",
       ),
       DataGridCell<String>(columnName: "daoXa", value: order?.daoXa ?? ""),
-      DataGridCell<String>(columnName: "size", value: "${paper.sizePaperPLaning} cm"),
-      DataGridCell<String>(
-        columnName: "length",
-        value: paper.lengthPaperPlanning > 0 ? "${paper.lengthPaperPlanning} cm" : "0",
-      ),
       DataGridCell<int>(columnName: "child", value: paper.numberChild),
+      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
+
+      buildNumberCell(columnName: "size", value: paper.sizePaperPLaning),
+      buildNumberCell(columnName: "length", value: paper.lengthPaperPlanning),
 
       //quantity
-      DataGridCell<int>(columnName: "quantityOrd", value: order?.quantityManufacture ?? 0),
-      DataGridCell<int>(columnName: "qtyProduced", value: paper.qtyProduced),
-      DataGridCell<int>(columnName: "runningPlanProd", value: paper.runningPlan),
-      DataGridCell<int>(
-        columnName: "qtyInventory",
-        value: paper.order?.Inventory?.qtyInventory ?? 0,
-      ),
+      buildNumberCell(columnName: "quantityOrd", value: order?.quantityManufacture ?? 0),
+      buildNumberCell(columnName: "qtyProduced", value: paper.qtyProduced ?? 0),
+      buildNumberCell(columnName: "runningPlanProd", value: paper.runningPlan),
+      buildNumberCell(columnName: "qtyInventory", value: paper.order?.Inventory?.qtyInventory ?? 0),
 
       //time running
-      DataGridCell<String>(
-        columnName: "timeRunningProd",
-        value:
-            paper.timeRunning != null
-                ? PlanningPaperModel.formatTimeOfDay(timeOfDay: paper.timeRunning!)
-                : "",
-      ),
-      DataGridCell<String>(
+      buildTimeCell(columnName: "timeRunningProd", value: paper.timeRunning),
+      buildTimeCell(
         columnName: "timeRunningOvfl",
-        value:
-            paper.timeOverflowPlanning?.overflowTimeRunning != null
-                ? PlanningPaperModel.formatTimeOfDay(
-                  timeOfDay: paper.timeOverflowPlanning!.overflowTimeRunning!,
-                )
-                : "",
+        value: paper.timeOverflowPlanning?.overflowTimeRunning,
       ),
+
       DataGridCell<String>(columnName: "instructSpecial", value: order?.instructSpecial ?? ""),
-      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
 
       //Waste
       if (page == "dashboard") ...[...buildWasteAndManufactureCells(paper)],
@@ -109,8 +107,8 @@ class DashboardPaperDataSource extends DataGridSource {
   }
 
   List<DataGridCell> buildWasteAndManufactureCells(PlanningPaperModel paper) {
-    DataGridCell<String> buildWasteCell({required String columnName, required double value}) {
-      return DataGridCell<String>(columnName: columnName, value: value != 0 ? "$value kg" : "0");
+    DataGridCell<double> buildWasteCell({required String columnName, required double value}) {
+      return DataGridCell<double>(columnName: columnName, value: value);
     }
 
     return [
@@ -134,19 +132,6 @@ class DashboardPaperDataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => dbPaperDataGridRows;
 
-  String _formatCellValueBool(DataGridCell dataCell) {
-    final value = dataCell.value;
-
-    const boolColumns = ["chongTham", "isBox", "isFSC"];
-
-    if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return "";
-      return value == true ? "✅" : "";
-    }
-
-    return value?.toString() ?? "";
-  }
-
   void buildDataGridRows() {
     final int offset = (currentPage - 1) * pageSize;
 
@@ -163,31 +148,29 @@ class DashboardPaperDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final planningId = row.getCells().firstWhere((cell) => cell.columnName == "planningId").value;
-
-    Color backgroundColor;
-    if (selectedDbPaperId == planningId) {
-      backgroundColor = Colors.blue.withValues(alpha: 0.3);
-    } else {
-      backgroundColor = Colors.transparent;
-    }
-
     return DataGridRowAdapter(
-      color: backgroundColor,
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final cellText = _formatCellValueBool(dataCell);
+            final value = dataCell.value;
+            final boolColumns = ["chongTham", "isBox", "isFSC"];
 
+            String displayValue = "";
             Alignment alignment;
-            if (dataCell.value is num) {
+
+            if (value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == "✅") {
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+            } else if (boolColumns.contains(dataCell.columnName)) {
               alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
+              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment);
           }).toList(),
     );
   }

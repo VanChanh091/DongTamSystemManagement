@@ -41,17 +41,18 @@ class YearlyRevenueDataSource extends DataGridSource {
   List<DataGridCell> buildsYearlyRevenueCells(CustomerYearRevenue item, int index) {
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
-      DataGridCell<String>(columnName: "customerId", value: item.customerId),
       DataGridCell<String>(columnName: "customerName", value: item.customerName),
       DataGridCell<int>(columnName: "currentDebt", value: item.currentDebt),
+      DataGridCell<int>(columnName: "grandTotal", value: item.grandTotal),
+
+      //hidden
+      DataGridCell<String>(columnName: "customerId", value: item.customerId),
 
       for (final y in years) ...[
-        DataGridCell<int>(columnName: "y_${y}_total", value: item.years[y]?.yearTotal ?? 0),
         for (int m = 1; m <= 12; m++)
           DataGridCell<int>(columnName: "y_${y}_m_$m", value: item.years[y]?.months[m] ?? 0),
+        DataGridCell<int>(columnName: "y_${y}_total", value: item.years[y]?.yearTotal ?? 0),
       ],
-
-      DataGridCell<int>(columnName: "grandTotal", value: item.grandTotal),
     ];
   }
 
@@ -86,7 +87,6 @@ class YearlyRevenueDataSource extends DataGridSource {
     RowColumnIndex rowColumnIndex,
     String summaryValue,
   ) {
-    // 1. Ô tiêu đề "Tổng" (khi summaryColumn == null do titleColumnSpan)
     if (summaryColumn == null) {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng" : summaryValue,
@@ -95,30 +95,19 @@ class YearlyRevenueDataSource extends DataGridSource {
       );
     }
 
-    // 2. Ô số liệu tính toán từ summary
     if (summary != null) {
       final colName = summaryColumn.columnName;
 
       final int amount = _getSummaryValue(colName);
       final String displayValue = amount == 0 ? "-" : OrderModel.formatCurrency(amount);
 
-      final bool isDebt = colName == "currentDebt";
-
       return formatDataTable(
         label: displayValue,
         alignment: Alignment.centerRight,
-        textStyle: TextStyle(
-          fontSize: 13.5,
-          fontWeight: FontWeight.bold,
-          color:
-              (isDebt && amount > 0)
-                  ? Colors.redAccent.shade700
-                  : (amount == 0 ? Colors.grey.shade400 : Colors.black87),
-        ),
+        textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
       );
     }
 
-    // 3. Fallback ô rỗng để giữ đường viền cột thẳng hàng
     return formatDataTable(label: "", alignment: Alignment.center);
   }
 

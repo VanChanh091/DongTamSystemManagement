@@ -1,28 +1,28 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/data/models/planning/planning_stages.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_db_planning.dart';
-import 'package:dongtam/presentation/components/headerTable/synthetic/header_table_db_planning.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/synthetic/synthetic_planning_data_source.dart';
-import 'package:dongtam/presentation/sources/planning/stages_data_source.dart';
-import 'package:dongtam/service/synthetic_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/data/models/planning/planning_stages.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_db_planning.dart";
+import "package:dongtam/presentation/components/headerTable/synthetic/header_table_synthetic_planning.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/synthetic/synthetic_planning_data_source.dart";
+import "package:dongtam/presentation/sources/planning/stages_data_source.dart";
+import "package:dongtam/service/synthetic_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticPlanning extends StatefulWidget {
   const SyntheticPlanning({super.key});
@@ -91,16 +91,16 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
     super.initState();
     loadDashboard();
 
-    columnsPaper = buildDbPaperColumn(themeController: themeController, page: "dashboard");
+    columnsPaper = buildSyntheticPaperColumn(themeController: themeController, page: "dashboard");
     columnsStages = buildStageColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'dashboard', columns: columnsPaper).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "dashboard", columns: columnsPaper).then((w) {
       setState(() {
         columnWidthsPlanning = w;
       });
     });
 
-    ColumnWidthTable.loadWidths(tableKey: 'stage', columns: columnsStages).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "stage", columns: columnsStages).then((w) {
       setState(() {
         columnWidthsStage = w;
       });
@@ -194,7 +194,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
 
   void _updateSelectedIdsFromRows(List<DataGridRow> rows) async {
     final planningId =
-        rows.first.getCells().firstWhere((cell) => cell.columnName == 'planningId').value;
+        rows.first.getCells().firstWhere((cell) => cell.columnName == "planningId").value;
 
     setState(() {
       _selectedDbPaperIdNotifier.value = planningId;
@@ -337,7 +337,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                       LeftButtonSearch(
                         selectedType: searchType,
                         types: const [
-                          'Tất cả',
+                          "Tất cả",
                           "Theo Mã Đơn",
                           "Ghép Khổ",
                           "Theo Máy",
@@ -348,7 +348,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = value != 'Tất cả';
+                            isTextFieldEnabled = value != "Tất cả";
 
                             if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                               searchController.clear();
@@ -454,7 +454,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['dashboard'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["dashboard"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -467,9 +467,9 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
         }
 
         final data = snapshot.data!;
-        final dbPlanning = data['dashboard'] as List<PlanningPaperModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final dbPlanning = data["dashboard"] as List<PlanningPaperModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         if (_cachedPapers == null || _cachedPapers != dbPlanning) {
           _cachedPapers = dbPlanning;
@@ -525,48 +525,57 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Ngày',
+                                        label: "Ngày",
+                                        themeController: themeController,
+                                      ),
+                                    ),
+                                  ),
+                                  StackedHeaderCell(
+                                    columnNames: ["size", "length"],
+                                    child: Obx(
+                                      () => formatColumn(
+                                        label: "Quy Cách (cm)",
                                         themeController: themeController,
                                       ),
                                     ),
                                   ),
                                   StackedHeaderCell(
                                     columnNames: [
-                                      'quantityOrd',
-                                      'qtyProduced',
-                                      'runningPlanProd',
+                                      "quantityOrd",
+                                      "qtyProduced",
+                                      "runningPlanProd",
                                       "totalOutbound",
                                       "qtyInventory",
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Số Lượng',
+                                        label: "Số Lượng",
                                         themeController: themeController,
                                       ),
                                     ),
                                   ),
                                   StackedHeaderCell(
-                                    columnNames: ['timeRunningProd', 'timeRunningOvfl'],
+                                    columnNames: ["timeRunningProd", "timeRunningOvfl"],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Thời Gian',
+                                        label: "Thời Gian",
                                         themeController: themeController,
                                       ),
                                     ),
                                   ),
                                   StackedHeaderCell(
                                     columnNames: [
-                                      'bottom',
-                                      'fluteE',
-                                      'fluteE2',
-                                      'fluteB',
-                                      'fluteC',
-                                      'knife',
-                                      'totalLoss',
+                                      "bottom",
+                                      "fluteE",
+                                      "fluteE2",
+                                      "fluteB",
+                                      "fluteC",
+                                      "knife",
+                                      "totalLoss",
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Định Mức Phế Liệu',
+                                        label: "Định Mức Phế Liệu (Kg)",
                                         themeController: themeController,
                                       ),
                                     ),
@@ -589,7 +598,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                             onColumnResizeEnd:
                                 (details) => GridResizeHelper.onResizeEnd(
                                   details: details,
-                                  tableKey: 'dashboard',
+                                  tableKey: "dashboard",
                                   columnWidths: columnWidthsPlanning,
                                   setState: setState,
                                 ),
@@ -699,7 +708,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                           ],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Ngày',
+                                              label: "Ngày",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -708,7 +717,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                           columnNames: ["timeRunning", "timeRunningOvfl"],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Thời Gian',
+                                              label: "Thời Gian",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -717,7 +726,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                           columnNames: ["runningPlan", "qtyProduced"],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Số Lượng',
+                                              label: "Số Lượng",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -726,7 +735,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                           columnNames: ["wasteBox", "rpWasteLoss"],
                                           child: Obx(
                                             () => formatColumn(
-                                              label: 'Phế Liệu',
+                                              label: "Phế Liệu",
                                               themeController: themeController,
                                             ),
                                           ),
@@ -749,7 +758,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                   onColumnResizeEnd:
                                       (details) => GridResizeHelper.onResizeEnd(
                                         details: details,
-                                        tableKey: 'stage',
+                                        tableKey: "stage",
                                         columnWidths: columnWidthsStage,
                                         setState: setState,
                                       ),

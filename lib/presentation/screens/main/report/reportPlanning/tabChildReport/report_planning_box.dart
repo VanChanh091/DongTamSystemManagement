@@ -486,7 +486,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
                         columns: columns,
                         widths: columnWidths,
                       ),
-                      frozenColumnsCount: 7,
+                      frozenColumnsCount: 6,
                       stackedHeaderRows: <StackedHeaderRow>[
                         StackedHeaderRow(
                           cells: [

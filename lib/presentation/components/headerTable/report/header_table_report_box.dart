@@ -8,7 +8,7 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
 
-  {"key": "dateShipping", "title": "Ngày Dự Kiến"},
+  // {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "dayStartProduction", "title": "Ngày Sản Xuất"},
   {"key": "dayReported", "title": "Ngày Báo Cáo"},
 

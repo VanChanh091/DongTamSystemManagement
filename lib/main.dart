@@ -23,13 +23,10 @@ void main() async {
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    await windowManager.maximize();
+
     await windowManager.show();
     await windowManager.focus();
-
-    // Cho Flutter 1 tick nhỏ để sync DPI trước khi maximize
-    Future.microtask(() async {
-      await windowManager.maximize();
-    });
   });
 
   //khởi tạo theme

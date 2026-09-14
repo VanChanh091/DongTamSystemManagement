@@ -55,7 +55,7 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "typeProduct", value: order.product?.typeProduct ?? ""),
       DataGridCell<String>(columnName: "productName", value: order.product?.productName ?? ""),
 
-      DataGridCell<String>(columnName: "flute", value: order.flute ?? ""),
+      DataGridCell<String>(columnName: "flute", value: order.flute != "0" ? "${order.flute}" : "-"),
       DataGridCell<String>(columnName: "QC_box", value: order.QC_box ?? ""),
       DataGridCell<String>(columnName: "structure", value: order.formatterStructureOrder),
       DataGridCell<bool>(columnName: "isFSC", value: order.isFSC),
@@ -76,7 +76,7 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
 
       buildCurrencyCell("acreage", order.acreage ?? 0),
-      DataGridCell<String>(columnName: "vat", value: order.vat! > 0 ? "${order.vat ?? 0}%" : "0"),
+      DataGridCell<String>(columnName: "vat", value: order.vat! > 0 ? "${order.vat ?? 0}%" : "-"),
 
       buildCurrencyCell("price", order.price),
       buildCurrencyCell("pricePaper", order.pricePaper ?? 0),
@@ -203,7 +203,7 @@ class OrderDataSource extends DataGridSource {
                         imageUrl,
                         fit: BoxFit.contain,
                         errorBuilder:
-                            (_, __, ___) => Container(
+                            (_, _, _) => Container(
                               width: 300,
                               height: 300,
                               color: Colors.grey.shade300,

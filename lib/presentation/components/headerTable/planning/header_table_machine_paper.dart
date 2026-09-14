@@ -17,8 +17,8 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "isFSC", "title": "Đơn FSC"},
-  {"key": "flute", "title": "Sóng"},
   {"key": "khoCapGiay", "title": "Khổ Cấp Giấy"},
+  {"key": "flute", "title": "Sóng"},
 
   {"key": "size", "title": "Khổ (cm)"},
   {"key": "length", "title": "Dài (cm)"},

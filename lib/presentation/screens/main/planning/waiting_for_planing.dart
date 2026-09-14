@@ -1,29 +1,29 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_planning_order.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_planning.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/planning/planning_data_source.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/presentation/components/dialog/other/dialog_planning_order.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_planning.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/planning/planning_data_source.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingForPlanning extends StatefulWidget {
   const WaitingForPlanning({super.key});
@@ -37,17 +37,17 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   late List<GridColumn> columns;
 
   //controllers
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
   final headerScrollController = ScrollController();
 
-  String type = 'unplanned';
+  String type = "unplanned";
   final Map<String, String> filterOptions = {
-    'unplanned': 'Chưa xếp',
-    'partial': "Xếp 1 phần",
-    'planned': 'Đã xếp',
+    "unplanned": "Chưa xếp",
+    "partial": "Xếp 1 phần",
+    "planned": "Đã xếp",
   };
 
   //search
@@ -79,7 +79,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
     isPlan = userController.hasPermission(permission: "plan");
 
     columns = buildColumnPlanning(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'waitingPlanning', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "waitingPlanning", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -250,11 +250,11 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                       //left button
                       LeftButtonSearch(
                         selectedType: searchType,
-                        types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng", "Theo Quy Cách"],
+                        types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Theo Quy Cách"],
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = searchType != 'Tất cả';
+                            isTextFieldEnabled = searchType != "Tất cả";
 
                             if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                               searchController.clear();
@@ -342,7 +342,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                                 //filter
                                 buildDropdownItems(
                                   value: type,
-                                  items: const ['unplanned', 'partial', 'planned'],
+                                  items: const ["unplanned", "partial", "planned"],
                                   onChanged: (value) => changeFilter(value!),
                                   itemLabelBuilder: (value) => filterOptions[value] ?? value,
                                 ),
@@ -433,9 +433,18 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                   StackedHeaderRow(
                     cells: [
                       StackedHeaderCell(
+                        columnNames: ["sizeManu", "lengthMf"],
+                        child: Obx(
+                          () => formatColumn(
+                            label: "Quy Cách (cm)",
+                            themeController: themeController,
+                          ),
+                        ),
+                      ),
+                      StackedHeaderCell(
                         columnNames: ["qtyManufacture", "runningPlan", "quantityProduced"],
                         child: Obx(
-                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                          () => formatColumn(label: "Số Lượng", themeController: themeController),
                         ),
                       ),
                     ],
@@ -456,7 +465,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                 onColumnResizeEnd:
                     (details) => GridResizeHelper.onResizeEnd(
                       details: details,
-                      tableKey: 'waitingPlanning',
+                      tableKey: "waitingPlanning",
                       columnWidths: columnWidths,
                       setState: setState,
                     ),
@@ -467,7 +476,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
                     final orderId =
                         selectedRow
                             .getCells()
-                            .firstWhere((cell) => cell.columnName == 'orderId')
+                            .firstWhere((cell) => cell.columnName == "orderId")
                             .value
                             .toString();
 
