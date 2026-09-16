@@ -18,6 +18,7 @@ class DebtService {
     required DateTime targetDate,
     String? customerId,
     String? userId,
+    String? search,
   }) async {
     return HelperService().fetchPaginatedData<CustomerDebtItemModel>(
       endpoint: "debts/closing-debt",
@@ -27,6 +28,7 @@ class DebtService {
         "targetDate": DateFormat("yyyy-MM-dd").format(targetDate),
         if (customerId != null) "customerId": customerId,
         if (userId != null) "userId": userId,
+        if (search != null) "search": search,
       },
       fromJson: (json) => CustomerDebtItemModel.fromJson(json),
       dataKey: "debts",

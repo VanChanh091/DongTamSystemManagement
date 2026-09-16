@@ -366,7 +366,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                   StackedHeaderRow(
                     cells: [
                       StackedHeaderCell(
-                        columnNames: ["sizeCustomer", "sizeManufacture", "lengthCus", "lengthMf"],
+                        columnNames: ["sizeCus", "lengthCus", "sizeManu", "lengthManu"],
                         child: Obx(
                           () => formatColumn(
                             label: "Quy Cách Giấy (cm)",

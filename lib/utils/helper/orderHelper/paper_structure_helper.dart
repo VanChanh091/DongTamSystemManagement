@@ -37,30 +37,37 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
 
     bool hasField(String key) => data[key] != null && data[key]!.trim().isNotEmpty;
 
-    final hasE = hasField("songE");
-    final hasB = hasField("songB");
-    final hasC = hasField("songC");
-    final hasE2 = hasField("songE2");
+    final hasDay = hasField("day");
+    final hasE = hasField("songE") || hasField("matE");
+    final hasB = hasField("songB") || hasField("matB");
+    final hasC = hasField("songC") || hasField("matC");
+    final hasE2 = hasField("songE2") || hasField("matE2");
 
-    // Tự suy luận loại sóng chính xác 100%
-    final detected =
-        hasE2
-            ? (hasB ? "EBE" : (hasC ? "ECE" : "EE"))
-            : [if (hasE) "E", if (hasB) "B", if (hasC) "C"].join();
-
-    currentWave = waveConfigs.containsKey(detected) ? detected : "BC";
-
-    // Tự đếm số lớp đang có dữ liệu
+    // Đếm số lớp đang có dữ liệu
     int filledLayers = 0;
     for (final val in data.values) {
       if (val != null && val.trim().isNotEmpty) filledLayers++;
     }
 
-    final allowed = waveConfigs[currentWave]?["layers"] as List<int>? ?? [4, 5];
-    currentLayerCount =
-        allowed.contains(filledLayers)
-            ? filledLayers
-            : (waveConfigs[currentWave]!["defaultLayer"] as int);
+    // Nếu chỉ có Đáy (1 lớp) và không có bất kỳ sóng/mặt nào
+    if (hasDay && !hasE && !hasB && !hasC && !hasE2) {
+      currentWave = "";
+      currentLayerCount = 1;
+    } else {
+      // Tự suy luận loại sóng chính xác 100%
+      final detected =
+          hasE2
+              ? (hasB ? "EBE" : (hasC ? "ECE" : "EE"))
+              : [if (hasE) "E", if (hasB) "B", if (hasC) "C"].join();
+
+      currentWave = waveConfigs.containsKey(detected) ? detected : "BC";
+
+      final allowed = waveConfigs[currentWave]?["layers"] as List<int>? ?? [4, 5];
+      currentLayerCount =
+          allowed.contains(filledLayers)
+              ? filledLayers
+              : (waveConfigs[currentWave]!["defaultLayer"] as int);
+    }
 
     // Khớp giấy vào từng tầng tương ứng
     final activeSlots = _generateSlots(currentWave, currentLayerCount);
@@ -151,7 +158,14 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
   // Sinh slot theo loại sóng và số lớp
   // Lớp chẵn (2,4,6): không có Đáy, bắt đầu từ Sóng/Mặt
   // Lớp lẻ (3,5,7): bắt đầu từ Đáy
+  // Lớp 1: chỉ có Đáy
   List<Map<String, dynamic>> _generateSlots(String wave, int layers) {
+    if (layers == 1) {
+      return [
+        {"name": "Đáy", "isFlute": false, "prefix": "", "field": "day"}
+      ];
+    }
+
     const waveFlutes = {
       "E": ["E"],
       "B": ["B"],
@@ -189,7 +203,11 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
   @override
   Widget build(BuildContext context) {
     final activeSlots = _generateSlots(currentWave, currentLayerCount);
-    final availableLayers = waveConfigs[currentWave]!["layers"] as List<int>;
+    final waveLayers =
+        (currentWave.isNotEmpty && waveConfigs.containsKey(currentWave))
+            ? (waveConfigs[currentWave]!["layers"] as List<int>)
+            : [2, 3];
+    final availableLayers = [1, ...waveLayers];
 
     List<String> previewParts = [];
     bool isFull = true;
@@ -284,23 +302,29 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                         spacing: 8,
                         children:
                             waveConfigs.keys.map((wave) {
-                              final isSelected = currentWave == wave;
+                              final isSelected =
+                                  currentWave == wave && currentLayerCount > 1;
                               return ChoiceChip(
                                 label: Text(wave),
                                 selected: isSelected,
                                 selectedColor: const Color(0xFF2563EB),
                                 checkmarkColor: Colors.white,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : const Color(0xFF334155),
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : const Color(0xFF334155),
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
                                   fontSize: 12,
                                 ),
                                 onSelected: (_) {
                                   setState(() {
                                     currentWave = wave;
-                                    currentLayerCount = waveConfigs[wave]!["defaultLayer"] as int;
-
-                                    // Xóa hết dữ liệu giấy đã chọn khi đổi sóng
+                                    currentLayerCount =
+                                        waveConfigs[wave]!["defaultLayer"] as int;
                                     chosenSlots.clear();
                                   });
                                 },
@@ -332,14 +356,31 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                                 selectedColor: const Color(0xFF2563EB),
                                 checkmarkColor: Colors.white,
                                 labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : const Color(0xFF334155),
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                  color:
+                                      isSelected
+                                          ? Colors.white
+                                          : const Color(0xFF334155),
+                                  fontWeight:
+                                      isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
                                   fontSize: 12,
                                 ),
                                 onSelected: (_) {
                                   setState(() {
-                                    currentLayerCount = layer;
-                                    chosenSlots.removeWhere((key, _) => key >= layer);
+                                    if (layer == 1) {
+                                      currentWave = "";
+                                      currentLayerCount = 1;
+                                      chosenSlots.clear();
+                                    } else {
+                                      if (currentWave.isEmpty) {
+                                        currentWave = "E";
+                                      }
+                                      currentLayerCount = layer;
+                                      chosenSlots.removeWhere(
+                                        (key, _) => key >= layer,
+                                      );
+                                    }
                                   });
                                 },
                               );

@@ -1,32 +1,32 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/unsaved_change_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
-import 'package:dongtam/presentation/components/shared/planning/save_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart";
+import "package:dongtam/presentation/components/shared/planning/save_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/planning/machine_box_data_source.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/utils/helper/warning_unsaved_change.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ProductionQueueBox extends StatefulWidget {
   const ProductionQueueBox({super.key});
@@ -40,7 +40,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   late List<GridColumn> columns;
 
   //controllers
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -51,9 +51,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
   String machine = "Máy In";
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    'Mã Đơn Hàng': "orderId",
-    'Tên KH': "customerName",
-    'Quy Cách': "QcBox",
+    "Mã Đơn Hàng": "orderId",
+    "Tên KH": "customerName",
+    "Quy Cách": "QcBox",
   };
 
   Map<String, double> columnWidths = {};
@@ -90,9 +90,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
     columns = buildMachineBoxColumns(
       machine: machine,
       themeController: themeController,
-      page: 'planning',
+      page: "planning",
     );
-    ColumnWidthTable.loadWidths(tableKey: 'queueBox', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "queueBox", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -100,10 +100,10 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
-    timeStartController.text = '6:00';
+    timeStartController.text = "6:00";
     totalTimeWorkingController.text = "16";
   }
 
@@ -180,8 +180,8 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         rows
             .map((row) {
               final cell = row.getCells().firstWhere(
-                (c) => c.columnName == 'planningBoxId',
-                orElse: () => const DataGridCell(columnName: 'planningBoxId', value: ''),
+                (c) => c.columnName == "planningBoxId",
+                orElse: () => const DataGridCell(columnName: "planningBoxId", value: ""),
               );
               return cell.value.toString();
             })
@@ -332,11 +332,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                           //left button
                           LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên KH', 'Quy Cách'],
+                            types: const ["Tất cả", "Mã Đơn Hàng", "Tên KH", "Quy Cách"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = searchType != 'Tất cả';
+                                isTextFieldEnabled = searchType != "Tất cả";
 
                                 if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                                   searchController.clear();
@@ -387,7 +387,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         timeStartController: timeStartController,
                                         totalTimeWorkingController: totalTimeWorkingController,
                                         getRows: () => _cachedDatasource!.rows,
-                                        idColumn: 'planningBoxId',
+                                        idColumn: "planningBoxId",
                                         isBox: true,
                                         backgroundColor: themeController.buttonColor,
                                         machine: machine,
@@ -409,7 +409,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         showGroup = !showGroup;
                                       });
                                     },
-                                    label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                    label: showGroup ? "Tắt nhóm" : "Bật nhóm",
                                     icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
                                     backgroundColor: themeController.buttonColor,
                                   ),
@@ -424,7 +424,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                         ids: ids,
                                         machine: machine,
                                         isBox: true,
-                                        action: 'CONFIRM_COMPLETE',
+                                        action: "CONFIRM_COMPLETE",
                                       );
                                     },
                                     backgroundColor: themeController.buttonColor,
@@ -436,11 +436,11 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                   buildDropdownItems(
                                     value: machine,
                                     items: const [
-                                      'Máy In',
+                                      "Máy In",
                                       "Máy Bế",
                                       "Máy Xả",
                                       "Máy Dán",
-                                      'Máy Cấn Lằn',
+                                      "Máy Cấn Lằn",
                                       "Máy Cắt Khe",
                                       "Máy Cán Màng",
                                       "Máy Đóng Ghim",
@@ -466,7 +466,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                     icon: const Icon(Icons.more_vert, color: Colors.black),
                                     color: Colors.white,
                                     onSelected: (value) async {
-                                      if (value == 'acceptLack') {
+                                      if (value == "acceptLack") {
                                         await handlePlanningAction(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningBoxIds,
@@ -480,7 +480,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                           onSuccess: () => loadPlanning(clearSelection: true),
                                         );
                                       }
-                                      if (value == 'notify') {
+                                      if (value == "notify") {
                                         if (!context.mounted) return;
 
                                         bool confirm = await showConfirmDialog(
@@ -516,17 +516,17 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                                     itemBuilder:
                                         (BuildContext context) => [
                                           const PopupMenuItem<String>(
-                                            value: 'acceptLack',
+                                            value: "acceptLack",
                                             child: ListTile(
                                               leading: Icon(Icons.approval_outlined),
-                                              title: Text('Chấp Nhận Thiếu SL'),
+                                              title: Text("Chấp Nhận Thiếu SL"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'notify',
+                                            value: "notify",
                                             child: ListTile(
                                               leading: Icon(Symbols.send),
-                                              title: Text('Xác Nhận Kế Hoạch SX'),
+                                              title: Text("Xác Nhận Kế Hoạch SX"),
                                             ),
                                           ),
                                         ],
@@ -612,7 +612,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
             selectedPlanningIds: _selectedPlanningBoxIdsNotifier.value,
             unsavedChange: unsavedChangeController,
             machine: machine,
-            page: 'planning',
+            page: "planning",
             showGroup: showGroup,
           );
         }
@@ -644,18 +644,18 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                     cells: [
                       StackedHeaderCell(
                         columnNames: [
-                          'qtyPrinted',
-                          'qtyCanLan',
-                          'qtyCanMang',
-                          'qtyXa',
-                          'qtyCatKhe',
-                          'qtyBe',
-                          'qtyDan',
-                          'qtyDongGhim',
+                          "qtyPrinted",
+                          "qtyCanLan",
+                          "qtyCanMang",
+                          "qtyXa",
+                          "qtyCatKhe",
+                          "qtyBe",
+                          "qtyDan",
+                          "qtyDongGhim",
                         ],
                         child: Obx(
                           () => formatColumn(
-                            label: 'Số Lượng Của Các Công Đoạn',
+                            label: "Số Lượng Của Các Công Đoạn",
                             themeController: themeController,
                           ),
                         ),
@@ -663,25 +663,25 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                       StackedHeaderCell(
                         columnNames: ["quantityOrd", "qtyPaper", "needProd"],
                         child: Obx(
-                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                          () => formatColumn(label: "Số Lượng", themeController: themeController),
                         ),
                       ),
                       StackedHeaderCell(
                         columnNames: ["inMatTruoc", "inMatSau"],
                         child: Obx(
-                          () => formatColumn(label: 'In Ấn', themeController: themeController),
+                          () => formatColumn(label: "In Ấn", themeController: themeController),
                         ),
                       ),
                       StackedHeaderCell(
                         columnNames: ["dan_1_Manh", "dan_2_Manh"],
                         child: Obx(
-                          () => formatColumn(label: 'Dán', themeController: themeController),
+                          () => formatColumn(label: "Dán", themeController: themeController),
                         ),
                       ),
                       StackedHeaderCell(
                         columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
                         child: Obx(
-                          () => formatColumn(label: 'Đóng Ghim', themeController: themeController),
+                          () => formatColumn(label: "Đóng Ghim", themeController: themeController),
                         ),
                       ),
                     ],
@@ -702,7 +702,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
                 onColumnResizeEnd:
                     (details) => GridResizeHelper.onResizeEnd(
                       details: details,
-                      tableKey: 'queueBox',
+                      tableKey: "queueBox",
                       columnWidths: columnWidths,
                       setState: setState,
                     ),
@@ -858,7 +858,7 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
           newStatus: status,
           machine: machine,
           isBox: true,
-          action: 'ACCEPT_LACK_QTY',
+          action: "ACCEPT_LACK_QTY",
         );
 
         if (!context.mounted) return;
@@ -869,9 +869,9 @@ class _ProductionQueueBoxState extends State<ProductionQueueBox> {
         }
       } on ApiException catch (e) {
         final errorText = switch (e.errorCode) {
-          'CANNOT_COMPLETE_WITHOUT_SORT' => e.message!,
+          "CANNOT_COMPLETE_WITHOUT_SORT" => e.message!,
           "PLANNING_NOT_REQUESTED" => e.message!,
-          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+          _ => "Có lỗi xảy ra, vui lòng thử lại",
         };
 
         if (context.mounted) {

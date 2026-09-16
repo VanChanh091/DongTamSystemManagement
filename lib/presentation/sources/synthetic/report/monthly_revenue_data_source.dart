@@ -1,9 +1,10 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/reportRevenue/report_monthly_revenue_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/reportRevenue/report_monthly_revenue_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MonthlyRevenueDataSource extends DataGridSource {
   final List<MonthlyRevenueReport> dailyReports;
@@ -11,7 +12,7 @@ class MonthlyRevenueDataSource extends DataGridSource {
   final int month;
   final int year;
 
-  final formatter = DateFormat('MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   List<DataGridRow> _rows = [];
 
@@ -36,20 +37,22 @@ class MonthlyRevenueDataSource extends DataGridSource {
 
   List<DataGridCell> buildMonthlyRevenueCells(MonthlyRevenueReport item, int index) {
     String displayDate = item.date;
-    if (item.date.contains('-')) {
+    if (item.date.contains("-")) {
       try {
         final parsed = DateTime.parse(item.date);
         displayDate = formatter.format(parsed);
-      } catch (_) {}
+      } catch (_) {
+        AppLogger.e("Error parsing date: ${item.date}");
+      }
     }
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
-      DataGridCell<String>(columnName: 'date', value: displayDate),
-      DataGridCell<int>(columnName: 'orderApprovedAmount', value: item.orderApprovedAmount),
-      DataGridCell<int>(columnName: 'productionAmount', value: item.productionAmount),
-      DataGridCell<int>(columnName: 'salesAmount', value: item.salesAmount),
-      DataGridCell<int>(columnName: 'returnAmount', value: item.returnAmount),
+      DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(columnName: "date", value: displayDate),
+      DataGridCell<int>(columnName: "orderApprovedAmount", value: item.orderApprovedAmount),
+      DataGridCell<int>(columnName: "productionAmount", value: item.productionAmount),
+      DataGridCell<int>(columnName: "salesAmount", value: item.salesAmount),
+      DataGridCell<int>(columnName: "returnAmount", value: item.returnAmount),
     ];
   }
 

@@ -23,10 +23,9 @@ void main() async {
   );
 
   windowManager.waitUntilReadyToShow(windowOptions, () async {
-    await windowManager.maximize();
-
     await windowManager.show();
     await windowManager.focus();
+    await windowManager.maximize();
   });
 
   //khởi tạo theme

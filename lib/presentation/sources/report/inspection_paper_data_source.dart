@@ -79,7 +79,10 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<double>(columnName: "steamPressure", value: inspecPaper.steamPressure),
       DataGridCell<double>(columnName: "preheaterTemp", value: inspecPaper.preheaterTemp),
       DataGridCell<double>(columnName: "fctValue", value: inspecPaper.fctValue),
-      DataGridCell<double>(columnName: "patValue", value: inspecPaper.patValue),
+      DataGridCell<String>(
+        columnName: "patValue",
+        value: inspecPaper.patValue == 1 ? "Đạt" : "Không đạt",
+      ),
 
       //checklist
       ...buildChecklistCells(inspecPaper),

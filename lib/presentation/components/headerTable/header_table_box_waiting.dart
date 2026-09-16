@@ -8,6 +8,7 @@ const List<Map<String, dynamic>> _headerBoxWaiting = [
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateShipping", "title": "Ngày Dự Kiến"},
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "isFSC", "title": "Đơn FSC"},
   {"key": "flute", "title": "Sóng"},
   {"key": "QC_box", "title": "QC Thùng"},
   {"key": "size", "title": "Khổ"},

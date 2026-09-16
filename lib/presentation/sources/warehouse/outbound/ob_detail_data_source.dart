@@ -16,6 +16,9 @@ class ObDetailDataSource extends DataGridSource {
     buildDataGridRows();
   }
 
+  @override
+  List<DataGridRow> get rows => stagesDataGridRows;
+
   List<DataGridCell> buildStagesCells(OutboundDetailModel detail) {
     final order = detail.order;
 
@@ -43,23 +46,17 @@ class ObDetailDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: "flute",
         value:
-            '${order.flute ?? ""}-${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}',
+            order.flute != "0"
+                ? '${order.flute ?? ""}-${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}'
+                : "-",
       ),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),
       DataGridCell<int>(columnName: "deliveredQty", value: detail.deliveredQty),
       DataGridCell<int>(columnName: "outboundQty", value: detail.outboundQty),
-      DataGridCell<String>(
-        columnName: "price",
-        value: '${OrderModel.formatCurrency(detail.price)} VNĐ',
-      ),
-      DataGridCell<String>(
-        columnName: "discount",
-        value: order.discount! > 0 ? '${OrderModel.formatCurrency(order.discount ?? 0)} VNĐ' : "-",
-      ),
-      DataGridCell<String>(
-        columnName: "totalPriceOutbound",
-        value: '${OrderModel.formatCurrency(detail.totalPriceOutbound)} VNĐ',
-      ),
+      DataGridCell<double>(columnName: "price", value: detail.price > 0 ? detail.price : 0),
+      DataGridCell<double>(columnName: "discount", value: order.discount! > 0 ? order.discount : 0),
+      DataGridCell<double>(columnName: "totalPriceOutbound", value: detail.totalPriceOutbound),
+
       DataGridCell<String>(
         columnName: "type",
         value: detail.isPromotion ? "Hàng Tặng" : "Hàng Bán",
@@ -69,9 +66,6 @@ class ObDetailDataSource extends DataGridSource {
       DataGridCell<int>(columnName: "outboundDetailId", value: detail.outboundDetailId),
     ];
   }
-
-  @override
-  List<DataGridRow> get rows => stagesDataGridRows;
 
   void buildDataGridRows() {
     stagesDataGridRows =
@@ -94,6 +88,9 @@ class ObDetailDataSource extends DataGridSource {
 
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
             } else if (boolColumns.contains(dataCell.columnName)) {
               alignment = Alignment.center;
               displayValue = (value == true) ? "✅" : "";

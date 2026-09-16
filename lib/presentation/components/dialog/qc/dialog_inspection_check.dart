@@ -1,19 +1,19 @@
-import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart';
-import 'package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart';
-import 'package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/building_card_form.dart';
-import 'package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/resizable_dialog.dart';
-import 'package:dongtam/service/admin/admin_service.dart';
-import 'package:dongtam/service/quality_control_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/validation/validation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart";
+import "package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart";
+import "package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart";
+import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
+import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
+import "package:dongtam/service/admin/admin_service.dart";
+import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/validation/validation_helper.dart";
+import "package:flutter/material.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 class DialogInspectionCheck extends StatefulWidget {
   final bool isQC;
@@ -226,7 +226,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
 
         if (!_isDataFilled) {
           if (savedErrorData != null) {
-            final savedCheckList = savedErrorData!['checkList'];
+            final savedCheckList = savedErrorData!["checkList"];
             if (savedCheckList is Map) {
               savedCheckList.forEach((key, value) {
                 checkedCriteria[key] = value as bool?;

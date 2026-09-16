@@ -15,7 +15,7 @@ final List<Map<String, dynamic>> _paperRequirementColumns = [
   {"key": "sizePaper", "title": "Khổ (cm)"},
   {"key": "lengthPaper", "title": "Dài (cm)"},
   {"key": "runningPlan", "title": "Kế hoạch Chạy"},
-  {"key": "totalRequiredQty", "title": "Số Lượng Yêu Cầu"},
+  {"key": "totalRequiredQty", "title": "Khối Lượng Cần (kg)"},
   {"key": "dayStart", "title": "Ngày Sản Xuất"},
   {"key": "chooseMachine", "title": "Loại Máy"},
   {"key": "inventoryStatus", "title": "Trạng Thái Kho"},

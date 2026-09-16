@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:flutter/material.dart';
-import 'package:diacritic/diacritic.dart';
-import 'package:dongtam/presentation/components/shared/base_validate_input.dart';
+import "package:flutter/material.dart";
+import "package:diacritic/diacritic.dart";
+import "package:dongtam/presentation/components/shared/base_validate_input.dart";
 
 class ValidationHelper {
   //----------------------------HELPER INPUT-----------------------------------
@@ -24,7 +24,7 @@ class ValidationHelper {
       onTap: onTap,
       prefixText: prefix,
       validator: (value) {
-        final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+        final cleanValue = value?.trim().replaceAll(RegExp(r"[\r\n]+"), " ") ?? "";
 
         final requiredFields = ["Phế Liệu Sản Xuất"];
         final numericFields = [
@@ -36,13 +36,13 @@ class ValidationHelper {
         ];
 
         if (requiredFields.contains(label) && cleanValue.isEmpty) {
-          return 'Không được để trống';
+          return "Không được để trống";
         }
 
         if (numericFields.contains(label) &&
             cleanValue.isNotEmpty &&
-            !RegExp(r'^\d+(\.\d+)?$').hasMatch(cleanValue)) {
-          return 'Vui lòng nhập một giá trị số';
+            !RegExp(r"^\d+(\.\d+)?$").hasMatch(cleanValue)) {
+          return "Vui lòng nhập một giá trị số";
         }
         return null;
       },
@@ -87,7 +87,7 @@ class ValidationHelper {
       validator: (value) {
         if (externalError != null) return externalError;
 
-        final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+        final cleanValue = value?.trim().replaceAll(RegExp(r"[\r\n]+"), " ") ?? "";
 
         final requiredFields = [
           "Mã khách hàng",
@@ -104,11 +104,11 @@ class ValidationHelper {
         ];
 
         if (isRequired && requiredFields.contains(label) && cleanValue.isEmpty) {
-          return 'Không được để trống';
+          return "Không được để trống";
         }
 
         //regex customerID
-        if (label == 'Mã khách hàng' && value != null) {
+        if (label == "Mã khách hàng" && value != null) {
           final withoutDiacritics = removeDiacritics(value);
           if (value != withoutDiacritics) {
             return "Mã khách hàng không được có dấu tiếng Việt";
@@ -116,16 +116,16 @@ class ValidationHelper {
 
           if (checkId) {
             if (value.length < 10) {
-              return 'Mã khách hàng phải nhập 10 ký tự';
+              return "Mã khách hàng phải nhập 10 ký tự";
             } else if (value.length > 10) {
-              return 'Mã khách hàng vượt quá 10 ký tự';
+              return "Mã khách hàng vượt quá 10 ký tự";
             }
 
-            if (value.contains(' ')) {
+            if (value.contains(" ")) {
               return "Mã khách hàng không được chứa dấu cách";
             } else if (value.length == 10) {
               final lastChar = value.substring(value.length - 1);
-              if (RegExp(r'[0-9]').hasMatch(lastChar)) {
+              if (RegExp(r"[0-9]").hasMatch(lastChar)) {
                 return "Ký tự cuối không được là số";
               }
             }
@@ -139,8 +139,8 @@ class ValidationHelper {
 
         //check sdt
         if (label == "SDT" && value != null && value.isNotEmpty) {
-          if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
-            return 'Số điện thoại chỉ được chứa chữ số';
+          if (!RegExp(r"^\d+$").hasMatch(value.trim())) {
+            return "Số điện thoại chỉ được chứa chữ số";
           }
         }
 
@@ -166,7 +166,7 @@ class ValidationHelper {
       onTap: onTap,
       isCalculate: isCalculate,
       validator: (value) {
-        final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+        final cleanValue = value?.trim().replaceAll(RegExp(r"[\r\n]+"), " ") ?? "";
 
         final requiredFields = [
           "Mã Đơn Hàng",
@@ -178,7 +178,7 @@ class ValidationHelper {
         ];
 
         if (requiredFields.contains(label) && cleanValue.isEmpty) {
-          return 'Không được để trống';
+          return "Không được để trống";
         }
 
         return null;
@@ -210,41 +210,41 @@ class ValidationHelper {
 
         if (value != null) {
           // xoá khoảng trắng 2 đầu + dấu xuống dòng
-          cleanValue = value.trim().replaceAll(RegExp(r'[\r\n]+'), ' ');
+          cleanValue = value.trim().replaceAll(RegExp(r"[\r\n]+"), " ");
           controller.text = cleanValue;
         }
 
         final requiredFields = [
-          'Tên Nhân Viên',
-          'Số Điện Thoại',
+          "Tên Nhân Viên",
+          "Số Điện Thoại",
           "Dân Tộc",
           "Ngày Sinh",
           "Ngày Vào Làm",
-          'Trình Độ Văn Hóa',
-          'Số CCCD',
-          'Ngày Cấp',
-          'Nơi Cấp',
-          'Ngày Cấp',
-          'ĐC Thường Trú',
-          'Mã Nhân Viên',
-          'Chức Vụ',
-          'Mã Nhân Viên',
+          "Trình Độ Văn Hóa",
+          "Số CCCD",
+          "Ngày Cấp",
+          "Nơi Cấp",
+          "Ngày Cấp",
+          "ĐC Thường Trú",
+          "Mã Nhân Viên",
+          "Chức Vụ",
+          "Mã Nhân Viên",
         ];
 
         if (requiredFields.contains(label) && cleanValue.isEmpty) {
-          return 'Không được để trống';
+          return "Không được để trống";
         }
 
         //label: Số Điện Thoại, Số Liên Hệ Khẩn Cấp, Số CCCD chỉ chấp nhận chữ số
-        const numericLabels = ['Số Điện Thoại', 'Số Liên Hệ Khẩn Cấp', 'Số CCCD'];
-        if ((numericLabels.contains(label)) && !RegExp(r'^\d+$').hasMatch(cleanValue)) {
-          return '$label chỉ được chứa chữ số';
+        const numericLabels = ["Số Điện Thoại", "Số Liên Hệ Khẩn Cấp", "Số CCCD"];
+        if ((numericLabels.contains(label)) && !RegExp(r"^\d+$").hasMatch(cleanValue)) {
+          return "$label chỉ được chứa chữ số";
         }
 
         if (empCode) {
-          if (label == 'Mã Nhân Viên') {
-            if (RegExp(r'[0-9]').hasMatch(cleanValue)) {
-              return 'Mã nhân viên không được chứa số';
+          if (label == "Mã Nhân Viên") {
+            if (RegExp(r"[0-9]").hasMatch(cleanValue)) {
+              return "Mã nhân viên không được chứa số";
             }
           }
         }
@@ -272,10 +272,10 @@ class ValidationHelper {
       validator: (value) {
         if (label == "Ghép Khổ") {
           if (value == null || value.isEmpty) {
-            return 'Không được để trống';
+            return "Không được để trống";
           } else if (value == "0") {
             return "Ghép khổ phải lớn hơn 0";
-          } else if (!RegExp(r'^\d+$').hasMatch(value)) {
+          } else if (!RegExp(r"^\d+$").hasMatch(value)) {
             return "Ghép Khổ chỉ được chứa số";
           }
         } else if (label == "Kế hoạch chạy") {
@@ -319,7 +319,7 @@ class ValidationHelper {
       icon: icon,
       onTap: onTap,
       validator: (value) {
-        final cleanValue = value?.trim().replaceAll(RegExp(r'[\r\n]+'), ' ') ?? '';
+        final cleanValue = value?.trim().replaceAll(RegExp(r"[\r\n]+"), " ") ?? "";
 
         final requiredFields = [
           "Tốc Độ Máy",
@@ -331,13 +331,19 @@ class ValidationHelper {
         ];
 
         if (requiredFields.contains(label) && cleanValue.isEmpty) {
-          return 'Không được để trống';
+          return "Không được để trống";
         }
 
         if (isNumeric && label != "Ghi Chú" && cleanValue.isNotEmpty) {
-          final normalizedValue = cleanValue.replaceAll(',', '.');
+          final normalizedValue = cleanValue.replaceAll(",", ".");
           if (num.tryParse(normalizedValue) == null) {
-            return 'Vui lòng chỉ nhập số';
+            return "Vui lòng chỉ nhập số";
+          }
+        }
+
+        if (label == "PAT Bám Keo" && cleanValue.isNotEmpty) {
+          if (cleanValue != "0" && cleanValue != "1") {
+            return "Chỉ nhập 0 hoặc 1";
           }
         }
 

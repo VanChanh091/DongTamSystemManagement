@@ -237,7 +237,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: const Offset(73, 152),
+                  initialMargin: Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },

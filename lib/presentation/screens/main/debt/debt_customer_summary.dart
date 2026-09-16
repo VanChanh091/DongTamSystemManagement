@@ -7,6 +7,7 @@ import "package:dongtam/presentation/components/dialog/debt/dialog_payment_debt.
 import "package:dongtam/presentation/components/dialog/export/dialog_export_debt_customer.dart";
 import "package:dongtam/presentation/components/headerTable/header_table_debt.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
@@ -152,13 +153,16 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   }
 
   void _fetchData() {
+    final keyword = searchController.text.trim();
     final date = DateFormat("dd/MM/yyyy").parse(dayStartController.text);
+
     futureDebtSummary = ensureMinLoading(
       DebtService().getCustomerDebtSummary(
         page: currentPage,
         pageSize: pageSize,
         userId: selectedUserId,
         targetDate: date,
+        search: keyword.isNotEmpty ? keyword : null,
       ),
     );
 
@@ -167,6 +171,13 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
 
   void loadDebtCustomer() {
     setState(() => _fetchData());
+  }
+
+  void _searchCustomer() {
+    setState(() {
+      currentPage = 1;
+      _fetchData();
+    });
   }
 
   void _updateZoom(double newZoom) {
@@ -299,7 +310,13 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           //left button
-                          const SizedBox(),
+                          LeftButtonSearch(
+                            showDropdown: false,
+                            controller: searchController,
+                            hintText: "Tìm theo khách hàng...",
+                            buttonColor: themeController.buttonColor,
+                            onSearch: _searchCustomer,
+                          ),
                           const SizedBox(width: 20),
 
                           //right button
@@ -437,7 +454,6 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 8),
 
                     //grand total price
                     Padding(

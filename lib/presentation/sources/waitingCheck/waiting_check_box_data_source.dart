@@ -1,18 +1,18 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingCheckBoxDataSource extends DataGridSource {
   List<PlanningBoxModel> planning = [];
   int? selectedPlanningBoxIds;
 
   late List<DataGridRow> planningDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   bool hasSortedInitially = false;
@@ -32,7 +32,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       DataGridCell<String>(
         columnName: "dateShipping",
         value:
-            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : '',
+            order?.dateRequestShipping != null ? formatter.format(order!.dateRequestShipping!) : "",
       ),
       DataGridCell<String>(columnName: "structure", value: planning.formatterStructureOrder),
       DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
@@ -42,7 +42,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       DataGridCell<double>(columnName: "size", value: planning.size > 0 ? planning.size : 0),
       DataGridCell<double>(columnName: "length", value: planning.length > 0 ? planning.length : 0),
 
-      DataGridCell<int>(columnName: 'child', value: order?.numberChild ?? 0),
+      DataGridCell<int>(columnName: "child", value: order?.numberChild ?? 0),
       DataGridCell<int>(columnName: "quantityOrd", value: order?.quantityCustomer ?? 0),
       DataGridCell<int>(columnName: "qtyPaper", value: planning.qtyPaper),
       DataGridCell<int>(columnName: "inboundQty", value: planning.getTotalQtyInbound),
@@ -94,10 +94,10 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       return numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
     }
 
-    const boolColumns = ['dan_1_Manh', 'dan_2_Manh', 'dongGhim1Manh', 'dongGhim2Manh'];
+    const boolColumns = ["dan_1_Manh", "dan_2_Manh", "dongGhim1Manh", "dongGhim2Manh", "isFSC"];
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
     if (dataCell.columnName == "statusRequest") {
@@ -114,22 +114,22 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       }
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
+    String displayDate = "";
+    String itemCount = "";
 
     if (match != null) {
-      displayDate = match.group(1) ?? '';
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      displayDate = match.group(1) ?? "";
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
     }
 
     return Container(
@@ -139,8 +139,8 @@ class WaitingCheckBoxDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày sản xuất: $displayDate – $itemCount'
-            : '📅 Ngày sản xuất: Không xác định',
+            ? "📅 Ngày sản xuất: $displayDate – $itemCount"
+            : "📅 Ngày sản xuất: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -149,7 +149,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
     final planningBoxId =
-        row.getCells().firstWhere((cell) => cell.columnName == 'planningBoxId').value;
+        row.getCells().firstWhere((cell) => cell.columnName == "planningBoxId").value;
 
     // Màu nền cho cả hàng
     Color? rowColor;
@@ -167,7 +167,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
+            } else if (cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;

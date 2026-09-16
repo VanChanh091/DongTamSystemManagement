@@ -323,7 +323,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 const Text(
-                                  "Tổng số lượng yêu cầu: ",
+                                  "Tổng khối lượng yêu cầu: ",
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                                 ),
                                 _buildAnimatedCounter(

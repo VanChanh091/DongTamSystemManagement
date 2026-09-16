@@ -63,10 +63,10 @@ class OrderDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "canLan", value: order.canLan ?? ""),
       DataGridCell<String>(columnName: "daoXaOrd", value: order.daoXa),
 
-      buildCurrencyCell("sizeCustomer", order.paperSizeCustomer),
-      buildCurrencyCell("sizeManufacture", order.paperSizeManufacture),
+      buildCurrencyCell("sizeCus", order.paperSizeCustomer),
       buildCurrencyCell("lengthCus", order.lengthPaperCustomer),
-      buildCurrencyCell("lengthMf", order.lengthPaperManufacture),
+      buildCurrencyCell("sizeManu", order.paperSizeManufacture),
+      buildCurrencyCell("lengthManu", order.lengthPaperManufacture),
 
       DataGridCell<int>(columnName: "quantityCustomer", value: order.quantityCustomer),
       DataGridCell<int>(columnName: "qtyManufacture", value: order.quantityManufacture),

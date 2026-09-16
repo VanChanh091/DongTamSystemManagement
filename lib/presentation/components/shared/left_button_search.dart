@@ -83,7 +83,6 @@ class LeftButtonSearch extends StatelessWidget {
                               icon: const Icon(Icons.clear, size: 18),
                               onPressed: () {
                                 controller.clear();
-                                onSearch();
                               },
                             )
                             : null,

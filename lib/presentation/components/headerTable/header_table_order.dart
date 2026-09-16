@@ -23,10 +23,11 @@ final List<Map<String, dynamic>> _headerOrder = [
   {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "daoXaOrd", "title": "Dao Xả"},
 
-  {"key": "sizeCustomer", "title": "Khổ TT"},
+  {"key": "sizeCus", "title": "Khổ TT"},
   {"key": "lengthCus", "title": "Dài TT"},
-  {"key": "sizeManufacture", "title": "Khổ (SX)"},
-  {"key": "lengthMf", "title": "Dài (SX)"},
+  {"key": "sizeManu", "title": "Khổ (SX)"},
+  {"key": "lengthManu", "title": "Dài (SX)"},
+
   {"key": "quantityCustomer", "title": "Số Lượng (KH)"},
   {"key": "qtyManufacture", "title": "Số Lượng (SX)"},
 

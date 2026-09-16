@@ -392,12 +392,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                         StackedHeaderRow(
                           cells: [
                             StackedHeaderCell(
-                              columnNames: [
-                                "sizeCustomer",
-                                "sizeManufacture",
-                                "lengthCus",
-                                "lengthMf",
-                              ],
+                              columnNames: ["sizeCus", "lengthCus", "sizeManu", "lengthManu"],
                               child: Obx(
                                 () => formatColumn(
                                   label: "Quy Cách Giấy (cm)",
