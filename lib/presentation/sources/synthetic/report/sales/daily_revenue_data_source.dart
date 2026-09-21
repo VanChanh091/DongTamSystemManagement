@@ -1,5 +1,5 @@
 import "package:dongtam/data/models/order/order_model.dart";
-import "package:dongtam/data/models/reportRevenue/report_daily_revenue_model.dart";
+import "package:dongtam/data/models/synthetic/reportRevenue/report_daily_revenue_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
@@ -26,18 +26,6 @@ class DailyRevenueDataSource extends DataGridSource {
   @override
   List<DataGridRow> get rows => _dailyRevenueRows;
 
-  void _buildDailyRevenueRows() {
-    final int offset = (currentPage - 1) * pageSize;
-
-    _dailyRevenueRows =
-        customers.asMap().entries.map((entry) {
-          final int globalIndex = offset + entry.key;
-          final customer = entry.value;
-
-          return DataGridRow(cells: builDailyRevenueCells(customer, globalIndex));
-        }).toList();
-  }
-
   List<DataGridCell> builDailyRevenueCells(CustomerDailyRevenueRow customer, int index) {
     return [
       DataGridCell<int>(columnName: "index", value: index + 1),
@@ -51,6 +39,18 @@ class DailyRevenueDataSource extends DataGridSource {
       for (int d = 1; d <= daysInMonth; d++)
         DataGridCell<double>(columnName: "d_$d", value: customer.dailyAmounts[d] ?? 0),
     ];
+  }
+
+  void _buildDailyRevenueRows() {
+    final int offset = (currentPage - 1) * pageSize;
+
+    _dailyRevenueRows =
+        customers.asMap().entries.map((entry) {
+          final int globalIndex = offset + entry.key;
+          final customer = entry.value;
+
+          return DataGridRow(cells: builDailyRevenueCells(customer, globalIndex));
+        }).toList();
   }
 
   @override

@@ -174,7 +174,7 @@ class SyntheticService {
     }
   }
 
-  //=========================REPORTS=========================
+  //========================= REPORTS =========================
   Future<Map<String, dynamic>> getRevenueReport<T>({
     required String type, // "daily" | "yearly"
     required String dataKey,
@@ -187,6 +187,7 @@ class SyntheticService {
     int? toYear,
     String? targetUserId,
     String? keyword,
+    bool? all,
   }) async {
     final Map<String, dynamic> queryParameters = {
       "type": type,
@@ -198,10 +199,40 @@ class SyntheticService {
       if (toYear != null) "toYear": toYear,
       if (targetUserId != null) "targetUserId": targetUserId,
       if (keyword != null) "keyword": keyword,
+      if (all != null) "all": all.toString(),
     };
 
     return HelperService().fetchPaginatedData<T>(
       endpoint: "synthetic/report-revenue",
+      queryParameters: queryParameters,
+      fromJson: fromJson,
+      dataKey: dataKey,
+    );
+  }
+
+  Future<Map<String, dynamic>> getErrorProductionReport<T>({
+    required String type, // "paper" | "box"
+    required String action,
+    required String dataKey,
+    required T Function(Map<String, dynamic>) fromJson,
+    required int year,
+    int? month,
+    String? machine,
+    int? employeeId,
+    bool? all,
+  }) async {
+    final Map<String, dynamic> queryParameters = {
+      "type": type,
+      "action": action,
+      "year": year,
+      if (month != null) "month": month,
+      if (machine != null) "machine": machine,
+      if (employeeId != null) "employeeId": employeeId,
+      if (all != null) "all": all.toString(),
+    };
+
+    return HelperService().fetchPaginatedData<T>(
+      endpoint: "synthetic/report-err-production",
       queryParameters: queryParameters,
       fromJson: fromJson,
       dataKey: dataKey,

@@ -17,6 +17,7 @@ import "package:dongtam/presentation/screens/main/debt/debt_customer_summary.dar
 import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart";
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
 import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
+import "package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart";
 import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
 import "package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart";
 import "package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart";
@@ -37,7 +38,7 @@ import "package:dongtam/presentation/screens/main/report/reportPlanning/top_tab_
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_box.dart";
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
-import "package:dongtam/presentation/screens/main/synthetic/top_tab_synthetic_revenue.dart";
+import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
 import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
@@ -88,6 +89,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.category,
               label: "Phân Loại Giấy",
               pageType: TopTabAdminPaperType,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.analytics,
+              label: "Báo Cáo Doanh Số",
+              pageType: TopTabSyntheticRevenue,
             ),
           ],
         ),
@@ -199,7 +205,8 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
             LeafMenuConfig(
               icon: Symbols.analytics,
               label: "Báo Cáo Doanh Số",
-              pageType: TopTabSyntheticRevenue,
+              pageType: TopTabBusinessRevenue,
+              requiredPermissions: ["sale"],
             ),
           ],
         ),
@@ -383,6 +390,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
       icon: Icons.admin_panel_settings,
       label: "Quản Trị Hệ Thống",
       children: [
+        //category
         GroupMenuConfig(
           icon: Icons.settings_applications,
           label: "Danh Mục",
@@ -419,6 +427,8 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
             ),
           ],
         ),
+
+        //statictis
         GroupMenuConfig(
           icon: Icons.analytics_outlined,
           label: "Thống Kê",
@@ -426,11 +436,18 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
             LeafMenuConfig(
               icon: Symbols.analytics,
               label: "Báo Cáo Doanh Số",
-              pageType: TopTabSyntheticRevenue,
+              pageType: TopTabAdminRevenue,
               requiredRoles: ["admin"],
+            ),
+            LeafMenuConfig(
+              icon: Symbols.engineering,
+              label: "Báo Cáo Lỗi Vận Hành",
+              pageType: TopTabAdminErrProduction,
             ),
           ],
         ),
+
+        //paper code
         GroupMenuConfig(
           icon: Icons.category,
           label: "Loại Giấy và NCC",

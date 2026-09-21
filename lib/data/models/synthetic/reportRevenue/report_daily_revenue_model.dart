@@ -16,21 +16,10 @@ class CustomerDailyRevenueRow {
   });
 
   factory CustomerDailyRevenueRow.fromJson(Map<String, dynamic> json) {
-    // Parse key dạng String ("1", "2") thành int (1, 2)
-    final rawDaily = json['dailyAmounts'] as Map<String, dynamic>? ?? {};
-    final Map<int, double> parsedDaily = {};
-
-    rawDaily.forEach((key, value) {
-      final day = int.tryParse(key);
-      if (day != null) {
-        parsedDaily[day] = toDouble(value);
-      }
-    });
-
     return CustomerDailyRevenueRow(
       customerId: json['customerId']?.toString() ?? '',
       customerName: json['customerName']?.toString() ?? '',
-      dailyAmounts: parsedDaily,
+      dailyAmounts: parseIntDoubleMap(json['dailyAmounts']),
       totalCustomerSales: toDouble(json['totalCustomerSales']),
       totalCustomerDebt: toDouble(json['totalCustomerDebt']),
     );
@@ -49,19 +38,10 @@ class DailyRevenueSummary {
   });
 
   factory DailyRevenueSummary.fromJson(Map<String, dynamic> json) {
-    final rawDaily = json['dailyTotals'] as Map<String, dynamic>? ?? {};
-    final Map<int, double> parsedDaily = {};
-    rawDaily.forEach((key, value) {
-      final day = int.tryParse(key);
-      if (day != null) {
-        parsedDaily[day] = toDouble(value);
-      }
-    });
-
     return DailyRevenueSummary(
       totalMonthSales: toDouble(json['totalMonthSales']),
       totalMonthDebt: toDouble(json['totalMonthDebt']),
-      dailyTotals: parsedDaily,
+      dailyTotals: parseIntDoubleMap(json['dailyTotals']),
     );
   }
 }

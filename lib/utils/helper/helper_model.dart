@@ -36,3 +36,37 @@ TimeOfDay parseTimeOfDay(dynamic timeValue) {
   // Trả về mặc định nếu không parse được
   return const TimeOfDay(hour: 0, minute: 0);
 }
+
+// Parse Map có key là String/Number sang Map<int, T>.
+// Nếu `valueParser` trả về null thì phần tử đó sẽ bị bỏ qua (an toàn khi data lỗi).
+Map<int, T> parseIntKeyMap<T>(dynamic raw, T? Function(dynamic value) valueParser) {
+  if (raw is! Map) return {};
+
+  final Map<int, T> result = {};
+  raw.forEach((key, value) {
+    final intKey = int.tryParse(key.toString());
+    if (intKey != null) {
+      final parsedValue = valueParser(value);
+      if (parsedValue != null) {
+        result[intKey] = parsedValue;
+      }
+    }
+  });
+
+  return result;
+}
+
+/// Helper chuyên dùng cho Model: tự check `is Map<String, dynamic>` trước khi parse
+Map<int, T> parseIntModelMap<T>(dynamic raw, T Function(Map<String, dynamic> json) fromJson) {
+  return parseIntKeyMap(raw, (v) => v is Map<String, dynamic> ? fromJson(v) : null);
+}
+
+// Helper viết tắt chuyên dùng cho Map<int, int>
+Map<int, int> parseIntIntMap(dynamic raw) {
+  return parseIntKeyMap(raw, (v) => toInt(v));
+}
+
+// Helper viết tắt chuyên dùng cho Map<int, double>
+Map<int, double> parseIntDoubleMap(dynamic raw) {
+  return parseIntKeyMap(raw, (v) => toDouble(v));
+}

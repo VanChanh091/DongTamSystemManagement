@@ -1,12 +1,16 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/report/synthetic_daily_revenue.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/report/synthetic_monthly_revenue.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/report/synthetic_yearly_revenue.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/report/sales/synthetic_daily_revenue.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/report/sales/synthetic_monthly_revenue.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/report/sales/synthetic_yearly_revenue.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+enum RevenueScope { synthetic, business, admin }
+
 class TopTabSyntheticRevenue extends StatefulWidget {
-  const TopTabSyntheticRevenue({super.key});
+  final RevenueScope scope;
+
+  const TopTabSyntheticRevenue({super.key, this.scope = RevenueScope.synthetic});
 
   @override
   State<TopTabSyntheticRevenue> createState() => _TopTabSyntheticRevenueState();
@@ -36,16 +40,34 @@ class _TopTabSyntheticRevenueState extends State<TopTabSyntheticRevenue> {
             ),
           ),
           Expanded(
-            child: const TabBarView(
+            child: TabBarView(
               children: [
-                SyntheticDailyRevenue(),
-                SyntheticMonthlyRevenue(),
-                SyntheticYearlyRevenue(),
+                SyntheticDailyRevenue(scope: widget.scope),
+                SyntheticMonthlyRevenue(scope: widget.scope),
+                SyntheticYearlyRevenue(scope: widget.scope),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+}
+
+class TopTabBusinessRevenue extends StatelessWidget {
+  const TopTabBusinessRevenue({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const TopTabSyntheticRevenue(scope: RevenueScope.business);
+  }
+}
+
+class TopTabAdminRevenue extends StatelessWidget {
+  const TopTabAdminRevenue({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const TopTabSyntheticRevenue(scope: RevenueScope.admin);
   }
 }

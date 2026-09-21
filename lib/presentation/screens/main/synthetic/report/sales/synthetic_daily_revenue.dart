@@ -1,30 +1,37 @@
+import 'package:dongtam/presentation/components/dialog/other/dialog_picker_month.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
+import 'package:flutter/material.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/reportRevenue/report_monthly_revenue_model.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_picker_month.dart';
-import 'package:dongtam/presentation/components/headerTable/synthetic/report/header_table_monthly_revenue.dart';
+import 'package:dongtam/data/models/synthetic/reportRevenue/report_daily_revenue_model.dart';
+import 'package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_daily_revenue.dart';
+import 'package:dongtam/presentation/components/shared/left_button_search.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/synthetic/report/monthly_revenue_data_source.dart';
+import 'package:dongtam/presentation/sources/synthetic/report/sales/daily_revenue_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
+import 'package:dongtam/utils/helper/helper_model.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
+import 'package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class SyntheticMonthlyRevenue extends StatefulWidget {
-  const SyntheticMonthlyRevenue({super.key});
+class SyntheticDailyRevenue extends StatefulWidget {
+  final RevenueScope scope;
+
+  const SyntheticDailyRevenue({super.key, this.scope = RevenueScope.synthetic});
 
   @override
-  State<SyntheticMonthlyRevenue> createState() => _SyntheticMonthlyRevenueState();
+  State<SyntheticDailyRevenue> createState() => _SyntheticDailyRevenueState();
 }
 
-class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
+class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
   late Future<Map<String, dynamic>> futureSynthetic;
   late List<GridColumn> columns;
 
@@ -38,7 +45,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
   //notifiers
   Map<String, double> columnWidths = {};
   final _zoomNotifier = ValueNotifier<double>(1.0);
-  final _selectedMonthlyRevenueNotifier = ValueNotifier<String?>(null);
+  final _selectedCustomerIdNotifier = ValueNotifier<String?>(null);
 
   //sales user filter
   String selectedSalesUser = "Tất cả";
@@ -46,14 +53,18 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
   List<String> salesUserItems = ["Tất cả"];
   Map<String, String?> salesUserMap = {"Tất cả": null};
 
+  // Datasource & Cache
+  List<CustomerDailyRevenueRow>? _cachedDailyRevenue;
+  DailyRevenueDataSource? _cachedDatasource;
+
   // Filter
   late int selectedMonth;
   late int selectedYear;
   late bool isManager;
 
-  // Datasource cache
-  List<MonthlyRevenueReport>? _cachedReport;
-  MonthlyRevenueDataSource? _cachedDatasource;
+  // Paging
+  int currentPage = 1;
+  int pageSize = 30;
 
   @override
   void initState() {
@@ -64,11 +75,18 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
     selectedMonth = now.month;
     selectedYear = now.year;
 
-    _loadSalesUsers();
-    _loadMonthlyRevenue();
+    final isSaleSelfOnly = widget.scope == RevenueScope.business && !isManager;
+    if (isSaleSelfOnly) {
+      selectedUserId = userController.userId.value.toString();
+    }
 
-    columns = buildMonthlyRevenueColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'monthly_revenue', columns: columns).then((w) {
+    if (isManager) {
+      _loadSalesUsers();
+    }
+    _loadDailyRevenue();
+
+    columns = buildDailyRevenueColumn(themeController: themeController);
+    ColumnWidthTable.loadWidths(tableKey: 'daily_revenue', columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
     });
   }
@@ -118,20 +136,38 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
   }
 
   void _fetchData() {
+    final keyword = searchController.text.trim();
+    final bool isAll =
+        widget.scope == RevenueScope.synthetic ||
+        (widget.scope == RevenueScope.admin && selectedUserId == null);
+
     futureSynthetic = ensureMinLoading(
-      SyntheticService().getRevenueReport<MonthlyRevenueReport>(
-        type: "monthly",
+      SyntheticService().getRevenueReport<CustomerDailyRevenueRow>(
+        type: "daily",
+        page: currentPage,
+        pageSize: pageSize,
         month: selectedMonth,
         year: selectedYear,
         targetUserId: selectedUserId,
-        dataKey: "monthlyRevenue",
-        fromJson: (json) => MonthlyRevenueReport.fromJson(json),
+        keyword: keyword.isNotEmpty ? keyword : null,
+        all: isAll,
+        dataKey: "dailyRevenue",
+        fromJson: (json) => CustomerDailyRevenueRow.fromJson(json),
       ),
     );
+
+    _selectedCustomerIdNotifier.value = null;
   }
 
-  void _loadMonthlyRevenue() {
+  void _loadDailyRevenue() {
     setState(() => _fetchData());
+  }
+
+  void _searchCustomer() {
+    setState(() {
+      currentPage = 1;
+      _fetchData();
+    });
   }
 
   void _updateZoom(double newZoom) {
@@ -142,9 +178,9 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
   void dispose() {
     super.dispose();
     _zoomNotifier.dispose();
-    searchController.dispose();
+    _selectedCustomerIdNotifier.dispose();
     headerScrollController.dispose();
-    _selectedMonthlyRevenueNotifier.dispose();
+    searchController.dispose();
   }
 
   @override
@@ -187,7 +223,10 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // title & buttons
                   Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+
+                  //table & pagination
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
@@ -217,7 +256,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _loadMonthlyRevenue(),
+        onPressed: () => _loadDailyRevenue(),
         backgroundColor: themeController.buttonColor.value,
         child: const Icon(Icons.refresh, color: Colors.white),
       ),
@@ -229,7 +268,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
       children: [
         //title
         Text(
-          "BÁO CÁO DOANH THU THEO THÁNG",
+          "BÁO CÁO DOANH THU THEO NGÀY",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -252,13 +291,19 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // search
-                      const SizedBox(),
+                      LeftButtonSearch(
+                        showDropdown: false,
+                        controller: searchController,
+                        hintText: "Tìm theo khách hàng...",
+                        buttonColor: themeController.buttonColor,
+                        onSearch: _searchCustomer,
+                      ),
                       const SizedBox(width: 12),
 
-                      //btn
+                      //buttons
                       ValueListenableBuilder(
-                        valueListenable: _selectedMonthlyRevenueNotifier,
-                        builder: (context, selectedMonthlyRevenue, _) {
+                        valueListenable: _selectedCustomerIdNotifier,
+                        builder: (context, selectedCustomerId, _) {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -278,13 +323,14 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                                           selectedMonth != result.month ||
                                           selectedYear != result.year;
 
-                                      setState(() {
-                                        selectedMonth = result.month;
-                                        selectedYear = result.year;
-                                      });
-
                                       if (hasChanged) {
-                                        _loadMonthlyRevenue();
+                                        setState(() {
+                                          selectedMonth = result.month;
+                                          selectedYear = result.year;
+                                          currentPage = 1;
+                                        });
+
+                                        _loadDailyRevenue();
                                       }
                                     }
                                   },
@@ -325,7 +371,8 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                                       setState(() {
                                         selectedSalesUser = value;
                                         selectedUserId = salesUserMap[value];
-                                        _loadMonthlyRevenue();
+                                        currentPage = 1;
+                                        _loadDailyRevenue();
                                       });
                                     }
                                   },
@@ -352,25 +399,19 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
       future: futureSynthetic,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: SizedBox(
-              height: 400,
-              child: buildShimmerSkeletonTable(context: context, rowCount: 10),
-            ),
-          );
+          return buildShimmerSkeletonTable(context: context, rowCount: 10);
         }
         if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
         }
 
         final responseMap = snapshot.data;
-        final rawList = responseMap?["monthlyRevenue"] as List<MonthlyRevenueReport>?;
+        final rawList = responseMap?["dailyRevenue"] as List<CustomerDailyRevenueRow>?;
 
         if (responseMap == null || rawList == null || rawList.isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
-            child: const Center(
+            child: Center(
               child: Text(
                 "Không có dữ liệu",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
@@ -379,26 +420,36 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
           );
         }
 
-        final List<MonthlyRevenueReport> rows = rawList;
+        final List<CustomerDailyRevenueRow> customers = rawList;
 
-        MonthlyRevenueSummary? summary;
+        final int daysInMonth = toInt(responseMap['daysInMonth']);
+        final currentPg = toInt(responseMap['currentPage']);
+        final totalPgs = toInt(responseMap['totalPages']);
+
+        DailyRevenueSummary? summary;
         if (responseMap['summary'] != null && responseMap['summary'] is Map<String, dynamic>) {
-          summary = MonthlyRevenueSummary.fromJson(responseMap['summary'] as Map<String, dynamic>);
+          summary = DailyRevenueSummary.fromJson(responseMap['summary'] as Map<String, dynamic>);
         }
 
-        if (_cachedReport != rows || _cachedDatasource == null) {
-          _cachedReport = rows;
-          _cachedDatasource = MonthlyRevenueDataSource(
-            dailyReports: rows,
+        // Rebuild columns nếu daysInMonth thay đổi
+        columns = buildDailyRevenueColumn(
+          themeController: themeController,
+          daysInMonth: daysInMonth,
+        );
+
+        if (_cachedDailyRevenue != customers || _cachedDatasource == null) {
+          _cachedDailyRevenue = customers;
+          _cachedDatasource = DailyRevenueDataSource(
+            customers: customers,
             summary: summary,
-            month: selectedMonth,
-            year: selectedYear,
+            daysInMonth: daysInMonth,
+            currentPage: currentPage,
+            pageSize: pageSize,
           );
         }
 
         return Column(
           children: [
-            // Data Grid
             Expanded(
               child: StatefulBuilder(
                 builder: (context, localSetState) {
@@ -407,45 +458,62 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                     child: SfDataGrid(
                       source: _cachedDatasource!,
                       isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.fill,
+                      columnWidthMode: ColumnWidthMode.auto,
                       selectionMode: SelectionMode.single,
-                      headerRowHeight: 35,
+                      headerRowHeight: 33,
                       rowHeight: 38,
+                      frozenColumnsCount: 4,
                       columns: ColumnWidthTable.applySavedWidths(
                         columns: columns,
                         widths: columnWidths,
                       ),
-                      tableSummaryRows: [
-                        GridTableSummaryRow(
-                          showSummaryInRow: false,
-                          title: 'Tổng cộng',
-                          position: GridTableSummaryRowPosition.bottom,
-                          columns: const [
-                            GridSummaryColumn(
-                              name: 'sumOrderApproved',
-                              columnName: 'orderApprovedAmount',
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            GridSummaryColumn(
-                              name: 'sumProduction',
-                              columnName: 'productionAmount',
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            GridSummaryColumn(
-                              name: 'sumSales',
-                              columnName: 'salesAmount',
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            GridSummaryColumn(
-                              name: 'sumReturn',
-                              columnName: 'returnAmount',
-                              summaryType: GridSummaryType.sum,
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: List.generate(daysInMonth, (i) => 'd_${i + 1}'),
+                              child: Obx(
+                                () => formatColumn(
+                                  label: 'Ngày Trong Tháng',
+                                  themeController: themeController,
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ],
+
+                      //table summary
+                      tableSummaryRows: [
+                        GridTableSummaryRow(
+                          showSummaryInRow: false,
+                          title: "Tổng",
+                          position: GridTableSummaryRowPosition.bottom,
+                          columns: [
+                            const GridSummaryColumn(
+                              name: "totalDebt",
+                              columnName: "totalDebt",
+                              summaryType: GridSummaryType.sum,
+                            ),
+                            const GridSummaryColumn(
+                              name: "totalSales",
+                              columnName: "totalSales",
+                              summaryType: GridSummaryType.sum,
+                            ),
+                            for (int d = 1; d <= daysInMonth; d++)
+                              GridSummaryColumn(
+                                name: "d_$d",
+                                columnName: "d_$d",
+                                summaryType: GridSummaryType.sum,
+                              ),
+                          ],
+                        ),
+                      ],
+
+                      //auto resize
                       allowColumnsResizing: true,
                       columnResizeMode: ColumnResizeMode.onResize,
+
                       onColumnResizeStart: GridResizeHelper.onResizeStart,
                       onColumnResizeUpdate:
                           (details) => GridResizeHelper.onResizeUpdate(
@@ -456,14 +524,50 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'monthly_revenue',
+                            tableKey: 'daily_revenue',
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
+
+                      onSelectionChanged: (addedRows, _) {
+                        if (addedRows.isNotEmpty) {
+                          final selectedRow = addedRows.first;
+                          final customerId =
+                              selectedRow
+                                  .getCells()
+                                  .firstWhere((cell) => cell.columnName == 'customerId')
+                                  .value
+                                  .toString();
+                          _selectedCustomerIdNotifier.value = customerId;
+                        } else {
+                          _selectedCustomerIdNotifier.value = null;
+                        }
+                      },
                     ),
                   );
                 },
               ),
+            ),
+
+            // Nút chuyển trang
+            PaginationControls(
+              currentPage: currentPg,
+              totalPages: totalPgs,
+              onPrevious:
+                  () => setState(() {
+                    currentPage--;
+                    _loadDailyRevenue();
+                  }),
+              onNext:
+                  () => setState(() {
+                    currentPage++;
+                    _loadDailyRevenue();
+                  }),
+              onJumpToPage:
+                  (page) => setState(() {
+                    currentPage = page;
+                    _loadDailyRevenue();
+                  }),
             ),
           ],
         );

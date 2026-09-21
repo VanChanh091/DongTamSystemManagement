@@ -1,14 +1,14 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/presentation/components/dialog/other/dialog_picker_year.dart";
 import "package:dongtam/data/controller/user_controller.dart";
-import "package:dongtam/data/models/reportRevenue/report_yearly_revenue_model.dart";
-import "package:dongtam/presentation/components/headerTable/synthetic/report/header_table_yearly_revenue.dart";
+import "package:dongtam/data/models/synthetic/reportRevenue/report_yearly_revenue_model.dart";
+import "package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_yearly_revenue.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
-import "package:dongtam/presentation/sources/synthetic/report/yearly_revenue_data_source.dart";
+import "package:dongtam/presentation/sources/synthetic/report/sales/yearly_revenue_data_source.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
@@ -17,12 +17,15 @@ import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
+import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
 import "package:get/get.dart";
 import "package:syncfusion_flutter_core/theme.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticYearlyRevenue extends StatefulWidget {
-  const SyntheticYearlyRevenue({super.key});
+  final RevenueScope scope;
+
+  const SyntheticYearlyRevenue({super.key, this.scope = RevenueScope.synthetic});
 
   @override
   State<SyntheticYearlyRevenue> createState() => _SyntheticYearlyRevenueState();
@@ -75,7 +78,14 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
     fromYear = now.year;
     toYear = now.year;
 
-    _loadSalesUsers();
+    final isSaleSelfOnly = widget.scope == RevenueScope.business && !isManager;
+    if (isSaleSelfOnly) {
+      selectedUserId = userController.userId.value.toString();
+    }
+
+    if (isManager) {
+      _loadSalesUsers();
+    }
     _loadYearlyRevenue();
 
     columns = buildYearlyRevenueColumn(themeController: themeController);
@@ -130,6 +140,9 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
 
   void _fetchData() {
     final keyword = searchController.text.trim();
+    final bool isAll =
+        widget.scope == RevenueScope.synthetic ||
+        (widget.scope == RevenueScope.admin && selectedUserId == null);
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerYearRevenue>(
@@ -140,6 +153,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
         toYear: toYear,
         targetUserId: selectedUserId,
         keyword: keyword.isNotEmpty ? keyword : null,
+        all: isAll,
         dataKey: "yearlyRevenue",
         fromJson: (json) => CustomerYearRevenue.fromJson(json),
       ),

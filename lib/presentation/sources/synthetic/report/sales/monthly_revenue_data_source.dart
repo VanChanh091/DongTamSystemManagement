@@ -1,5 +1,5 @@
 import "package:dongtam/data/models/order/order_model.dart";
-import "package:dongtam/data/models/reportRevenue/report_monthly_revenue_model.dart";
+import "package:dongtam/data/models/synthetic/reportRevenue/report_monthly_revenue_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:flutter/material.dart";
