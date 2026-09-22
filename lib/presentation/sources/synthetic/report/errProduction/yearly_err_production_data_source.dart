@@ -62,42 +62,24 @@ class YearlyErrProductionDataSource extends DataGridSource {
 
             String displayValue = "";
             TextStyle? textStyle;
-            Alignment alignment = Alignment.centerLeft;
 
-            if (colName == "index") {
-              alignment = Alignment.center;
-              displayValue = value?.toString() ?? "";
-            } else if (colName == "criteriaName") {
+            Alignment alignment = Alignment.centerLeft;
+            // Ẩn số tấn giấy ở các dòng chi tiết (chỉ hiển thị ở dòng Tổng)
+            if (colName == "totalTonnage" || colName.endsWith("tonnage")) {
+              alignment = Alignment.centerRight;
+              displayValue = "-";
+            } else if (value is num) {
+              alignment = Alignment.centerRight;
+
+              final numVal = value.toDouble();
+              displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
+
+              // if (colName != 'index' && numVal > 0) {
+              //   textStyle = const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold);
+              // }
+            } else {
               alignment = Alignment.centerLeft;
               displayValue = value?.toString() ?? "";
-            } else if (colName.endsWith("tonnage") || colName == "totalTonnage") {
-              alignment = Alignment.centerRight;
-              final numVal = (value as num?)?.toDouble() ?? 0.0;
-              displayValue = numVal == 0 ? "-" : numVal.toStringAsFixed(3);
-            } else if (colName.endsWith("errors") || colName == "totalErrors") {
-              alignment = Alignment.center;
-              final numVal = (value as num?)?.toInt() ?? 0;
-              displayValue = numVal == 0 ? "-" : numVal.toString();
-              if (numVal > 0) {
-                textStyle = const TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                );
-              }
-            } else if (colName.endsWith("rate") || colName == "totalErrorRate") {
-              alignment = Alignment.centerRight;
-              final numVal = (value as num?)?.toDouble() ?? 0.0;
-              displayValue = numVal == 0 ? "-" : numVal.toStringAsFixed(2);
-            } else {
-              if (value is num) {
-                alignment = Alignment.centerRight;
-                final numVal = value.toDouble();
-                displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
-              } else {
-                alignment = Alignment.centerLeft;
-                displayValue = value?.toString() ?? "";
-              }
             }
 
             return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle);
@@ -112,6 +94,7 @@ class YearlyErrProductionDataSource extends DataGridSource {
     RowColumnIndex rowColumnIndex,
     String summaryValue,
   ) {
+    // Cột tiêu đề của dòng tổng (thường là cột đầu tiên)
     if (summaryColumn == null) {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng" : summaryValue,
@@ -121,31 +104,66 @@ class YearlyErrProductionDataSource extends DataGridSource {
     }
 
     final colName = summaryColumn.columnName;
+    final parts = colName.split("_");
+    final month = parts.length > 1 ? int.tryParse(parts[1]) : null;
+    final mMetric = month != null ? summary?.monthlyMetrics[month] : null;
 
-    // 1. Cột Tấn giấy (Cả năm hoặc theo tháng)
+    // 1. Cột Tấn giấy (Cả năm hoặc theo tháng - định dạng 2 số thập phân)
     if (colName.endsWith("tonnage") || colName == "totalTonnage") {
-      final ton = _getSummaryTonnage(colName);
+      double ton = 0.0;
+      if (summary != null) {
+        ton = colName == "totalTonnage" ? summary!.totalTonnage : (mMetric?.tonnage ?? 0.0);
+      } else if (rowsData.isNotEmpty) {
+        // Fallback: Tấn giấy là sản lượng chung của kỳ
+        ton =
+            colName == "totalTonnage"
+                ? rowsData.first.totalMetrics.tonnage
+                : (rowsData.first.monthlyMetrics[month]?.tonnage ?? 0.0);
+      }
+
       return _buildSummaryCell(
-        label: ton == 0 ? "-" : ton.toStringAsFixed(3),
+        label: ton == 0 ? "-" : OrderModel.formatCurrency(ton),
         alignment: Alignment.centerRight,
       );
     }
 
     // 2. Cột Số lỗi (Cả năm hoặc theo tháng)
     if (colName.endsWith("errors") || colName == "totalErrors") {
-      final err = _getSummaryErrors(colName);
+      int err = 0;
+      if (summary != null) {
+        err = colName == "totalErrors" ? summary!.totalErrorCount : (mMetric?.errorCount ?? 0);
+      } else {
+        // Fallback: Tổng số lỗi cộng dồn từ tất cả tiêu chí
+        err = rowsData.fold<int>(
+          0,
+          (sum, row) =>
+              sum +
+              (colName == "totalErrors"
+                  ? row.totalMetrics.errorCount
+                  : (row.monthlyMetrics[month]?.errorCount ?? 0)),
+        );
+      }
+
       return _buildSummaryCell(
-        label: err == 0 ? "-" : err.toString(),
-        alignment: Alignment.center,
-        textColor: err > 0 ? Colors.red : null,
+        label: err == 0 ? "-" : OrderModel.formatCurrency(err),
+        alignment: Alignment.centerRight,
       );
     }
 
     // 3. Cột Tỉ lệ lỗi (Cả năm hoặc theo tháng)
     if (colName.endsWith("rate") || colName == "totalErrorRate") {
-      final rate = _getSummaryErrorRate(colName);
+      // Cộng trực tiếp tỉ lệ của các dòng chi tiết để số dòng Tổng khớp 100% với hiển thị bên trên
+      final double rate = rowsData.fold<double>(
+        0.0,
+        (sum, row) =>
+            sum +
+            (colName == "totalErrorRate"
+                ? row.totalMetrics.errorRate
+                : (row.monthlyMetrics[month]?.errorRate ?? 0.0)),
+      );
+
       return _buildSummaryCell(
-        label: rate == 0 ? "-" : rate.toStringAsFixed(2),
+        label: rate == 0 ? "-" : OrderModel.formatCurrency(rate),
         alignment: Alignment.centerRight,
       );
     }
@@ -153,26 +171,7 @@ class YearlyErrProductionDataSource extends DataGridSource {
     return formatDataTable(label: "", alignment: Alignment.center);
   }
 
-  // --- Helper Methods ---
-
-  double _getSummaryTonnage(String colName) {
-    if (colName == "totalTonnage") return summary?.totalTonnage ?? 0.0;
-    final m = int.tryParse(colName.split("_")[1]) ?? 0;
-    return summary?.monthlyMetrics[m]?.tonnage ?? 0.0;
-  }
-
-  int _getSummaryErrors(String colName) {
-    if (colName == "totalErrors") return summary?.totalErrorCount ?? 0;
-    final m = int.tryParse(colName.split("_")[1]) ?? 0;
-    return summary?.monthlyMetrics[m]?.errorCount ?? 0;
-  }
-
-  double _getSummaryErrorRate(String colName) {
-    if (colName == "totalErrorRate") return summary?.totalErrorRate ?? 0.0;
-    final m = int.tryParse(colName.split("_")[1]) ?? 0;
-    return summary?.monthlyMetrics[m]?.errorRate ?? 0.0;
-  }
-
+  // Giữ lại duy nhất hàm dựng cell format chung này cho gọn UI
   Widget _buildSummaryCell({
     required String label,
     required Alignment alignment,
@@ -181,11 +180,7 @@ class YearlyErrProductionDataSource extends DataGridSource {
     return formatDataTable(
       label: label,
       alignment: alignment,
-      textStyle: TextStyle(
-        fontSize: 13.5,
-        fontWeight: FontWeight.bold,
-        color: textColor,
-      ),
+      textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: textColor),
     );
   }
 }

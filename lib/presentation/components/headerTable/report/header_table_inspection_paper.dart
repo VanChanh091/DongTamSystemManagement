@@ -5,7 +5,7 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "index", "title": "STT"},
-  {"key": "timeInspection", "title": "Ngày kiểm tra"},
+  {"key": "timeInspection", "title": "Ngày kiểm tra"}, {"key": "checkedBy", "title": "Người Kiểm"},
 
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
@@ -48,7 +48,6 @@ final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "wrongProductInfo", "title": "TTSP"},
 
   {"key": "note", "title": "Ghi Chú"},
-  {"key": "checkedBy", "title": "Người Kiểm"},
 
   //hidden fields
   {"key": "inspecPaperId", "title": "", "visible": false},

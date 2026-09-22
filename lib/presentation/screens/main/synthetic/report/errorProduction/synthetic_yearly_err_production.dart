@@ -412,9 +412,9 @@ class _SyntheticYearlyErrProductionState extends State<SyntheticYearlyErrProduct
         }
 
         YearlyErrorReportSummary? summary;
-        if (responseMap['summary'] != null && responseMap['summary'] is Map<String, dynamic>) {
+        if (responseMap['summary'] != null && responseMap['summary'] is Map) {
           summary = YearlyErrorReportSummary.fromJson(
-            responseMap['summary'] as Map<String, dynamic>,
+            Map<String, dynamic>.from(responseMap['summary'] as Map),
           );
         }
 

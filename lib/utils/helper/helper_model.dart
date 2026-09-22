@@ -58,7 +58,10 @@ Map<int, T> parseIntKeyMap<T>(dynamic raw, T? Function(dynamic value) valueParse
 
 /// Helper chuyên dùng cho Model: tự check `is Map<String, dynamic>` trước khi parse
 Map<int, T> parseIntModelMap<T>(dynamic raw, T Function(Map<String, dynamic> json) fromJson) {
-  return parseIntKeyMap(raw, (v) => v is Map<String, dynamic> ? fromJson(v) : null);
+  return parseIntKeyMap(
+    raw,
+    (v) => v is Map ? fromJson(Map<String, dynamic>.from(v)) : null,
+  );
 }
 
 // Helper viết tắt chuyên dùng cho Map<int, int>
