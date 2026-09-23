@@ -752,7 +752,10 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                       isPaper: false,
                       planningBoxId: item.planningBoxId,
                       machine: machine,
-                      onSubmit: () {},
+                      paperSize: item.size,
+                      paperLength: item.length,
+                      canLan: item.order?.canLan,
+                      onSubmit: loadPlanning,
                     ),
               );
             },

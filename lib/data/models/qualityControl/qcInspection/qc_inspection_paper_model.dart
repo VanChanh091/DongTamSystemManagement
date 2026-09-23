@@ -12,7 +12,7 @@ class QcInspectionPaperModel {
   final double fctValue;
   final double patValue;
 
-  final Map<String, bool> checkList;
+  final Map<String, bool?> checkList;
   final String checkedBy;
 
   final String? note;
@@ -48,7 +48,10 @@ class QcInspectionPaperModel {
       preheaterTemp: toDouble(json["preheaterTemp"]),
       fctValue: toDouble(json["fctValue"]),
       patValue: toDouble(json["patValue"]),
-      checkList: Map<String, bool>.from(json["checkList"] ?? {}),
+      checkList: (json["checkList"] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, v as bool?),
+          ) ??
+          {},
       checkedBy: json["checkedBy"] ?? "",
       note: json["note"] ?? "",
 

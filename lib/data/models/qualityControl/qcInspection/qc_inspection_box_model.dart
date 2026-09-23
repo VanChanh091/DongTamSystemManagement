@@ -3,7 +3,7 @@ import 'package:dongtam/data/models/planning/box_machine_time.dart';
 class QcInspectionBoxModel {
   final int inspecBoxId;
   final DateTime timeInspection;
-  final Map<String, bool> checkList;
+  final Map<String, bool?> checkList;
   final String checkedBy;
   final String? note;
 
@@ -28,7 +28,10 @@ class QcInspectionBoxModel {
       inspecBoxId: json["inspecBoxId"],
       timeInspection:
           json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
-      checkList: Map<String, bool>.from(json["checkList"] ?? {}),
+      checkList: (json["checkList"] as Map<String, dynamic>?)?.map(
+            (k, v) => MapEntry(k, v as bool?),
+          ) ??
+          {},
       checkedBy: json["checkedBy"] ?? "",
       note: json["note"] ?? "",
 

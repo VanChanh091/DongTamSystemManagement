@@ -1,4 +1,5 @@
 import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:flutter/material.dart";
@@ -80,10 +81,13 @@ class InitSocketManufacture {
     final from = data["from"] ?? "";
     final machine = data["machine"] ?? "";
     final message = data["message"] ?? "";
-    final int? planningId = data["planningId"];
+    final int? planningId =
+        data["planningId"] != null ? int.tryParse(data["planningId"].toString()) : null;
+    final int? planningBoxId =
+        data["planningBoxId"] != null ? int.tryParse(data["planningBoxId"].toString()) : null;
 
     AppLogger.i(
-      "updateDialog: machine=$machine, message=$message, isPlan=$isPlan, planningId=$planningId",
+      "updateDialog: machine=$machine, message=$message, isPlan=$isPlan, planningId=$planningId, planningBoxId=$planningBoxId",
     );
 
     showDialog(
@@ -128,6 +132,45 @@ class InitSocketManufacture {
             ),
 
             actions: [
+              if (planningId != null || planningBoxId != null)
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    onLoadData();
+                    showDialog(
+                      context: context,
+                      builder:
+                          (_) => DialogInspectionCheck(
+                            isQC: false,
+                            isPaper: planningId != null,
+                            planningId: planningId,
+                            planningBoxId: planningBoxId,
+                            machine: machine.isNotEmpty ? machine : null,
+                            paperSize:
+                                data["paperSize"] != null
+                                    ? double.tryParse(data["paperSize"].toString())
+                                    : null,
+                            paperLength:
+                                data["paperLength"] != null
+                                    ? double.tryParse(data["paperLength"].toString())
+                                    : null,
+                            canLan: data["canLan"]?.toString(),
+                            onSubmit: onLoadData,
+                          ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xffEA4346),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                  icon: const Icon(Icons.visibility, size: 18),
+                  label: const Text(
+                    "Xem lỗi",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ElevatedButton(
                 onPressed: () {
                   Navigator.of(ctx).pop();

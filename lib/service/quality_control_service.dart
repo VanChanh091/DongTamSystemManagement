@@ -131,7 +131,7 @@ class QualityControlService {
   Future<bool> checkingInspection({
     required String isPaper,
     required String machine,
-    required Map<String, bool> errProgress,
+    required Map<String, bool?> errProgress,
     Map<String, num>? checking,
     int? planningId,
     int? planningBoxId,

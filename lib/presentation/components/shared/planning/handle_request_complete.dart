@@ -1,8 +1,8 @@
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/widgets.dart';
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/widgets.dart";
 
 Future<void> handlePlanningTask({
   required BuildContext context,
@@ -13,7 +13,7 @@ Future<void> handlePlanningTask({
 }) async {
   try {
     if (selectedPlanningIds.isEmpty) {
-      showSnackBarError(context, 'Vui lòng chọn kế hoạch cần thao tác');
+      showSnackBarError(context, "Vui lòng chọn kế hoạch cần thao tác");
       return;
     }
 
@@ -50,10 +50,10 @@ Future<void> handlePlanningTask({
     if (context.mounted) {
       if (Navigator.canPop(context)) Navigator.of(context).pop();
       final errorText = switch (e.errorCode) {
-        'PLANNING_ALREADY_REQUESTED' => e.message!,
-        'PLANNING_NO_PRODUCED_QUANTITY' => e.message!,
-        'PLANNING_NOT_FAILED' => e.message!,
-        _ => 'Có lỗi xảy ra, vui lòng thử lại',
+        "PLANNING_ALREADY_REQUESTED" => e.message!,
+        "PLANNING_NO_PRODUCED_QUANTITY" => e.message!,
+        "PLANNING_NOT_FAILED" => e.message!,
+        _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
       showSnackBarError(context, errorText);
     }
@@ -62,7 +62,7 @@ Future<void> handlePlanningTask({
     AppLogger.e("Error in planning task: $e", stackTrace: s);
 
     if (context.mounted) {
-      showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại sau');
+      showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại sau");
     }
   }
 }

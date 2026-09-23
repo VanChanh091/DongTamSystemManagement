@@ -270,6 +270,9 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                                                     isPaper: false,
                                                     machine: machine,
                                                     planningBoxId: selectedPlanning.planningBoxId,
+                                                    paperSize: selectedPlanning.size,
+                                                    paperLength: selectedPlanning.length,
+                                                    canLan: selectedPlanning.order?.canLan,
                                                     onSubmit: () {
                                                       loadPlanning();
                                                     },
@@ -382,7 +385,12 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                       isPaper: false,
                       planningBoxId: item.planningBoxId,
                       machine: machine,
-                      onSubmit: () {},
+                      paperSize: item.size,
+                      paperLength: item.length,
+                      canLan: item.order?.canLan,
+                      onSubmit: () {
+                        loadPlanning();
+                      },
                     ),
               );
             },

@@ -73,9 +73,9 @@ class InspectionBoxDataSource extends DataGridSource {
     return inspectionBoxColumns
         .where((item) => item.containsKey("dataKey") && isColumnVisibleForMachine(item, machine))
         .map(
-          (item) => DataGridCell<bool>(
+          (item) => DataGridCell<bool?>(
             columnName: item["key"] as String,
-            value: checklist[item["dataKey"]] ?? false,
+            value: checklist[item["dataKey"]],
           ),
         )
         .toList();
@@ -121,6 +121,19 @@ class InspectionBoxDataSource extends DataGridSource {
       "stitchPosition",
       "tabOverlap",
       "trimLineBurr",
+      "wrongWidth",
+      "wrongLength",
+      "wrongScoringSpec",
+      "poorScoring",
+      "dirtyLiner",
+      "skewedFlute",
+      "wrongStructure",
+      "waveHeight",
+      "poorTrim",
+      "trimScrap",
+      "poorBundling",
+      "totalWidthErr",
+      "wrongProductInfo",
     ];
 
     if (boolColumns.contains(dataCell.columnName)) {

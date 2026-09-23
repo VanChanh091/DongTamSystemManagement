@@ -7,7 +7,9 @@ import "package:dongtam/presentation/components/shared/cardForm/format_key_value
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/service/admin/admin_service.dart";
+import "package:dongtam/service/manufacture_service.dart";
 import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
@@ -23,6 +25,9 @@ class DialogInspectionCheck extends StatefulWidget {
   final String? machine;
   final int? planningId;
   final int? planningBoxId;
+  final double? paperSize;
+  final double? paperLength;
+  final String? canLan;
   final VoidCallback onSubmit;
 
   const DialogInspectionCheck({
@@ -30,6 +35,9 @@ class DialogInspectionCheck extends StatefulWidget {
     this.machine,
     this.planningId,
     this.planningBoxId,
+    this.paperSize,
+    this.paperLength,
+    this.canLan,
     required this.isQC,
     required this.isPaper,
     required this.onSubmit,
@@ -45,6 +53,14 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
 
   final userController = Get.find<UserController>();
   late bool isAdmin;
+
+  final List<String> fixErrorPermissions = const [
+    "machine1350",
+    "machine1900",
+    "machine2Layer",
+    "MachineRollPaper",
+    "step2Production",
+  ];
 
   List<InspectionUiModel> criteriaList = [];
   Map<String, bool?> checkedCriteria = {};
@@ -69,6 +85,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
     futureCriteria = _fetchCriteriaData();
   }
 
+  // Lấy danh sách tiêu chí QC từ API
   Future<List<InspectionUiModel>> _fetchCriteriaData() async {
     if (!widget.isQC) {
       try {
@@ -169,19 +186,19 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
     await Future.delayed(const Duration(seconds: 1));
 
     try {
-      Map<String, bool> errProgressData = {};
-      checkedCriteria.forEach((key, value) {
-        errProgressData[key] = value ?? true; //true là pass, false là fail, null là chưa check
-      });
+      Map<String, bool?> errProgressData = {};
+      for (var item in criteriaList) {
+        errProgressData[item.criteriaCode] = checkedCriteria[item.criteriaCode];
+      }
 
       Map<String, num> checkingData = {};
       if (widget.isPaper) {
         checkingData = {
-          "moisture": double.tryParse(_moistureController.text) ?? 0.0,
-          "steamPressure": double.tryParse(_steamPressureController.text) ?? 0.0,
-          "preheaterTemp": double.tryParse(_preheaterTempController.text) ?? 0.0,
-          "fctValue": double.tryParse(_fctValueController.text) ?? 0.0,
-          "patValue": double.tryParse(_patValueController.text) ?? 0.0,
+          "moisture": double.tryParse(_moistureController.text.trim()) ?? 0.0,
+          "steamPressure": double.tryParse(_steamPressureController.text.trim()) ?? 0.0,
+          "preheaterTemp": double.tryParse(_preheaterTempController.text.trim()) ?? 0.0,
+          "fctValue": double.tryParse(_fctValueController.text.trim()) ?? 0.0,
+          "patValue": double.tryParse(_patValueController.text.trim()) ?? 0.0,
         };
       }
 
@@ -210,6 +227,125 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       if (!mounted) return;
       AppLogger.e("Lỗi khi đánh giá tiến trình sản xuất", error: e, stackTrace: s);
       showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
+    }
+  }
+
+  void _sendQuickNotification() async {
+    final hasAnyError = checkedCriteria.values.any((v) => v == false);
+    final hasNote = _noteController.text.trim().isNotEmpty;
+
+    if (!hasAnyError && !hasNote) {
+      showSnackBarError(context, "Vui lòng đánh dấu ít nhất 1 lỗi hoặc nhập ghi chú");
+      return;
+    }
+
+    if (!mounted) return;
+    showLoadingDialog(context);
+
+    try {
+      // Đảm bảo gửi đầy đủ 100% tất cả tiêu chí xuống BE (giữ nguyên null / true / false)
+      Map<String, bool?> errProgressData = {};
+      for (var item in criteriaList) {
+        errProgressData[item.criteriaCode] = checkedCriteria[item.criteriaCode];
+      }
+
+      // Ô nào có giá trị thì giữ, không có thì mặc định là 0.0
+      Map<String, num> checkingData = {};
+      if (widget.isPaper) {
+        checkingData = {
+          "moisture": double.tryParse(_moistureController.text.trim()) ?? 0.0,
+          "steamPressure": double.tryParse(_steamPressureController.text.trim()) ?? 0.0,
+          "preheaterTemp": double.tryParse(_preheaterTempController.text.trim()) ?? 0.0,
+          "fctValue": double.tryParse(_fctValueController.text.trim()) ?? 0.0,
+          "patValue": double.tryParse(_patValueController.text.trim()) ?? 0.0,
+        };
+      }
+
+      bool success = await QualityControlService().checkingInspection(
+        isPaper: widget.isPaper ? "paper" : "box",
+        machine: widget.machine ?? "",
+        errProgress: errProgressData,
+        checking: widget.isPaper ? checkingData : null,
+        planningId: widget.isPaper ? widget.planningId : null,
+        planningBoxId: !widget.isPaper ? widget.planningBoxId : null,
+        note: _noteController.superClean,
+      );
+
+      if (success) {
+        if (!mounted) return;
+        Navigator.pop(context); // đóng dialog loading
+
+        showSnackBarSuccess(context, "Đã gửi thông báo lỗi đến sản xuất");
+        widget.onSubmit();
+
+        if (!mounted) return;
+        Navigator.of(context).pop(); // đóng dialog QC
+      }
+    } catch (e, s) {
+      if (!mounted) return;
+      Navigator.pop(context); // đóng dialog loading
+      AppLogger.e("Lỗi khi gửi thông báo nhanh", error: e, stackTrace: s);
+      showSnackBarError(context, "Lỗi: Không thể gửi thông báo");
+    }
+  }
+
+  void _handleFixError() async {
+    final id = widget.isPaper ? widget.planningId : widget.planningBoxId;
+    if (id == null) {
+      showSnackBarError(context, "Không tìm thấy thông tin kế hoạch");
+      return;
+    }
+
+    final bool confirm = await showConfirmDialog(
+      context: context,
+      title: "⚠️ Xác nhận",
+      content: "Xác nhận sửa lỗi cho kế hoạch này?",
+      confirmText: "Ok",
+      confirmColor: const Color(0xffEA4346),
+    );
+
+    if (!confirm) return;
+
+    if (!mounted) return;
+    showLoadingDialog(context);
+
+    try {
+      final success =
+          widget.isPaper
+              ? await ManufactureService().handlePutManufacturePaper(
+                planningId: [id],
+                action: "CONFIRM_FIX_ERROR",
+              )
+              : await ManufactureService().handlePutManufactureBox(
+                planningBoxId: [id],
+                machine: widget.machine ?? "",
+                action: "CONFIRM_FIX_ERROR",
+              );
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Đóng loading dialog
+
+      if (success) {
+        widget.onSubmit();
+        if (!mounted) return;
+        showSnackBarSuccess(context, "Yêu cầu thành công");
+        Navigator.of(context).pop(); // Đóng DialogInspectionCheck
+      }
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Đóng loading dialog
+      final errorText = switch (e.errorCode) {
+        "PLANNING_ALREADY_REQUESTED" => e.message!,
+        "PLANNING_NO_PRODUCED_QUANTITY" => e.message!,
+        "PLANNING_NOT_FAILED" => e.message!,
+        _ => e.message ?? "Có lỗi xảy ra, vui lòng thử lại",
+      };
+      showSnackBarError(context, errorText);
+    } catch (e, s) {
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Đóng loading dialog
+      AppLogger.e("Lỗi khi xác nhận sửa lỗi", error: e, stackTrace: s);
+      showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại sau");
     }
   }
 
@@ -300,6 +436,32 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         );
       },
     );
+  }
+
+  String _getCriteriaExtraInfo(String code, String name) {
+    final upperCode = code.toUpperCase();
+    final lowerName = name.toLowerCase();
+
+    if (upperCode == "WRONG_WIDTH" || lowerName.contains("sai khổ")) {
+      if (widget.paperSize != null && widget.paperSize! > 0) {
+        final sizeStr = widget.paperSize!.toString().replaceAll(RegExp(r"\.0$"), "");
+        return " ($sizeStr cm)";
+      }
+    } else if (upperCode == "WRONG_LENGTH" ||
+        lowerName.contains("sai chiều dài") ||
+        lowerName.contains("sai dài")) {
+      if (widget.paperLength != null && widget.paperLength! > 0) {
+        final lenStr = widget.paperLength!.toString().replaceAll(RegExp(r"\.0$"), "");
+        return " ($lenStr cm)";
+      }
+    } else if (upperCode == "WRONG_SCORING_SPEC" ||
+        lowerName.contains("sai qc cấn lằn") ||
+        lowerName.contains("sai cấn lằn")) {
+      if (widget.canLan != null && widget.canLan!.isNotEmpty) {
+        return " (${widget.canLan})";
+      }
+    }
+    return "";
   }
 
   // Hàm helper để render từng bảng độc lập
@@ -413,7 +575,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
           return TableRow(
             decoration: BoxDecoration(color: rowBgColor),
             children: [
-              // 1. CỤM NÚT TRÒN (✓) VÀ (✕) SONG SONG
+              // CỤM NÚT TRÒN (✓) VÀ (✕) SONG SONG
               TableCell(
                 child: Container(
                   height: 46,
@@ -485,7 +647,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 ),
               ),
 
-              // 2. TÊN TIÊU CHÍ QC
+              // TÊN TIÊU CHÍ QC
               TableCell(
                 child: InkWell(
                   onTap: () {
@@ -501,29 +663,48 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(
-                        text: item.criteriaName,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color:
-                              isFail
-                                  ? Colors.red.shade800
-                                  : (isPass ? Colors.green.shade800 : Colors.black87),
-                          fontWeight: (isPass || isFail) ? FontWeight.bold : FontWeight.w500,
-                        ),
+                        children: [
+                          TextSpan(
+                            text: item.criteriaName,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color:
+                                  isFail
+                                      ? Colors.red.shade800
+                                      : (isPass ? Colors.green.shade800 : Colors.black87),
+                              fontWeight: (isPass || isFail) ? FontWeight.bold : FontWeight.w500,
+                            ),
+                          ),
+                          if (_getCriteriaExtraInfo(
+                            item.criteriaCode,
+                            item.criteriaName,
+                          ).isNotEmpty)
+                            TextSpan(
+                              text: _getCriteriaExtraInfo(item.criteriaCode, item.criteriaName),
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    isFail
+                                        ? Colors.red.shade700
+                                        : (isPass ? Colors.green.shade700 : Colors.blue.shade700),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
 
-              // 3. SAI SỐ CHO PHÉP
+              // SAI SỐ CHO PHÉP
               TableCell(
                 child: Container(
                   height: 44,
                   padding: const EdgeInsets.only(right: 8),
                   alignment: Alignment.centerRight,
                   child: Text(
-                    item.variance > 0 ? "±${item.variance} mm" : "—",
+                    item.displayVariance,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: (isPass || isFail) ? FontWeight.bold : FontWeight.w500,
@@ -628,35 +809,32 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         cancelText: isQC ? "Hủy" : "Đóng",
         customConfirmButton: isQC ? null : const SizedBox.shrink(),
         middleActions: [
-          if (!isQC)
+          if ((!isQC || isAdmin) &&
+              userController.hasAnyPermission(permission: fixErrorPermissions))
             ElevatedButton(
-              onPressed: () {},
+              onPressed: _handleFixError,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff78D761),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text(
+              child: const Text(
                 "Sửa lỗi",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
               ),
             ),
 
           if (isQC)
             ElevatedButton(
-              onPressed: () {},
+              onPressed: _sendQuickNotification,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff78D761),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text(
+              child: const Text(
                 "Gửi thông báo",
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 17,
                   color: Colors.white,

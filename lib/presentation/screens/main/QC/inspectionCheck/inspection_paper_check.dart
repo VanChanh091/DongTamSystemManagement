@@ -276,6 +276,10 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                                                     isPaper: true,
                                                     planningId: selectedPlanning.planningId,
                                                     machine: machine,
+                                                    paperSize: selectedPlanning.sizePaperPLaning,
+                                                    paperLength:
+                                                        selectedPlanning.lengthPaperPlanning,
+                                                    canLan: selectedPlanning.order?.canLan,
                                                     onSubmit: () {
                                                       loadInspectionPaper();
                                                     },
@@ -394,7 +398,12 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                       isPaper: true,
                       planningId: item.planningId,
                       machine: item.chooseMachine,
-                      onSubmit: () {},
+                      paperSize: item.sizePaperPLaning,
+                      paperLength: item.lengthPaperPlanning,
+                      canLan: item.order?.canLan,
+                      onSubmit: () {
+                        loadInspectionPaper();
+                      },
                     ),
               );
             },

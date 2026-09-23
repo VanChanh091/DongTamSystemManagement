@@ -779,7 +779,10 @@ class _PaperProductionState extends State<PaperProduction> {
                       isPaper: true,
                       planningId: item.planningId,
                       machine: item.chooseMachine,
-                      onSubmit: () {},
+                      paperSize: item.sizePaperPLaning,
+                      paperLength: item.lengthPaperPlanning,
+                      canLan: item.order?.canLan,
+                      onSubmit: loadPlanning,
                     ),
               );
             },

@@ -101,33 +101,33 @@ class InspectionPaperDataSource extends DataGridSource {
     final checklist = inspecPaper.checkList;
 
     return [
-      DataGridCell<bool>(columnName: "blishter", value: checklist["BLISHTER"] ?? false),
-      DataGridCell<bool>(columnName: "wrongWidth", value: checklist["WRONG_WIDTH"] ?? false),
-      DataGridCell<bool>(columnName: "wrongLength", value: checklist["WRONG_LENGTH"] ?? false),
-      DataGridCell<bool>(
+      DataGridCell<bool?>(columnName: "blishter", value: checklist["BLISHTER"]),
+      DataGridCell<bool?>(columnName: "wrongWidth", value: checklist["WRONG_WIDTH"]),
+      DataGridCell<bool?>(columnName: "wrongLength", value: checklist["WRONG_LENGTH"]),
+      DataGridCell<bool?>(
         columnName: "wrongScoringSpec",
-        value: checklist["WRONG_SCORING_SPEC"] ?? false,
+        value: checklist["WRONG_SCORING_SPEC"],
       ),
-      DataGridCell<bool>(columnName: "poorScoring", value: checklist["POOR_SCORING"] ?? false),
-      DataGridCell<bool>(columnName: "drityLiner", value: checklist["DIRTY_LINER"] ?? false),
-      DataGridCell<bool>(columnName: "losseLiner", value: checklist["LOSSE_LINER"] ?? false),
-      DataGridCell<bool>(columnName: "earDefect", value: checklist["EAR_DEFECT"] ?? false),
-      DataGridCell<bool>(columnName: "skewedFlute", value: checklist["SKEWED_FLUTE"] ?? false),
-      DataGridCell<bool>(columnName: "warppage", value: checklist["WARPPAGE"] ?? false),
-      DataGridCell<bool>(
+      DataGridCell<bool?>(columnName: "poorScoring", value: checklist["POOR_SCORING"]),
+      DataGridCell<bool?>(columnName: "drityLiner", value: checklist["DIRTY_LINER"]),
+      DataGridCell<bool?>(columnName: "losseLiner", value: checklist["LOSSE_LINER"]),
+      DataGridCell<bool?>(columnName: "earDefect", value: checklist["EAR_DEFECT"]),
+      DataGridCell<bool?>(columnName: "skewedFlute", value: checklist["SKEWED_FLUTE"]),
+      DataGridCell<bool?>(columnName: "warppage", value: checklist["WARPPAGE"]),
+      DataGridCell<bool?>(
         columnName: "wrongStructure",
-        value: checklist["WRONG_STRUCTURE"] ?? false,
+        value: checklist["WRONG_STRUCTURE"],
       ),
-      DataGridCell<bool>(columnName: "waveHeight", value: checklist["WAVEHEIGHT"] ?? false),
-      DataGridCell<bool>(columnName: "poorTrim", value: checklist["POOR_TRIM"] ?? false),
-      DataGridCell<bool>(columnName: "misalignment", value: checklist["MISALIGNMENT"] ?? false),
-      DataGridCell<bool>(columnName: "glueDripping", value: checklist["GLUE_DRIPPING"] ?? false),
-      DataGridCell<bool>(columnName: "trimScrap", value: checklist["TRIM_SCRAP"] ?? false),
-      DataGridCell<bool>(columnName: "poorBundling", value: checklist["POOR_BUNDLING"] ?? false),
-      DataGridCell<bool>(columnName: "totalWidthErr", value: checklist["TOTAL_WIDTH_ERR"] ?? false),
-      DataGridCell<bool>(
+      DataGridCell<bool?>(columnName: "waveHeight", value: checklist["WAVEHEIGHT"]),
+      DataGridCell<bool?>(columnName: "poorTrim", value: checklist["POOR_TRIM"]),
+      DataGridCell<bool?>(columnName: "misalignment", value: checklist["MISALIGNMENT"]),
+      DataGridCell<bool?>(columnName: "glueDripping", value: checklist["GLUE_DRIPPING"]),
+      DataGridCell<bool?>(columnName: "trimScrap", value: checklist["TRIM_SCRAP"]),
+      DataGridCell<bool?>(columnName: "poorBundling", value: checklist["POOR_BUNDLING"]),
+      DataGridCell<bool?>(columnName: "totalWidthErr", value: checklist["TOTAL_WIDTH_ERR"]),
+      DataGridCell<bool?>(
         columnName: "wrongProductInfo",
-        value: checklist["WRONG_PRODUCT_INFO"] ?? false,
+        value: checklist["WRONG_PRODUCT_INFO"],
       ),
     ];
   }

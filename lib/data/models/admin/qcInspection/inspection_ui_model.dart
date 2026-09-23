@@ -12,4 +12,11 @@ class InspectionUiModel {
     this.machine,
     this.isRequired,
   });
+
+  // Trong class InspectionUiModel
+  String get displayVariance {
+    if (variance <= 0 && criteriaCode != "WARPPAGE") return "—";
+    final unit = criteriaCode == "WARPPAGE" ? "cm" : "mm";
+    return "±$variance $unit";
+  }
 }
