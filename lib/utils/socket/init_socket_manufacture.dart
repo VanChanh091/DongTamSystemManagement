@@ -1,8 +1,8 @@
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
 
 class InitSocketManufacture {
   final BuildContext context;
@@ -29,7 +29,7 @@ class InitSocketManufacture {
   }
 
   String machineRoomName(String machineName) =>
-      'machine_${machineName.toLowerCase().replaceAll(' ', '_')}';
+      "machine_${machineName.toLowerCase().replaceAll(" ", "_")}";
 
   Future<void> changeMachine({required String oldMachine, required String newMachine}) async {
     final oldRoom = machineRoomName(oldMachine);
@@ -61,9 +61,9 @@ class InitSocketManufacture {
   void _onSocketUpdated(dynamic data) {
     // print("Received socket update: $data");
 
-    bool isPlan = data['isPlan'] ?? false;
-    int? senderId = data['senderId'];
-    String message = data['message'] ?? "";
+    bool isPlan = data["isPlan"] ?? false;
+    int? senderId = data["senderId"];
+    String message = data["message"] ?? "";
 
     final userController = Get.find<UserController>();
     if (!isPlan && senderId != null && senderId == userController.userId.value) {
@@ -77,11 +77,14 @@ class InitSocketManufacture {
   }
 
   void _showUpdateDialog(dynamic data, {required bool isPlan}) {
-    final from = data['from'] ?? "";
-    final machine = data['machine'] ?? "";
-    final message = data['message'] ?? "";
+    final from = data["from"] ?? "";
+    final machine = data["machine"] ?? "";
+    final message = data["message"] ?? "";
+    final int? planningId = data["planningId"];
 
-    AppLogger.i("_showUpdateDialog: machine=$machine, message=$message, isPlan=$isPlan");
+    AppLogger.i(
+      "updateDialog: machine=$machine, message=$message, isPlan=$isPlan, planningId=$planningId",
+    );
 
     showDialog(
       context: context,
@@ -104,7 +107,7 @@ class InitSocketManufacture {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Thông báo từ: ${from.isNotEmpty ? from : (isPlan ? 'Kế hoạch' : 'Sản xuất')}',
+                    "Thông báo từ: ${from.isNotEmpty ? from : (isPlan ? "Kế hoạch" : "Sản xuất")}",
                     style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -116,7 +119,7 @@ class InitSocketManufacture {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '$message\nNhấn OK để cập nhật dữ liệu.',
+                    "$message\nNhấn OK để cập nhật dữ liệu.",
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 17),
                   ),
@@ -136,7 +139,7 @@ class InitSocketManufacture {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                 ),
-                child: const Text('OK', style: TextStyle(fontSize: 16)),
+                child: const Text("OK", style: TextStyle(fontSize: 16)),
               ),
             ],
           ),

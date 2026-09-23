@@ -1,32 +1,59 @@
 import 'package:flutter/material.dart';
 
 class MachinePaperColorLegendButton extends StatelessWidget {
+  final double? fontSize;
   final double iconSize;
+  final Color? color;
   final Color? iconColor;
+  final EdgeInsetsGeometry? padding;
 
-  const MachinePaperColorLegendButton({super.key, this.iconSize = 20, this.iconColor});
+  const MachinePaperColorLegendButton({
+    super.key,
+    this.fontSize,
+    this.iconSize = 14,
+    this.color,
+    this.iconColor,
+    this.padding,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final effectiveColor = color ?? iconColor ?? Colors.blue.shade700;
+    final effectiveFontSize = fontSize ?? (iconSize > 0 ? iconSize : 14.0);
+
     return Tooltip(
       message: "Giải thích màu sắc & trạng thái",
       waitDuration: const Duration(milliseconds: 300),
       child: Material(
         color: Colors.transparent,
-        shape: const CircleBorder(),
+        borderRadius: BorderRadius.circular(6),
         clipBehavior: Clip.antiAlias,
-        child: IconButton(
-          icon: Icon(
-            Icons.help_outline_rounded,
-            size: iconSize,
-            color: iconColor ?? Colors.blue.shade700,
-          ),
-          onPressed: () {
+        child: InkWell(
+          onTap: () {
             showDialog(
               context: context,
               builder: (context) => const MachinePaperColorLegendDialog(),
             );
           },
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.menu_book_outlined, size: effectiveFontSize + 2, color: effectiveColor),
+                const SizedBox(width: 4),
+                Text(
+                  "Hướng dẫn",
+                  style: TextStyle(
+                    fontSize: effectiveFontSize,
+                    fontWeight: FontWeight.w600,
+                    color: effectiveColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

@@ -206,21 +206,24 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   Widget _buildHeaderBar() {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "DANH SÁCH GIẤY TẤM CHỜ KIỂM TRA",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: themeController.currentColor.value,
+        SizedBox(
+          width: double.infinity,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Center(
+                child: Text(
+                  "DANH SÁCH GIẤY TẤM CHỜ KIỂM TRA",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: themeController.currentColor.value,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            const MachinePaperColorLegendButton(),
-          ],
+              const Positioned(right: 10, child: MachinePaperColorLegendButton()),
+            ],
+          ),
         ),
         const SizedBox(height: 8),
 

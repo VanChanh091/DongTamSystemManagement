@@ -6,8 +6,6 @@ class QcInspectionPaperModel {
   final DateTime timeInspection;
 
   //user input
-  final int? numberPallet;
-  final double machineSpeed;
   final double moisture;
   final double steamPressure;
   final double preheaterTemp;
@@ -26,8 +24,6 @@ class QcInspectionPaperModel {
   QcInspectionPaperModel({
     required this.inspecPaperId,
     required this.timeInspection,
-    this.numberPallet,
-    required this.machineSpeed,
     required this.moisture,
     required this.steamPressure,
     required this.preheaterTemp,
@@ -47,8 +43,6 @@ class QcInspectionPaperModel {
       inspecPaperId: json["inspecPaperId"],
       timeInspection:
           json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
-      numberPallet: json["numberPallet"] ?? 0,
-      machineSpeed: toDouble(json["machineSpeed"]),
       moisture: toDouble(json["moisture"]),
       steamPressure: toDouble(json["steamPressure"]),
       preheaterTemp: toDouble(json["preheaterTemp"]),

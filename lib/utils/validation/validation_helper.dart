@@ -312,11 +312,13 @@ class ValidationHelper {
     required IconData icon,
     VoidCallback? onTap,
     bool isNumeric = true,
+    bool readOnly = false,
   }) {
     return BaseValidateInput(
       label: label,
       controller: controller,
       icon: icon,
+      readOnly: readOnly,
       onTap: onTap,
       validator: (value) {
         final cleanValue = value?.trim().replaceAll(RegExp(r"[\r\n]+"), " ") ?? "";

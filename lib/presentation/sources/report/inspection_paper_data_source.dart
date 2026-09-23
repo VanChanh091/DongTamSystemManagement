@@ -60,6 +60,7 @@ class InspectionPaperDataSource extends DataGridSource {
         columnName: "timeInspection",
         value: formatterDateTime.format(inspecPaper.timeInspection),
       ),
+      DataGridCell<String>(columnName: "checkedBy", value: inspecPaper.checkedBy),
 
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
@@ -73,8 +74,6 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<double>(columnName: "lengthPaper", value: paper.lengthPaperPlanning),
       DataGridCell<int>(columnName: "runningPlan", value: paper.runningPlan),
 
-      DataGridCell<int>(columnName: "numberPallet", value: inspecPaper.numberPallet),
-      DataGridCell<double>(columnName: "machineSpeed", value: inspecPaper.machineSpeed),
       DataGridCell<double>(columnName: "moisture", value: inspecPaper.moisture),
       DataGridCell<double>(columnName: "steamPressure", value: inspecPaper.steamPressure),
       DataGridCell<double>(columnName: "preheaterTemp", value: inspecPaper.preheaterTemp),
@@ -88,7 +87,6 @@ class InspectionPaperDataSource extends DataGridSource {
       ...buildChecklistCells(inspecPaper),
 
       DataGridCell<String>(columnName: "note", value: inspecPaper.note),
-      DataGridCell<String>(columnName: "checkedBy", value: inspecPaper.checkedBy),
 
       //hidden fields
       DataGridCell<int>(columnName: "inspecPaperId", value: inspecPaper.inspecPaperId),

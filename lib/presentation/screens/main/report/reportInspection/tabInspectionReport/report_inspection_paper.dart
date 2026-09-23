@@ -372,8 +372,6 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                             ),
                             StackedHeaderCell(
                               columnNames: [
-                                "numberPallet",
-                                "machineSpeed",
                                 "moisture",
                                 "steamPressure",
                                 "preheaterTemp",

@@ -343,21 +343,24 @@ class _PaperProductionState extends State<PaperProduction> {
   Widget _buildHeaderBar(bool permissionCheck) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "LỊCH SẢN XUẤT GIẤY TẤM",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-                color: themeController.currentColor.value,
+        SizedBox(
+          width: double.infinity,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Center(
+                child: Text(
+                  "LỊCH SẢN XUẤT GIẤY TẤM",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: themeController.currentColor.value,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 4),
-            const MachinePaperColorLegendButton(),
-          ],
+              const Positioned(right: 10, child: MachinePaperColorLegendButton()),
+            ],
+          ),
         ),
         const SizedBox(height: 8),
 

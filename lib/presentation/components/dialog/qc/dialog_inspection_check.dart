@@ -1,3 +1,4 @@
+import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart";
 import "package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart";
 import "package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart";
@@ -13,6 +14,7 @@ import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
 import "package:flutter/material.dart";
+import "package:get/get.dart";
 import "package:material_symbols_icons/symbols.dart";
 
 class DialogInspectionCheck extends StatefulWidget {
@@ -41,6 +43,9 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   final formKey = GlobalKey<FormState>();
   late Future<List<InspectionUiModel>> futureCriteria;
 
+  final userController = Get.find<UserController>();
+  late bool isAdmin;
+
   List<InspectionUiModel> criteriaList = [];
   Map<String, bool?> checkedCriteria = {};
 
@@ -50,8 +55,6 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   Map<String, dynamic>? savedErrorData;
   bool _isDataFilled = false;
 
-  final _numberPalletController = TextEditingController();
-  final _machineSpeedController = TextEditingController();
   final _moistureController = TextEditingController();
   final _steamPressureController = TextEditingController();
   final _preheaterTempController = TextEditingController();
@@ -62,6 +65,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   @override
   void initState() {
     super.initState();
+    isAdmin = userController.hasAnyRole(roles: ["admin"]);
     futureCriteria = _fetchCriteriaData();
   }
 
@@ -75,6 +79,28 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
           machine: widget.machine ?? "",
           fromJson: (json) => json,
         );
+        if (savedErrorData != null) {
+          if (savedErrorData!["note"] != null) {
+            _noteController.text = savedErrorData!["note"].toString();
+          }
+          if (widget.isPaper) {
+            if (savedErrorData!["moisture"] != null) {
+              _moistureController.text = savedErrorData!["moisture"].toString();
+            }
+            if (savedErrorData!["steamPressure"] != null) {
+              _steamPressureController.text = savedErrorData!["steamPressure"].toString();
+            }
+            if (savedErrorData!["preheaterTemp"] != null) {
+              _preheaterTempController.text = savedErrorData!["preheaterTemp"].toString();
+            }
+            if (savedErrorData!["fctValue"] != null) {
+              _fctValueController.text = savedErrorData!["fctValue"].toString();
+            }
+            if (savedErrorData!["patValue"] != null) {
+              _patValueController.text = savedErrorData!["patValue"].toString();
+            }
+          }
+        }
       } catch (e, s) {
         // Nếu lỗi hoặc không có data cũ, cứ cho qua để tải tiếp danh sách tiêu chí bên dưới
         AppLogger.e("Lỗi khi lấy dữ liệu lỗi cũ", error: e, stackTrace: s);
@@ -151,8 +177,6 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       Map<String, num> checkingData = {};
       if (widget.isPaper) {
         checkingData = {
-          "numberPallet": int.tryParse(_numberPalletController.text) ?? 0,
-          "machineSpeed": double.tryParse(_machineSpeedController.text) ?? 0.0,
           "moisture": double.tryParse(_moistureController.text) ?? 0.0,
           "steamPressure": double.tryParse(_steamPressureController.text) ?? 0.0,
           "preheaterTemp": double.tryParse(_preheaterTempController.text) ?? 0.0,
@@ -192,8 +216,6 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   @override
   void dispose() {
     super.dispose();
-    _numberPalletController.dispose();
-    _machineSpeedController.dispose();
     _moistureController.dispose();
     _steamPressureController.dispose();
     _preheaterTempController.dispose();
@@ -310,36 +332,47 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 height: 40,
                 padding: const EdgeInsets.only(left: 10),
                 alignment: Alignment.centerLeft,
-                child: InkWell(
-                  onTap: () {
-                    setState(() {
-                      final newStatus = isAllSelected ? null : true;
-                      for (var item in list) {
-                        checkedCriteria[item.criteriaCode] = newStatus;
-                      }
-                    });
-                  },
-                  child: Row(
-                    children: [
-                      Icon(
-                        isAllSelected ? Icons.check_circle : Icons.check_circle_outline,
-                        size: 17,
-                        color: isAllSelected ? Colors.green : Colors.grey.shade600,
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        "Hết",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black54,
+                child:
+                    isAdmin
+                        ? InkWell(
+                          onTap: () {
+                            setState(() {
+                              final newStatus = isAllSelected ? null : true;
+                              for (var item in list) {
+                                checkedCriteria[item.criteriaCode] = newStatus;
+                              }
+                            });
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                isAllSelected ? Icons.check_circle : Icons.check_circle_outline,
+                                size: 17,
+                                color: isAllSelected ? Colors.green : Colors.grey.shade600,
+                              ),
+                              const SizedBox(width: 4),
+                              const Text(
+                                "Hết",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                        : const Text(
+                          "ĐẠT / LỖI",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            letterSpacing: 0.5,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
+
             TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: Container(
@@ -513,44 +546,33 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
 
   @override
   Widget build(BuildContext context) {
+    final isQC = widget.isQC;
+    final bool isReadOnly = !isQC;
+
     final List<Map<String, dynamic>> inspectionRows = [
       if (widget.isPaper) ...[
-        {
-          "leftKey": "Số Pallet",
-          "leftValue": ValidationHelper.qcInspectionInput(
-            label: "Số Pallet",
-            controller: _numberPalletController,
-            icon: Symbols.package,
-          ),
-          "middleKey": "Tốc Độ Máy",
-          "middleValue": ValidationHelper.qcInspectionInput(
-            label: "Tốc Độ Máy",
-            controller: _machineSpeedController,
-            icon: Symbols.speed,
-          ),
-          "rightKey": "Áp Suất Hơi",
-          "rightValue": ValidationHelper.qcInspectionInput(
-            label: "Áp Suất Hơi",
-            controller: _steamPressureController,
-            icon: Symbols.thermostat,
-          ),
-        },
-
         {
           "leftKey": "Độ Ẩm",
           "leftValue": ValidationHelper.qcInspectionInput(
             label: "Độ Ẩm",
             controller: _moistureController,
             icon: Symbols.water_drop,
+            readOnly: isReadOnly,
           ),
           "middleKey": "Nhiệt Độ",
           "middleValue": ValidationHelper.qcInspectionInput(
             label: "Nhiệt Độ Đầu Sóng",
             controller: _preheaterTempController,
             icon: Symbols.thermostat_auto,
+            readOnly: isReadOnly,
           ),
-          "rightKey": "",
-          "rightValue": const SizedBox.shrink(),
+          "rightKey": "Áp Suất Hơi",
+          "rightValue": ValidationHelper.qcInspectionInput(
+            label: "Áp Suất Hơi",
+            controller: _steamPressureController,
+            icon: Symbols.thermostat,
+            readOnly: isReadOnly,
+          ),
         },
 
         {
@@ -559,12 +581,14 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
             label: "FCT Nén Ngang",
             controller: _fctValueController,
             icon: Symbols.speed,
+            readOnly: isReadOnly,
           ),
           "middleKey": "PAT Bám Keo",
           "middleValue": ValidationHelper.qcInspectionInput(
             label: "PAT Bám Keo",
             controller: _patValueController,
             icon: Symbols.speed,
+            readOnly: isReadOnly,
           ),
           "rightKey": "",
           "rightValue": const SizedBox.shrink(),
@@ -578,6 +602,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
           controller: _noteController,
           icon: Symbols.note,
           isNumeric: false,
+          readOnly: isReadOnly,
         ),
       },
     ];
@@ -591,7 +616,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       //title
       title: Center(
         child: Text(
-          widget.isQC ? "Kiểm tra chất lượng sản xuất" : "Báo cáo lỗi sản xuất",
+          isQC ? "Kiểm tra chất lượng sản xuất" : "Báo cáo lỗi sản xuất",
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
       ),
@@ -599,8 +624,46 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       //button
       actions: buildDialogActions(
         context: context,
-        onConfirm: isAllChecked ? submit : null,
-        cancelText: widget.isQC ? "Hủy" : "Đóng",
+        onConfirm: isQC && isAllChecked ? submit : null,
+        cancelText: isQC ? "Hủy" : "Đóng",
+        customConfirmButton: isQC ? null : const SizedBox.shrink(),
+        middleActions: [
+          if (!isQC)
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff78D761),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(
+                "Sửa lỗi",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+
+          if (isQC)
+            ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff78D761),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(
+                "Gửi thông báo",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+        ],
       ),
 
       child: SingleChildScrollView(
@@ -615,16 +678,15 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 buildQcContent(),
 
                 //input user
-                if (widget.isQC)
-                  buildingCard(
-                    title: "📃 Thông Tin Kiểm Tra",
-                    children: formatKeyValueRows(
-                      rows: inspectionRows,
-                      labelWidth: 120,
-                      columnCount: 4,
-                      centerAlign: true,
-                    ),
+                buildingCard(
+                  title: "📃 Thông Tin Kiểm Tra",
+                  children: formatKeyValueRows(
+                    rows: inspectionRows,
+                    labelWidth: 120,
+                    columnCount: 4,
+                    centerAlign: true,
                   ),
+                ),
               ],
             ),
           ),

@@ -4,6 +4,7 @@ import 'package:dongtam/data/models/planning/planning_box_model.dart';
 import 'package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_box.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
@@ -199,12 +200,23 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
     return Column(
       children: [
         //title
-        Text(
-          "DANH SÁCH ĐƠN THÙNG CHỜ KIỂM TRA",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: themeController.currentColor.value,
+        SizedBox(
+          width: double.infinity,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Center(
+                child: Text(
+                  "DANH SÁCH ĐƠN THÙNG CHỜ KIỂM TRA",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    color: themeController.currentColor.value,
+                  ),
+                ),
+              ),
+              const Positioned(right: 10, child: MachinePaperColorLegendButton()),
+            ],
           ),
         ),
         const SizedBox(height: 8),

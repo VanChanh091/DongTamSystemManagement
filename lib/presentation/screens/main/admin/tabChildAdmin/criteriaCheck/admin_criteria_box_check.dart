@@ -173,7 +173,8 @@ class _AdminCriteriaBoxCheckState extends State<AdminCriteriaBoxCheck> {
 
                     // ================== ADD ==================
                     for (final e in rowsToAdd) {
-                      await AdminService().createNewCriteria(
+                      await AdminService().createNewCriteriaCheck(
+                        isPaper: false,
                         criteriaData: {
                           "criteriaBoxCode": e.criteriaBoxCode,
                           "criteriaBoxName": e.criteriaBoxName,
@@ -185,8 +186,9 @@ class _AdminCriteriaBoxCheckState extends State<AdminCriteriaBoxCheck> {
 
                     // ================== UPDATE ==================
                     for (final e in rowsToUpdate) {
-                      await AdminService().updateCriteria(
-                        qcCriteriaId: e.criteriaBoxId!,
+                      await AdminService().updateCriteriaCheck(
+                        criteriaId: e.criteriaBoxId!,
+                        isPaper: false,
                         criteriaUpdated: {
                           "criteriaBoxCode": e.criteriaBoxCode,
                           "criteriaBoxName": e.criteriaBoxName,
