@@ -16,6 +16,8 @@ class QcInspectionPaperModel {
   final String checkedBy;
 
   final String? note;
+  final bool result;
+  final String? imgError;
 
   //FK
   final int planningId;
@@ -31,7 +33,9 @@ class QcInspectionPaperModel {
     required this.patValue,
     required this.checkList,
     required this.checkedBy,
+    required this.result,
     this.note,
+    this.imgError,
 
     //FK
     required this.planningId,
@@ -48,12 +52,13 @@ class QcInspectionPaperModel {
       preheaterTemp: toDouble(json["preheaterTemp"]),
       fctValue: toDouble(json["fctValue"]),
       patValue: toDouble(json["patValue"]),
-      checkList: (json["checkList"] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(k, v as bool?),
-          ) ??
+      checkList:
+          (json["checkList"] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as bool?)) ??
           {},
       checkedBy: json["checkedBy"] ?? "",
       note: json["note"] ?? "",
+      result: json["result"] ?? false,
+      imgError: json["imgError"] ?? "",
 
       //FK
       planningId: json["planningId"],

@@ -16,12 +16,14 @@ final List<Map<String, dynamic>> _paperRequirementColumns = [
   {"key": "lengthPaper", "title": "Dài (cm)"},
   {"key": "runningPlan", "title": "Kế hoạch Chạy"},
   {"key": "totalRequiredQty", "title": "Khối Lượng Cần (kg)"},
-  {"key": "dayStart", "title": "Ngày Sản Xuất"},
+  {"key": "totalPrice", "title": "Tổng Tiền (VNĐ)"},
+
   {"key": "chooseMachine", "title": "Loại Máy"},
   {"key": "inventoryStatus", "title": "Trạng Thái Kho"},
 
   // hidden technical fields
   {"key": "requirementId", "title": "", "visible": false},
+  {"key": "dayStart", "title": "Ngày Sản Xuất", "visible": false},
 ];
 
 List<GridColumn> buildPaperRequirementColumns({required ThemeController themeController}) {

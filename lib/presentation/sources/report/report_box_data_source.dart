@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_box_model.dart";
 import "package:dongtam/data/models/report/report_box_model.dart";

@@ -6,6 +6,8 @@ class QcInspectionBoxModel {
   final Map<String, bool?> checkList;
   final String checkedBy;
   final String? note;
+  final bool result;
+  final String? imgError;
 
   //FK
   final int boxTimeId;
@@ -17,6 +19,8 @@ class QcInspectionBoxModel {
     required this.checkList,
     required this.checkedBy,
     this.note,
+    required this.result,
+    this.imgError,
 
     //FK
     required this.boxTimeId,
@@ -28,12 +32,13 @@ class QcInspectionBoxModel {
       inspecBoxId: json["inspecBoxId"],
       timeInspection:
           json["timeInspection"] != null ? DateTime.parse(json["timeInspection"]) : DateTime.now(),
-      checkList: (json["checkList"] as Map<String, dynamic>?)?.map(
-            (k, v) => MapEntry(k, v as bool?),
-          ) ??
+      checkList:
+          (json["checkList"] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as bool?)) ??
           {},
       checkedBy: json["checkedBy"] ?? "",
       note: json["note"] ?? "",
+      result: json["result"] ?? false,
+      imgError: json["imgError"] ?? "",
 
       //FK
       boxTimeId: json["boxTimeId"],

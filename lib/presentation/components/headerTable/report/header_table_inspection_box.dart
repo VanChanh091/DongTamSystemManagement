@@ -7,6 +7,8 @@ final List<Map<String, dynamic>> inspectionBoxColumns = [
   // --- THÔNG TIN CHUNG ---
   {"key": "index", "title": "STT"},
   {"key": "timeInspection", "title": "Ngày kiểm tra"},
+  {"key": "checkedBy", "title": "Người Kiểm"},
+  {"key": "result", "title": "Kết Quả"},
 
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
@@ -212,7 +214,7 @@ final List<Map<String, dynamic>> inspectionBoxColumns = [
   },
 
   {"key": "note", "title": "Ghi Chú"},
-  {"key": "checkedBy", "title": "Người Kiểm"},
+  {"key": "imgError", "title": "Ảnh Lỗi"},
 
   // --- CÁC CỘT ẨN ---
   {"key": "inspecBoxId", "title": "", "visible": false},

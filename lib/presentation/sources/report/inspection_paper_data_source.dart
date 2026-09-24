@@ -1,33 +1,8 @@
-// ignore_for_file: deprecated_member_use
-
-import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_paper_model.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
-
-const Set<String> _boolColumns = {
-  "blishter",
-  "wrongWidth",
-  "wrongLength",
-  "wrongScoringSpec",
-  "poorScoring",
-  "drityLiner",
-  "losseLiner",
-  "earDefect",
-  "skewedFlute",
-  "warppage",
-  "wrongStructure",
-  "waveHeight",
-  "poorTrim",
-  "misalignment",
-  "glueDripping",
-  "trimScrap",
-  "poorBundling",
-  "totalWidthErr",
-  "wrongProductInfo",
-};
 
 class InspectionPaperDataSource extends DataGridSource {
   List<QcInspectionPaperModel> inspectionPapers = [];
@@ -61,6 +36,7 @@ class InspectionPaperDataSource extends DataGridSource {
         value: formatterDateTime.format(inspecPaper.timeInspection),
       ),
       DataGridCell<String>(columnName: "checkedBy", value: inspecPaper.checkedBy),
+      DataGridCell<bool>(columnName: "result", value: inspecPaper.result),
 
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
@@ -87,6 +63,7 @@ class InspectionPaperDataSource extends DataGridSource {
       ...buildChecklistCells(inspecPaper),
 
       DataGridCell<String>(columnName: "note", value: inspecPaper.note),
+      DataGridCell<String>(columnName: "imgError", value: inspecPaper.imgError),
 
       //hidden fields
       DataGridCell<int>(columnName: "inspecPaperId", value: inspecPaper.inspecPaperId),
@@ -104,20 +81,14 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<bool?>(columnName: "blishter", value: checklist["BLISHTER"]),
       DataGridCell<bool?>(columnName: "wrongWidth", value: checklist["WRONG_WIDTH"]),
       DataGridCell<bool?>(columnName: "wrongLength", value: checklist["WRONG_LENGTH"]),
-      DataGridCell<bool?>(
-        columnName: "wrongScoringSpec",
-        value: checklist["WRONG_SCORING_SPEC"],
-      ),
+      DataGridCell<bool?>(columnName: "wrongScoringSpec", value: checklist["WRONG_SCORING_SPEC"]),
       DataGridCell<bool?>(columnName: "poorScoring", value: checklist["POOR_SCORING"]),
       DataGridCell<bool?>(columnName: "drityLiner", value: checklist["DIRTY_LINER"]),
       DataGridCell<bool?>(columnName: "losseLiner", value: checklist["LOSSE_LINER"]),
       DataGridCell<bool?>(columnName: "earDefect", value: checklist["EAR_DEFECT"]),
       DataGridCell<bool?>(columnName: "skewedFlute", value: checklist["SKEWED_FLUTE"]),
       DataGridCell<bool?>(columnName: "warppage", value: checklist["WARPPAGE"]),
-      DataGridCell<bool?>(
-        columnName: "wrongStructure",
-        value: checklist["WRONG_STRUCTURE"],
-      ),
+      DataGridCell<bool?>(columnName: "wrongStructure", value: checklist["WRONG_STRUCTURE"]),
       DataGridCell<bool?>(columnName: "waveHeight", value: checklist["WAVEHEIGHT"]),
       DataGridCell<bool?>(columnName: "poorTrim", value: checklist["POOR_TRIM"]),
       DataGridCell<bool?>(columnName: "misalignment", value: checklist["MISALIGNMENT"]),
@@ -125,10 +96,7 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<bool?>(columnName: "trimScrap", value: checklist["TRIM_SCRAP"]),
       DataGridCell<bool?>(columnName: "poorBundling", value: checklist["POOR_BUNDLING"]),
       DataGridCell<bool?>(columnName: "totalWidthErr", value: checklist["TOTAL_WIDTH_ERR"]),
-      DataGridCell<bool?>(
-        columnName: "wrongProductInfo",
-        value: checklist["WRONG_PRODUCT_INFO"],
-      ),
+      DataGridCell<bool?>(columnName: "wrongProductInfo", value: checklist["WRONG_PRODUCT_INFO"]),
     ];
   }
 
@@ -146,6 +114,45 @@ class InspectionPaperDataSource extends DataGridSource {
         }).toList();
 
     notifyListeners();
+  }
+
+  String _formatCellValueBool(DataGridCell dataCell) {
+    final value = dataCell.value;
+
+    const boolColumns = {
+      "blishter",
+      "wrongWidth",
+      "wrongLength",
+      "wrongScoringSpec",
+      "poorScoring",
+      "drityLiner",
+      "losseLiner",
+      "earDefect",
+      "skewedFlute",
+      "warppage",
+      "wrongStructure",
+      "waveHeight",
+      "poorTrim",
+      "misalignment",
+      "glueDripping",
+      "trimScrap",
+      "poorBundling",
+      "totalWidthErr",
+      "wrongProductInfo",
+    };
+
+    if (boolColumns.contains(dataCell.columnName)) {
+      if (value == null) return "";
+      return value == true ? "" : "❌";
+    }
+
+    const checkColumns = ["isFSC", "result"];
+    if (checkColumns.contains(dataCell.columnName)) {
+      if (value == null) return '';
+      return value == true ? '✅' : '';
+    }
+
+    return value?.toString() ?? "";
   }
 
   @override
@@ -177,27 +184,18 @@ class InspectionPaperDataSource extends DataGridSource {
     return DataGridRowAdapter(
       cells:
           row.getCells().map<Widget>((dataCell) {
-            final value = dataCell.value;
-            final colName = dataCell.columnName;
+            final cellText = _formatCellValueBool(dataCell);
 
-            final String displayValue;
-            final Alignment alignment;
-
-            if (value is num) {
+            Alignment alignment;
+            if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-              displayValue = value == 0 ? "-" : OrderModel.formatCurrency(value.toDouble());
-            } else if (_boolColumns.contains(colName)) {
+            } else if (cellText == "❌" || cellText == "✅") {
               alignment = Alignment.center;
-              displayValue = value == false ? "❌" : "";
-            } else if (colName == "isFSC") {
-              alignment = Alignment.center;
-              displayValue = value == true ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
-              displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment);
           }).toList(),
     );
   }

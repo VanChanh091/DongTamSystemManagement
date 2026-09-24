@@ -1,3 +1,4 @@
+import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/planning/requirements/paper_requirement_model.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
@@ -38,14 +39,22 @@ class PaperRequirementsDataSource extends DataGridSource {
       DataGridCell<int>(columnName: "runningPlan", value: planning?.runningPlan ?? 0),
       DataGridCell<double>(columnName: "totalRequiredQty", value: requirement.totalRequiredQty),
       DataGridCell<String>(
-        columnName: "dayStart",
-        value: planning?.dayStart != null ? formatter.format(planning!.dayStart!) : null,
+        columnName: "totalPrice",
+        value:
+            (planning?.totalPrice ?? 0) > 0
+                ? OrderModel.formatCurrency(planning?.totalPrice ?? 0)
+                : "-",
       ),
+
       DataGridCell<String>(columnName: "chooseMachine", value: planning?.chooseMachine ?? ""),
       DataGridCell<String>(columnName: "inventoryStatus", value: requirement.inventoryStatus),
 
       //hide
       DataGridCell<int>(columnName: "requirementId", value: requirement.requirementId),
+      DataGridCell<String>(
+        columnName: "dayStart",
+        value: planning?.dayStart != null ? formatter.format(planning!.dayStart!) : null,
+      ),
     ];
   }
 

@@ -275,10 +275,18 @@ class PlanningService {
   }
 
   //=========================PAPER REQUIREMENTS=========================
-  Future<Map<String, dynamic>> getPaperRequirementsList({required String machine}) async {
+  Future<Map<String, dynamic>> getPaperRequirementsList({
+    required String machine,
+    String? field,
+    String? keyword,
+  }) async {
     return HelperService().fetchPaginatedData<PaperRequirementModel>(
       endpoint: "planning/paper-requirements",
-      queryParameters: {"machine": machine},
+      queryParameters: {
+        "machine": machine,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+      },
       fromJson: (json) => PaperRequirementModel.fromJson(json),
       dataKey: "requirements",
     );

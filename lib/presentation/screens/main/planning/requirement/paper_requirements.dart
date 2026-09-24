@@ -1,10 +1,12 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/requirements/paper_requirement_ghep_kho_summary.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_layers.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_model.dart";
 import "package:dongtam/presentation/components/headerTable/planning/requirements/header_table_layer_requirement.dart";
 import "package:dongtam/presentation/components/headerTable/planning/requirements/header_table_paper_requirement.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/planning/requirements/layer_requirement_data_source.dart";
@@ -36,7 +38,9 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
+
   final headerScrollController = ScrollController();
+  final searchController = TextEditingController();
 
   //width column
   Map<String, double> columnWidthRequirements = {}; //map header table
@@ -53,9 +57,20 @@ class _PaperRequirementsState extends State<PaperRequirements> {
 
   String machine = "Máy 1350";
   bool _isSelectionChange = false;
+  bool isTextFieldEnabled = false;
+  bool isSearching = false;
+
+  // Search & Filter
+  String searchType = "Tất cả";
+  final Map<String, String> searchFieldMap = {
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+    "Ghép Khổ": "ghepKho",
+  };
 
   //cache grand totals paper required for smooth animated
   double _lastPaperRequired = 0;
+  double _lastTotalPrice = 0;
 
   @override
   void initState() {
@@ -79,8 +94,16 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   }
 
   void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+    final bool shouldSearch = (searchType != "Tất cả");
+
     futureRequirements = ensureMinLoading(
-      PlanningService().getPaperRequirementsList(machine: machine),
+      PlanningService().getPaperRequirementsList(
+        machine: machine,
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
+      ),
     );
 
     selectedPaperLayers = [];
@@ -90,6 +113,16 @@ class _PaperRequirementsState extends State<PaperRequirements> {
 
   void loadPaperRequirements() {
     setState(() => _fetchData());
+  }
+
+  void searchRequirement() {
+    String keyword = searchController.text.trim().toLowerCase();
+    if (isTextFieldEnabled && keyword.isEmpty) return;
+
+    setState(() {
+      isSearching = (searchType != "Tất cả");
+      _fetchData();
+    });
   }
 
   void _updateSelectedIdsFromRows(List<DataGridRow> rows) async {
@@ -145,6 +178,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
     _zoomNotifier.dispose();
     _selectedRequirementIdsNotifier.dispose();
     headerScrollController.dispose();
+    searchController.dispose();
   }
 
   @override
@@ -232,120 +266,66 @@ class _PaperRequirementsState extends State<PaperRequirements> {
 
   Widget _buildHeaderBar() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        //title
-        Text(
-          "ĐỊNH MỨC GIẤY SẢN XUẤT",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-            color: themeController.currentColor.value,
+        // title
+        Center(
+          child: Text(
+            "ĐỊNH MỨC GIẤY SẢN XUẤT",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              color: themeController.currentColor.value,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
 
-        //button
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return Scrollbar(
-              controller: headerScrollController,
-              child: SingleChildScrollView(
-                controller: headerScrollController,
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(bottom: 5),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    ConstrainedBox(
-                      constraints: BoxConstraints(minWidth: constraints.maxWidth),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          //left button
-                          const SizedBox(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Cụm tìm kiếm bên trái
+            LeftButtonSearch(
+              selectedType: searchType,
+              types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên Khách Hàng', 'Ghép Khổ'],
+              onTypeChanged: (value) {
+                setState(() {
+                  searchType = value;
+                  isTextFieldEnabled = value != 'Tất cả';
 
-                          //right button
-                          ValueListenableBuilder(
-                            valueListenable: _selectedRequirementIdsNotifier,
-                            builder: (context, selectedOrderIds, _) {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  //change machine
-                                  buildDropdownItems(
-                                    value: machine,
-                                    items: const [
-                                      'Máy 1350',
-                                      "Máy 1900",
-                                      "Máy 2 Lớp",
-                                      "Máy Quấn Cuồn",
-                                    ],
-                                    onChanged:
-                                        (value) => {
-                                          setState(() {
-                                            machine = value!;
-                                            _selectedRequirementIdsNotifier.value = [];
-                                            selectedPaperLayers = [];
-                                            loadPaperRequirements();
-                                          }),
-                                        },
-                                  ),
-                                  const SizedBox(width: 8),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
+                  if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                    searchController.clear();
+                    loadPaperRequirements();
+                  }
+                });
+              },
+              controller: searchController,
+              textFieldEnabled: isTextFieldEnabled,
+              buttonColor: themeController.buttonColor,
+              onSearch: searchRequirement,
+            ),
 
-                    //total qty paper required
-                    Padding(
-                      padding: const EdgeInsets.only(right: 7),
-                      child: FutureBuilder(
-                        future: futureRequirements,
-                        builder: (context, snapshot) {
-                          final isLoading = snapshot.connectionState == ConnectionState.waiting;
+            const SizedBox(width: 16),
 
-                          if (snapshot.hasData) {
-                            final rawValue = snapshot.data?['totalRequiredQty'];
-                            final double totalValue =
-                                double.tryParse(rawValue?.toString() ?? "") ?? 0.0;
-
-                            _lastPaperRequired = totalValue;
-                          }
-
-                          return AnimatedOpacity(
-                            duration: const Duration(milliseconds: 400),
-                            opacity: isLoading ? 0.4 : 1.0,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                const Text(
-                                  "Tổng khối lượng yêu cầu: ",
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                                ),
-                                _buildAnimatedCounter(
-                                  targetValue: _lastPaperRequired,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Colors.green.shade500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
+            // Dropdown chọn máy bên phải
+            buildDropdownItems(
+              value: machine,
+              items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+              onChanged: (value) {
+                setState(() {
+                  machine = value!;
+                  _selectedRequirementIdsNotifier.value = [];
+                  selectedPaperLayers = [];
+                  loadPaperRequirements();
+                });
+              },
+            ),
+          ],
         ),
+        const SizedBox(height: 4),
+
+        //pill tab ghepKho
+        _buildSummaryByGhepKhoSection(),
       ],
     );
   }
@@ -404,7 +384,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
                       isScrollbarAlwaysShown: true,
                       columnWidthMode: ColumnWidthMode.auto,
                       selectionMode: SelectionMode.multiple,
-                      headerRowHeight: 38,
+                      headerRowHeight: 42,
                       rowHeight: 40,
                       columns: ColumnWidthTable.applySavedWidths(
                         columns: columnsRequirements,
@@ -553,6 +533,248 @@ class _PaperRequirementsState extends State<PaperRequirements> {
           },
         );
       },
+    );
+  }
+
+  // pill tab hiển thị tổng hợp theo Ghép Khổ
+  Widget _buildSummaryByGhepKhoSection() {
+    return FutureBuilder(
+      future: futureRequirements,
+      builder: (context, snapshot) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+        final data = snapshot.data;
+
+        double totalRequiredQty = 0;
+        double totalPrice = 0;
+        int totalRecords = 0;
+        List<PaperRequirementGhepKhoSummary> summaryList = [];
+
+        if (snapshot.hasData && data != null) {
+          totalRequiredQty = double.tryParse(data['totalRequiredQty']?.toString() ?? "") ?? 0.0;
+          totalPrice = double.tryParse(data['totalPrice']?.toString() ?? "") ?? 0.0;
+          totalRecords = int.tryParse(data['totalRecords']?.toString() ?? "") ?? 0;
+
+          _lastPaperRequired = totalRequiredQty;
+          _lastTotalPrice = totalPrice;
+
+          final rawSummary = data['summaryByGhepKho'] as List?;
+          if (rawSummary != null) {
+            summaryList =
+                rawSummary
+                    .map((e) => PaperRequirementGhepKhoSummary.fromJson(e as Map<String, dynamic>))
+                    .toList();
+
+            summaryList.sort((a, b) {
+              final valA = double.tryParse(a.ghepKho.toString()) ?? 0;
+              final valB = double.tryParse(b.ghepKho.toString()) ?? 0;
+              return valA.compareTo(valB);
+            });
+          }
+        }
+
+        final primaryColor = Colors.blue.shade600;
+
+        return AnimatedOpacity(
+          duration: const Duration(milliseconds: 200),
+          opacity: isLoading ? 0.4 : 1.0,
+          child: Scrollbar(
+            controller: headerScrollController,
+            child: SingleChildScrollView(
+              controller: headerScrollController,
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.only(bottom: 5),
+              physics: const BouncingScrollPhysics(),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Chip "Tất cả khổ"
+                  _buildSummaryPill(
+                    label: "Tất Cả",
+                    count: "$totalRecords đơn",
+                    qty: _lastPaperRequired,
+                    price: _lastTotalPrice,
+                    isSelected: searchType == "Tất cả",
+                    activeColor: primaryColor,
+                    onTap: () {
+                      if (searchType != "Tất cả") {
+                        setState(() {
+                          searchType = "Tất cả";
+                          isTextFieldEnabled = false;
+                          searchController.clear();
+                          loadPaperRequirements();
+                        });
+                      }
+                    },
+                  ),
+
+                  // Vạch phân cách nhẹ
+                  Container(
+                    height: 26,
+                    width: 1,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    color: Colors.grey.shade400,
+                  ),
+
+                  // Danh sách từng khổ
+                  ...summaryList.map((item) {
+                    final isCurrentSelected =
+                        searchType == "Ghép Khổ" &&
+                        searchController.text.trim() == item.ghepKho.toString();
+
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: _buildSummaryPill(
+                        label: "Khổ ${item.ghepKho}",
+                        count: "${item.count} đơn",
+                        qty: item.totalQty,
+                        price: item.totalPrice,
+                        isSelected: isCurrentSelected,
+                        activeColor: primaryColor,
+                        onTap: () {
+                          setState(() {
+                            if (isCurrentSelected) {
+                              searchType = "Tất cả";
+                              isTextFieldEnabled = false;
+                              searchController.clear();
+                            } else {
+                              searchType = "Ghép Khổ";
+                              isTextFieldEnabled = true;
+                              searchController.text = item.ghepKho.toString();
+                            }
+                            loadPaperRequirements();
+                          });
+                        },
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Widget Pill hiển thị 1 dòng nằm ngang
+  Widget _buildSummaryPill({
+    required String label,
+    required String count,
+    required double qty,
+    required double price,
+    required bool isSelected,
+    required Color activeColor,
+    required VoidCallback onTap,
+  }) {
+    final Color bgColor =
+        isSelected ? activeColor.withValues(alpha: 0.12) : const Color(0xFFF8FAFC);
+
+    final Color borderColor = isSelected ? activeColor : const Color(0xFFCBD5E1);
+
+    final Color textColor = isSelected ? activeColor : const Color(0xFF1E293B);
+    final Color subTextColor =
+        isSelected ? activeColor.withValues(alpha: 0.85) : Colors.grey.shade600;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: borderColor, width: isSelected ? 1.4 : 1.0),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Hàng 1: Tên khổ & Số đơn
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    "•",
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isSelected ? activeColor.withValues(alpha: 0.5) : Colors.grey.shade400,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    count,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: subTextColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 3),
+
+              // Hàng 2: Khối lượng (kg) & Thành tiền (đ)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Khối lượng kg
+                  _buildAnimatedCounter(
+                    targetValue: qty,
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor),
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    "kg",
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w500,
+                      color: subTextColor,
+                    ),
+                  ),
+
+                  const SizedBox(width: 6),
+                  Text(
+                    "|",
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: isSelected ? activeColor.withValues(alpha: 0.4) : Colors.grey.shade300,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+
+                  // Thành tiền đ
+                  _buildAnimatedCounter(
+                    targetValue: price,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isSelected ? activeColor : const Color(0xFF0F766E),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Text(
+                    "đ",
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected ? activeColor : const Color(0xFF0F766E),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

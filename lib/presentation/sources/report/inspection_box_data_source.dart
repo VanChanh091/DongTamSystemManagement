@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_box_model.dart";
 import "package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart";
 import "package:dongtam/utils/helper/style_table.dart";
@@ -40,6 +38,8 @@ class InspectionBoxDataSource extends DataGridSource {
         columnName: "timeInspection",
         value: formatterDateTime.format(inspectionBox.timeInspection),
       ),
+      DataGridCell<String>(columnName: "checkedBy", value: inspectionBox.checkedBy),
+      DataGridCell<bool>(columnName: "result", value: inspectionBox.result),
 
       DataGridCell<String>(columnName: "orderId", value: box?.orderId ?? ""),
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
@@ -56,7 +56,7 @@ class InspectionBoxDataSource extends DataGridSource {
       ...buildChecklistCells(inspectionBox, machine),
 
       DataGridCell<String>(columnName: "note", value: inspectionBox.note),
-      DataGridCell<String>(columnName: "checkedBy", value: inspectionBox.checkedBy),
+      DataGridCell<String>(columnName: "imgError", value: inspectionBox.imgError),
 
       //hidden fields
       DataGridCell<int>(columnName: "inspecBoxId", value: inspectionBox.inspecBoxId),
@@ -141,7 +141,7 @@ class InspectionBoxDataSource extends DataGridSource {
       return value == true ? "" : "❌";
     }
 
-    const checkColumns = ["isFSC"];
+    const checkColumns = ["isFSC", "result"];
     if (checkColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
       return value == true ? '✅' : '';
@@ -195,7 +195,7 @@ class InspectionBoxDataSource extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == "❌") {
+            } else if (cellText == "❌" || cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;
