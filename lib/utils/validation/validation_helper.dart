@@ -313,6 +313,7 @@ class ValidationHelper {
     VoidCallback? onTap,
     bool isNumeric = true,
     bool readOnly = false,
+    bool isRequired = true,
   }) {
     return BaseValidateInput(
       label: label,
@@ -332,7 +333,7 @@ class ValidationHelper {
           "PAT Bám Keo",
         ];
 
-        if (requiredFields.contains(label) && cleanValue.isEmpty) {
+        if (isRequired && requiredFields.contains(label) && cleanValue.isEmpty) {
           return "Không được để trống";
         }
 

@@ -33,10 +33,17 @@ class ReportPaperDatasource extends DataGridSource {
     final orderCell = reportPaper.planningPaper!.order;
     final planningPaper = reportPaper.planningPaper;
 
-    DataGridCell<String> buildDateCell({required String columnName, DateTime? value}) {
+    DataGridCell<String> buildDateCell({
+      required String columnName,
+      DateTime? value,
+      bool formatHhmm = false,
+    }) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: value != null ? formatter.format(value) : "",
+        value:
+            value != null
+                ? (formatHhmm ? formatterDayReported.format(value) : formatter.format(value))
+                : "",
       );
     }
 
@@ -46,7 +53,7 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "customerName", value: orderCell.customer?.customerName),
 
       buildDateCell(columnName: "dayStartProduction", value: planningPaper!.dayStart!),
-      buildDateCell(columnName: "dayReported", value: reportPaper.dayReport),
+      buildDateCell(columnName: "dayReported", value: reportPaper.dayReport, formatHhmm: true),
 
       DataGridCell<String>(columnName: "structure", value: planningPaper.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),

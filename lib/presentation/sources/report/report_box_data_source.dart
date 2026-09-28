@@ -38,10 +38,17 @@ class ReportBoxDatasource extends DataGridSource {
     final planningBoxCell = reportBox.planningBox!;
     final boxMachineTime = planningBoxCell.getBoxMachineTimeByMachine(machine);
 
-    DataGridCell<String> buildDateCell({required String columnName, DateTime? value}) {
+    DataGridCell<String> buildDateCell({
+      required String columnName,
+      DateTime? value,
+      bool formatHhmm = false,
+    }) {
       return DataGridCell<String>(
         columnName: columnName,
-        value: value != null ? formatter.format(value) : "",
+        value:
+            value != null
+                ? (formatHhmm ? formatterDayReported.format(value) : formatter.format(value))
+                : "",
       );
     }
 
@@ -52,7 +59,7 @@ class ReportBoxDatasource extends DataGridSource {
 
       // buildDateCell(columnName: "dateShipping", value: orderCell.dateRequestShipping!),
       buildDateCell(columnName: "dayStartProduction", value: boxMachineTime!.dayStart!),
-      buildDateCell(columnName: "dayReported", value: reportBox.dayReport),
+      buildDateCell(columnName: "dayReported", value: reportBox.dayReport, formatHhmm: true),
 
       DataGridCell<String>(columnName: "structure", value: planningBoxCell.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: orderCell.flute ?? ""),

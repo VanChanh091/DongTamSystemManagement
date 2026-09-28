@@ -783,7 +783,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                 headerRowHeight: 35,
                 rowHeight: 40,
                 columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                frozenColumnsCount: 6,
+                frozenColumnsCount: 5,
                 stackedHeaderRows: <StackedHeaderRow>[
                   StackedHeaderRow(
                     cells: [

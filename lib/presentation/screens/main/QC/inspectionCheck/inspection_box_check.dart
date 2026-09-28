@@ -419,7 +419,7 @@ class _InspectionBoxCheckState extends State<InspectionBoxCheck> {
                 headerRowHeight: 35,
                 rowHeight: 40,
                 columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                frozenColumnsCount: 7,
+                frozenColumnsCount: 5,
                 stackedHeaderRows: <StackedHeaderRow>[
                   StackedHeaderRow(
                     cells: [

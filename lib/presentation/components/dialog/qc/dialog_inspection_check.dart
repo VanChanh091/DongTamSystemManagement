@@ -27,6 +27,10 @@ class DialogInspectionCheck extends StatefulWidget {
   final int? planningBoxId;
   final double? paperSize;
   final double? paperLength;
+  final int? ghepKho;
+  final int? prevGhepKho;
+  final bool? isGhepKhoChanged;
+  final int? runningPlan;
   final String? canLan;
   final VoidCallback onSubmit;
 
@@ -37,6 +41,10 @@ class DialogInspectionCheck extends StatefulWidget {
     this.planningBoxId,
     this.paperSize,
     this.paperLength,
+    this.ghepKho,
+    this.prevGhepKho,
+    this.isGhepKhoChanged,
+    this.runningPlan,
     this.canLan,
     required this.isQC,
     required this.isPaper,
@@ -77,6 +85,27 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   final _fctValueController = TextEditingController();
   final _patValueController = TextEditingController();
   final _noteController = TextEditingController();
+
+  bool get isFctRequired {
+    if (!widget.isPaper) return false;
+
+    // ĐK 1: Đổi khổ
+    final bool isKhoChanged =
+        widget.isGhepKhoChanged ??
+        (widget.ghepKho != null &&
+            widget.prevGhepKho != null &&
+            widget.ghepKho != widget.prevGhepKho);
+
+    // ĐK 2: Số mét tới >= 3000 (dài (m) x khổ (m) x số lượng)
+    final double lengthPaper = (widget.paperLength ?? 0) / 100;
+    final double sizeInPaper = (widget.paperSize ?? 0) / 100;
+    final int qty = widget.runningPlan ?? 0;
+
+    final double soMetToi = lengthPaper * sizeInPaper * qty;
+    final bool isMetToiExceeded = soMetToi >= 3000;
+
+    return isKhoChanged || isMetToiExceeded;
+  }
 
   @override
   void initState() {
@@ -763,6 +792,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
             controller: _fctValueController,
             icon: Symbols.speed,
             readOnly: isReadOnly,
+            isRequired: isFctRequired,
           ),
           "middleKey": "PAT Bám Keo",
           "middleValue": ValidationHelper.qcInspectionInput(
@@ -834,11 +864,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
               ),
               child: const Text(
                 "Gửi thông báo",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
               ),
             ),
         ],

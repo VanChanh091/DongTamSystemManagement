@@ -261,11 +261,21 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                                               selectedPlanningIds.first,
                                             );
 
-                                            final selectedPlanning = planningList.firstWhere(
+                                            final int selectedIndex = planningList.indexWhere(
                                               (p) => p.planningId == selectedPlanningId,
-                                              orElse:
-                                                  () => throw Exception("Không tìm thấy kế hoạch"),
                                             );
+                                            if (selectedIndex == -1) {
+                                              throw Exception("Không tìm thấy kế hoạch");
+                                            }
+                                            final selectedPlanning = planningList[selectedIndex];
+                                            final prevPlanning =
+                                                selectedIndex > 0
+                                                    ? planningList[selectedIndex - 1]
+                                                    : null;
+                                            final bool isKhoTransition =
+                                                selectedIndex > 0 &&
+                                                prevPlanning != null &&
+                                                selectedPlanning.ghepKho != prevPlanning.ghepKho;
 
                                             showDialog(
                                               barrierDismissible: false,
@@ -279,6 +289,10 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                                                     paperSize: selectedPlanning.sizePaperPLaning,
                                                     paperLength:
                                                         selectedPlanning.lengthPaperPlanning,
+                                                    ghepKho: selectedPlanning.ghepKho,
+                                                    prevGhepKho: prevPlanning?.ghepKho,
+                                                    isGhepKhoChanged: isKhoTransition,
+                                                    runningPlan: selectedPlanning.runningPlan,
                                                     canLan: selectedPlanning.order?.canLan,
                                                     onSubmit: () {
                                                       loadInspectionPaper();
@@ -390,6 +404,11 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
             showGroup: true,
             page: 'production',
             onRowTap: (PlanningPaperModel item) {
+              final int index = data.indexOf(item);
+              final prevItem = index > 0 ? data[index - 1] : null;
+              final bool isKhoTransition =
+                  index > 0 && prevItem != null && item.ghepKho != prevItem.ghepKho;
+
               showDialog(
                 context: context,
                 builder:
@@ -400,6 +419,10 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                       machine: item.chooseMachine,
                       paperSize: item.sizePaperPLaning,
                       paperLength: item.lengthPaperPlanning,
+                      ghepKho: item.ghepKho,
+                      prevGhepKho: prevItem?.ghepKho,
+                      isGhepKhoChanged: isKhoTransition,
+                      runningPlan: item.runningPlan,
                       canLan: item.order?.canLan,
                       onSubmit: () {
                         loadInspectionPaper();
@@ -432,7 +455,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                 headerRowHeight: 35,
                 rowHeight: 40,
                 columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                frozenColumnsCount: 7,
+                frozenColumnsCount: 5,
                 stackedHeaderRows: <StackedHeaderRow>[
                   StackedHeaderRow(
                     cells: [
