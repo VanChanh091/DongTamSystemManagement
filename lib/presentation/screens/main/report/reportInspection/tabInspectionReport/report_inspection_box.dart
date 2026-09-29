@@ -3,6 +3,7 @@ import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_bo
 import "package:dongtam/presentation/components/dialog/qc/dialog_summary_inspec_err.dart";
 import "package:dongtam/presentation/components/headerTable/report/header_table_inspection_box.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
@@ -47,8 +48,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
     "Tên Khách Hàng": "customerName",
-    "Ngày Báo Cáo": "dayReported",
-    "Trưởng Máy": "shiftManagement",
+    "Người Kiểm": "checkedBy",
   };
 
   Map<String, double> columnWidths = {};
@@ -94,12 +94,9 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   }
 
   void _fetchData() {
-    // final String keyword = searchController.text.trim().toLowerCase();
-    // final String selectedField = searchFieldMap[searchType] ?? "";
-
-    // Điều kiện để xác định có thực hiện search hay load mặc định
-    // final bool shouldSearch = isSearching && searchType != "Tất cả";
-    // final bool isDateSearch = searchType == "Ngày Báo Cáo";
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+    final bool shouldSearch = (searchType != "Tất cả");
 
     futureReportBox = ensureMinLoading(
       ReportService().getReportQcInspection(
@@ -108,6 +105,8 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
         pageSize: pageSize,
         machine: machine,
         fromJson: (json) => QcInspectionBoxModel.fromJson(json),
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
       ),
     );
 
@@ -116,6 +115,17 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
 
   void loadInspectionBox() {
     setState(() => _fetchData());
+  }
+
+  void searchInspectionBox() {
+    String keyword = searchController.text.trim().toLowerCase();
+    if (isTextFieldEnabled && keyword.isEmpty) return;
+
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+      _fetchData();
+    });
   }
 
   void changeMachine(String newMachine) {
@@ -252,7 +262,28 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //left button
-                      const SizedBox(), const SizedBox(width: 20),
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Người Kiểm"],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = searchType != "Tất cả";
+                            startDate = null;
+                            endDate = null;
+
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: searchInspectionBox,
+                      ),
 
                       //right button
                       ValueListenableBuilder(

@@ -9,17 +9,7 @@ final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "checkedBy", "title": "Người Kiểm"},
   {"key": "result", "title": "Kết Quả"},
 
-  {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "customerName", "title": "Tên Khách Hàng"},
-  {"key": "productName", "title": "Tên Sản Phẩm"},
-  {"key": "isFSC", "title": "Đơn FSC"},
-
-  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
-  {"key": "flute", "title": "Sóng"},
-  {"key": "sizePaper", "title": "Khổ (cm)"},
-  {"key": "lengthPaper", "title": "Dài (cm)"},
-  {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
-
+  //checking
   {"key": "moisture", "title": "Độ Ẩm (°C)"},
   {"key": "steamPressure", "title": "Áp Suất Hơi (kpa)"},
   {"key": "preheaterTemp", "title": "Nhiệt Độ Đầu Sóng (°C)"},
@@ -46,6 +36,18 @@ final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "poorBundling", "title": "Cột Không Đạt"},
   {"key": "totalWidthErr", "title": "Tổng Sai Khổ"},
   {"key": "wrongProductInfo", "title": "TTSP"},
+
+  //info order
+  {"key": "orderId", "title": "Mã Đơn Hàng"},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
+  {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "isFSC", "title": "Đơn FSC"},
+
+  {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
+  {"key": "flute", "title": "Sóng"},
+  {"key": "sizePaper", "title": "Khổ (cm)"},
+  {"key": "lengthPaper", "title": "Dài (cm)"},
+  {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
 
   {"key": "note", "title": "Ghi Chú"},
   {"key": "imgError", "title": "Ảnh Lỗi"},

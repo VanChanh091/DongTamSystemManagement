@@ -75,10 +75,19 @@ class ReportService {
     required int pageSize,
     required String machine,
     required T Function(Map<String, dynamic>) fromJson,
+    String? field,
+    String? keyword,
   }) async {
     return HelperService().fetchPaginatedData<T>(
       endpoint: "report/inspection",
-      queryParameters: {"isPaper": isPaper, "page": page, "pageSize": pageSize, "machine": machine},
+      queryParameters: {
+        "isPaper": isPaper,
+        "page": page,
+        "pageSize": pageSize,
+        "machine": machine,
+        if (field != null) "field": field,
+        if (keyword != null) "keyword": keyword,
+      },
       fromJson: fromJson,
       dataKey: isPaper == "paper" ? "inspectionPapers" : "inspectionBoxes",
     );
@@ -93,8 +102,8 @@ class ReportService {
     final queryParameters = {
       "isPaper": isPaper,
       "machine": machine,
-      "startDate": DateFormat('yyyy-MM-dd').format(startDate),
-      "endDate": DateFormat('yyyy-MM-dd').format(endDate),
+      "startDate": DateFormat("yyyy-MM-dd").format(startDate),
+      "endDate": DateFormat("yyyy-MM-dd").format(endDate),
     };
 
     return HelperService().fetchingData(

@@ -3,6 +3,7 @@ import "package:dongtam/data/models/qualityControl/qcInspection/qc_inspection_pa
 import "package:dongtam/presentation/components/dialog/qc/dialog_summary_inspec_err.dart";
 import "package:dongtam/presentation/components/headerTable/report/header_table_inspection_paper.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
@@ -29,18 +30,17 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   late List<GridColumn> columns;
 
   //controller
-  final themeController = Get.find<ThemeController>();
   final headerScrollController = ScrollController();
+  final themeController = Get.find<ThemeController>();
 
   String machine = "Máy 1350";
-  final List<String> machineList = ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+  final List<String> machineList = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
 
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
     "Tên Khách Hàng": "customerName",
-    "Ngày Báo Cáo": "dayReported",
-    "Trưởng Máy": "shiftManagement",
+    "Người Kiểm": "checkedBy",
   };
 
   Map<String, double> columnWidths = {}; //map header table
@@ -82,6 +82,10 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   }
 
   void _fetchData() {
+    final String keyword = searchController.text.trim().toLowerCase();
+    final String selectedField = searchFieldMap[searchType] ?? "";
+    final bool shouldSearch = (searchType != "Tất cả");
+
     futureReportPaper = ensureMinLoading(
       ReportService().getReportQcInspection(
         isPaper: "paper",
@@ -89,6 +93,8 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
         pageSize: pageSize,
         machine: machine,
         fromJson: (json) => QcInspectionPaperModel.fromJson(json),
+        field: shouldSearch ? selectedField : null,
+        keyword: shouldSearch ? keyword : null,
       ),
     );
 
@@ -97,6 +103,17 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
 
   void loadInspectionPaper() {
     setState(() => _fetchData());
+  }
+
+  void searchInspectionPaper() {
+    String keyword = searchController.text.trim().toLowerCase();
+    if (isTextFieldEnabled && keyword.isEmpty) return;
+
+    setState(() {
+      currentPage = 1;
+      isSearching = (searchType != "Tất cả");
+      _fetchData();
+    });
   }
 
   void changeMachine(String selectedMachine) {
@@ -233,7 +250,28 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //left button
-                      const SizedBox(), const SizedBox(width: 20),
+                      LeftButtonSearch(
+                        selectedType: searchType,
+                        types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Người Kiểm"],
+                        onTypeChanged: (value) {
+                          setState(() {
+                            searchType = value;
+                            isTextFieldEnabled = searchType != "Tất cả";
+                            startDate = null;
+                            endDate = null;
+
+                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
+                              searchController.clear();
+                              currentPage = 1;
+                              _fetchData();
+                            }
+                          });
+                        },
+                        controller: searchController,
+                        textFieldEnabled: isTextFieldEnabled,
+                        buttonColor: themeController.buttonColor,
+                        onSearch: searchInspectionPaper,
+                      ),
 
                       //right button
                       ValueListenableBuilder(
@@ -438,7 +476,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                           final selectedInspecPaperId =
                               selectedRow
                                       .getCells()
-                                      .firstWhere((cell) => cell.columnName == 'inspecPaperId')
+                                      .firstWhere((cell) => cell.columnName == "inspecPaperId")
                                       .value
                                   as int?;
 

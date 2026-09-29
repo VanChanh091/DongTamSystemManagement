@@ -27,7 +27,7 @@ class _TopTabHistoryReportState extends State<TopTabHistoryReport> {
               unselectedLabelColor: Colors.grey,
               indicatorColor: Colors.red,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
-              tabs: const [Tab(text: "Báo Cáo Giấy Tấm"), Tab(text: "Báo Cáo SX Thùng")],
+              tabs: const [Tab(text: "Báo Cáo SX Giấy Tấm"), Tab(text: "Báo Cáo SX Thùng")],
             ),
           ),
           Expanded(child: const TabBarView(children: [ReportPlanningPaper(), ReportPlanningBox()])),

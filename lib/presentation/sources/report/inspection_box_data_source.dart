@@ -41,6 +41,10 @@ class InspectionBoxDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "checkedBy", value: inspectionBox.checkedBy),
       DataGridCell<bool>(columnName: "result", value: inspectionBox.result),
 
+      //checklist
+      ...buildChecklistCells(inspectionBox, machine),
+
+      //info order
       DataGridCell<String>(columnName: "orderId", value: box?.orderId ?? ""),
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
@@ -51,9 +55,6 @@ class InspectionBoxDataSource extends DataGridSource {
       DataGridCell<double>(columnName: "sizePaper", value: box?.size ?? 0),
       DataGridCell<double>(columnName: "lengthPaper", value: box?.length ?? 0),
       DataGridCell<int>(columnName: "runningPlan", value: boxtime?.runningPlan ?? 0),
-
-      //checklist
-      ...buildChecklistCells(inspectionBox, machine),
 
       DataGridCell<String>(columnName: "note", value: inspectionBox.note),
       DataGridCell<String>(columnName: "imgError", value: inspectionBox.imgError),
@@ -101,6 +102,7 @@ class InspectionBoxDataSource extends DataGridSource {
     final value = dataCell.value;
 
     const boolColumns = [
+      "result",
       "boxDimension",
       "colorCount",
       "colorMatch",
@@ -141,7 +143,7 @@ class InspectionBoxDataSource extends DataGridSource {
       return value == true ? "" : "❌";
     }
 
-    const checkColumns = ["isFSC", "result"];
+    const checkColumns = ["isFSC"];
     if (checkColumns.contains(dataCell.columnName)) {
       if (value == null) return '';
       return value == true ? '✅' : '';
