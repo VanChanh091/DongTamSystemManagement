@@ -455,6 +455,7 @@ class _OrderDialogState extends State<OrderDialog> {
       //upload ảnh (15% -> 80%)
       if (imageBytes != null) {
         final uploadResult = await UploadCloudinaryService().uploadToCloudinary(
+          folderName: "orders",
           imageBytes: imageBytes,
           onProgress: (p) {
             double totalProgress = 0.15 + (p * 0.65);
@@ -525,6 +526,8 @@ class _OrderDialogState extends State<OrderDialog> {
 
   @override
   void dispose() {
+    super.dispose();
+
     for (final removeListener in _fieldListeners) {
       removeListener();
     }
@@ -588,8 +591,6 @@ class _OrderDialogState extends State<OrderDialog> {
     isBoxChecked.dispose();
     isFSCChecked.dispose();
     chongThamPaperChecked.dispose();
-
-    super.dispose();
   }
 
   @override

@@ -244,7 +244,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
       children: [
         //title
         Text(
-          "BÁO CÁO DOANH THU THEO THÁNG",
+          "BÁO CÁO DOANH SỐ THEO THÁNG",
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,

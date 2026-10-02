@@ -358,6 +358,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
         if (_cachedInspecPapers != inspectionPapers || _cachedDatasource == null) {
           _cachedInspecPapers = inspectionPapers;
           _cachedDatasource = InspectionPaperDataSource(
+            context: context,
             inspectionPapers: inspectionPapers,
             selectedPaperIds: _selectedPaperIdsNotifier.value,
             currentPage: currentPage,

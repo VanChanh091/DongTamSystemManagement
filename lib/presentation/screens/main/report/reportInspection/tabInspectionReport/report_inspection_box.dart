@@ -371,6 +371,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
         if (_cachedInspecBoxes == null || _cachedInspecBoxes != inspectionBoxes) {
           _cachedInspecBoxes = inspectionBoxes;
           _cachedDatasource = InspectionBoxDataSource(
+            context: context,
             inspectionBoxes: inspectionBoxes,
             selectedBoxIds: _selectedBoxIdsNotifier.value,
             machine: machine,

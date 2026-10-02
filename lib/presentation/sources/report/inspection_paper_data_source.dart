@@ -5,6 +5,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class InspectionPaperDataSource extends DataGridSource {
+  final BuildContext context;
   List<QcInspectionPaperModel> inspectionPapers = [];
   int? selectedPaperIds;
   int currentPage;
@@ -15,6 +16,7 @@ class InspectionPaperDataSource extends DataGridSource {
   final formatterDateTime = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   InspectionPaperDataSource({
+    required this.context,
     required this.inspectionPapers,
     required this.selectedPaperIds,
     required this.currentPage,
@@ -118,6 +120,66 @@ class InspectionPaperDataSource extends DataGridSource {
     notifyListeners();
   }
 
+  Widget _buildImageCell(String imageUrl) {
+    final hasImage = imageUrl.isNotEmpty && imageUrl != "Không có ảnh";
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: Border(right: BorderSide(color: Colors.grey.shade300, width: 1)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child:
+          hasImage
+              ? TextButton(
+                onPressed: () => _showImageDialog(imageUrl),
+                child: const Text(
+                  "Xem ảnh",
+                  style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                ),
+              )
+              : const Text("Không có ảnh"),
+    );
+  }
+
+  void _showImageDialog(String imageUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder:
+          (_) => GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Scaffold(
+              backgroundColor: Colors.black54,
+              body: Center(
+                child: GestureDetector(
+                  onTap: () {}, // Ngăn đóng dialog khi bấm trúng ảnh
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 850,
+                      height: 850,
+                      child: Image.network(
+                        imageUrl,
+                        fit: BoxFit.contain,
+                        errorBuilder:
+                            (_, _, _) => Container(
+                              width: 300,
+                              height: 300,
+                              color: Colors.grey.shade300,
+                              alignment: Alignment.center,
+                              child: const Text("Lỗi ảnh", style: TextStyle(color: Colors.black)),
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
   String _formatCellValueBool(DataGridCell dataCell) {
     final value = dataCell.value;
 
@@ -188,6 +250,11 @@ class InspectionPaperDataSource extends DataGridSource {
       cells:
           row.getCells().map<Widget>((dataCell) {
             final cellText = _formatCellValueBool(dataCell);
+
+            // Xử lý cột ảnh
+            if (dataCell.columnName == "imgError") {
+              return _buildImageCell(dataCell.value?.toString() ?? "");
+            }
 
             Alignment alignment;
             if (dataCell.value is num) {

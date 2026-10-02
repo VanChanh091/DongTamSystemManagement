@@ -136,6 +136,7 @@ class QualityControlService {
     int? planningId,
     int? planningBoxId,
     String? note,
+    String? imgErr,
   }) async {
     return HelperService().addItem(
       endpoint: "qc/inspection",
@@ -147,6 +148,7 @@ class QualityControlService {
         if (planningBoxId != null) "planningBoxId": planningBoxId,
         if (planningId != null) "planningId": planningId,
         if (note != null) "note": note,
+        if (imgErr != null) "imgErr": imgErr,
       },
     );
   }

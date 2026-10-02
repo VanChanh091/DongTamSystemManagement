@@ -1,3 +1,6 @@
+import "dart:typed_data";
+
+import "package:dongtam/data/controller/upload_process_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart";
 import "package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart";
@@ -7,11 +10,13 @@ import "package:dongtam/presentation/components/shared/cardForm/format_key_value
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/service/admin/admin_service.dart";
+import "package:dongtam/service/config/upload_cloudinary_service.dart";
 import "package:dongtam/service/manufacture_service.dart";
 import "package:dongtam/service/quality_control_service.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/paste_image_order.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
@@ -76,6 +81,13 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   Map<String, num> checking = {};
   Map<String, bool> errProgress = {};
 
+  double uploadProgress = 0.0;
+  bool isUploading = false;
+
+  Uint8List? pickedOrderImage;
+  String? orderImageUrl;
+  bool isDeleteImage = false; //to track if user wants to delete existing image
+
   Map<String, dynamic>? savedErrorData;
   bool _isDataFilled = false;
 
@@ -128,6 +140,10 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         if (savedErrorData != null) {
           if (savedErrorData!["note"] != null) {
             _noteController.text = savedErrorData!["note"].toString();
+          }
+          if (savedErrorData!["imgError"] != null &&
+              savedErrorData!["imgError"].toString().isNotEmpty) {
+            orderImageUrl = savedErrorData!["imgError"].toString();
           }
           if (widget.isPaper) {
             if (savedErrorData!["moisture"] != null) {
@@ -209,11 +225,6 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
       return;
     }
 
-    // Show loading
-    if (!mounted) return;
-    showLoadingDialog(context);
-    await Future.delayed(const Duration(seconds: 1));
-
     try {
       Map<String, bool?> errProgressData = {};
       for (var item in criteriaList) {
@@ -231,26 +242,15 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         };
       }
 
-      bool success = await QualityControlService().checkingInspection(
-        isPaper: widget.isPaper ? "paper" : "box",
-        machine: widget.machine ?? "",
-        errProgress: errProgressData,
-        checking: widget.isPaper ? checkingData : null,
-        planningId: widget.isPaper ? widget.planningId : null,
-        planningBoxId: !widget.isPaper ? widget.planningBoxId : null,
-        note: _noteController.superClean,
+      final bool success = await _startBackgroundUpload(
+        errProgressData: errProgressData,
+        checkingData: widget.isPaper ? checkingData : null,
+        successMessage: "Báo cáo chất lượng thành công",
       );
 
       if (success) {
         if (!mounted) return;
-        Navigator.pop(context); // đóng dialog loading
-
-        // Thông báo thành công
-        showSnackBarSuccess(context, "Báo cáo thành công");
-        widget.onSubmit();
-
-        if (!mounted) return;
-        Navigator.of(context).pop(); //đóng dialog QC
+        Navigator.of(context).pop(); // đóng dialog QC
       }
     } catch (e, s) {
       if (!mounted) return;
@@ -262,14 +262,13 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
   void _sendQuickNotification() async {
     final hasAnyError = checkedCriteria.values.any((v) => v == false);
     final hasNote = _noteController.text.trim().isNotEmpty;
+    final hasImage =
+        pickedOrderImage != null || (orderImageUrl != null && orderImageUrl!.isNotEmpty);
 
-    if (!hasAnyError && !hasNote) {
-      showSnackBarError(context, "Vui lòng đánh dấu ít nhất 1 lỗi hoặc nhập ghi chú");
+    if (!hasAnyError && !hasNote && !hasImage) {
+      showSnackBarError(context, "Vui lòng đánh dấu ít nhất 1 lỗi hoặc nhập ghi chú / chọn ảnh");
       return;
     }
-
-    if (!mounted) return;
-    showLoadingDialog(context);
 
     try {
       // Đảm bảo gửi đầy đủ 100% tất cả tiêu chí xuống BE (giữ nguyên null / true / false)
@@ -290,31 +289,85 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         };
       }
 
-      bool success = await QualityControlService().checkingInspection(
-        isPaper: widget.isPaper ? "paper" : "box",
-        machine: widget.machine ?? "",
-        errProgress: errProgressData,
-        checking: widget.isPaper ? checkingData : null,
-        planningId: widget.isPaper ? widget.planningId : null,
-        planningBoxId: !widget.isPaper ? widget.planningBoxId : null,
-        note: _noteController.superClean,
+      final bool success = await _startBackgroundUpload(
+        errProgressData: errProgressData,
+        checkingData: widget.isPaper ? checkingData : null,
+        successMessage: "Đã gửi thông báo lỗi đến sản xuất",
       );
 
       if (success) {
-        if (!mounted) return;
-        Navigator.pop(context); // đóng dialog loading
-
-        showSnackBarSuccess(context, "Đã gửi thông báo lỗi đến sản xuất");
-        widget.onSubmit();
-
         if (!mounted) return;
         Navigator.of(context).pop(); // đóng dialog QC
       }
     } catch (e, s) {
       if (!mounted) return;
-      Navigator.pop(context); // đóng dialog loading
       AppLogger.e("Lỗi khi gửi thông báo nhanh", error: e, stackTrace: s);
       showSnackBarError(context, "Lỗi: Không thể gửi thông báo");
+    }
+  }
+
+  Future<bool> _startBackgroundUpload({
+    required Map<String, bool?> errProgressData,
+    Map<String, num>? checkingData,
+    required String successMessage,
+  }) async {
+    final uploadCtrl = Get.find<UploadProcessController>();
+
+    try {
+      uploadCtrl.isUploading.value = true;
+
+      // Khởi tạo dữ liệu (15%)
+      uploadCtrl.updateProgress(0.15, "Đang xử lý...");
+
+      String? finalImageUrl = orderImageUrl;
+
+      // Upload ảnh lên Cloudinary (15% -> 80%)
+      if (pickedOrderImage != null) {
+        final uploadResult = await UploadCloudinaryService().uploadToCloudinary(
+          folderName: "qcInspection",
+          imageBytes: pickedOrderImage!,
+          onProgress: (p) {
+            double totalProgress = 0.15 + (p * 0.65);
+            uploadCtrl.updateProgress(totalProgress, "Đang tải ảnh...");
+          },
+        );
+        finalImageUrl = uploadResult?["imageUrl"];
+      } else if (isDeleteImage) {
+        finalImageUrl = null;
+        uploadCtrl.updateProgress(0.8, "Bỏ qua tải ảnh...");
+      } else {
+        uploadCtrl.updateProgress(0.8, "Bỏ qua tải ảnh...");
+      }
+
+      // Lưu dữ liệu vào hệ thống (80% -> 85%)
+      uploadCtrl.updateProgress(0.85, "Đang lưu kết quả kiểm tra vào hệ thống...");
+
+      bool success = await QualityControlService().checkingInspection(
+        isPaper: widget.isPaper ? "paper" : "box",
+        machine: widget.machine ?? "",
+        errProgress: errProgressData,
+        checking: checkingData,
+        planningId: widget.isPaper ? widget.planningId : null,
+        planningBoxId: !widget.isPaper ? widget.planningBoxId : null,
+        note: _noteController.superClean,
+        imgErr: finalImageUrl,
+      );
+
+      if (success) {
+        uploadCtrl.updateProgress(1.0, "Đã lưu xong!");
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        uploadCtrl.complete(successMessage);
+        widget.onSubmit();
+        return true;
+      } else {
+        uploadCtrl.handleError("Không thể lưu kết quả kiểm tra");
+        return false;
+      }
+    } catch (e, s) {
+      AppLogger.e("Lỗi lưu dữ liệu kiểm tra", error: e, stackTrace: s);
+      uploadCtrl.handleError("Không thể lưu dữ liệu kiểm tra");
+      return false;
     }
   }
 
@@ -890,6 +943,18 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                     columnCount: 4,
                     centerAlign: true,
                   ),
+                ),
+
+                //upload image
+                PasteImageOrder(
+                  initialImage: pickedOrderImage,
+                  initialImageUrl: orderImageUrl,
+                  initialIsDelete: isDeleteImage,
+                  onImageChanged: (bytes, url, isDelete) {
+                    pickedOrderImage = bytes;
+                    orderImageUrl = url;
+                    isDeleteImage = isDelete;
+                  },
                 ),
               ],
             ),

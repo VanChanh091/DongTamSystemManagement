@@ -19,6 +19,7 @@ class UploadCloudinaryService {
   final SecureStorageService secureStorage = SecureStorageService();
 
   Future<Map<String, dynamic>?> uploadToCloudinary({
+    required String folderName,
     required List<int> imageBytes,
     required Function(double) onProgress,
   }) async {
@@ -42,6 +43,7 @@ class UploadCloudinaryService {
       final token = await SecureStorageService().getToken();
       final sigRes = await dioService.get(
         "/api/order/get-signature",
+        queryParameters: {"folder": folderName},
         options: Options(
           headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
         ),
