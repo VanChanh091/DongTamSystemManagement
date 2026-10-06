@@ -11,6 +11,7 @@ class ReportPaperModel {
   final String shiftManagement;
   final String reportedBy;
   final double averageSpeed;
+  final double totalPrice;
 
   //FK
   final int planningId;
@@ -26,6 +27,7 @@ class ReportPaperModel {
     required this.shiftManagement,
     required this.reportedBy,
     required this.averageSpeed,
+    required this.totalPrice,
 
     required this.planningId,
     this.planningPaper,
@@ -42,6 +44,7 @@ class ReportPaperModel {
       shiftManagement: json["shiftManagement"] ?? "",
       reportedBy: json["reportedBy"] ?? "",
       averageSpeed: toDouble(json["averageSpeed"]),
+      totalPrice: toDouble(json["totalPrice"] ?? 0),
       planningId: json["planningId"] ?? 0,
       planningPaper:
           json["PlanningPaper"] != null ? PlanningPaperModel.fromJson(json["PlanningPaper"]) : null,

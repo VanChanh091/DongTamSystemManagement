@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import "dart:async";
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/models/employee/employee_basic_info.dart";
@@ -47,8 +45,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
   final badgesController = Get.find<BadgesController>();
 
-  Timer? _timer;
-  int _countdown = 0;
+  bool _isLoading = false;
 
   final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
@@ -87,24 +84,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     }
   }
 
-  void _startCountdown() {
-    setState(() => _countdown = 3);
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      setState(() {
-        if (_countdown > 0) {
-          _countdown--;
-        } else {
-          _timer?.cancel();
-        }
-      });
-    });
-  }
-
   void submit() async {
+    if (_isLoading) return;
     if (!formKey.currentState!.validate()) {
       return;
     }
@@ -144,7 +125,9 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       }
     }
 
-    _startCountdown();
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       bool success = false;
@@ -245,6 +228,12 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       if (mounted) {
         showSnackBarError(context, "Lỗi: Không thể lưu dữ liệu");
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -305,7 +294,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   @override
   void dispose() {
     super.dispose();
-    _timer?.cancel();
     qtyProducedController.dispose();
     dayCompletedController.dispose();
     shiftManagementController.dispose();
@@ -316,8 +304,6 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
   @override
   Widget build(BuildContext context) {
-    bool isReadOnly = _countdown > 0;
-
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -463,8 +449,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       actions: buildDialogActions(
         context: context,
+        isLoading: _isLoading,
         onConfirm: submit,
-        confirmText: isReadOnly ? "Chờ ${_countdown}s" : "Xác nhận",
       ),
     );
   }

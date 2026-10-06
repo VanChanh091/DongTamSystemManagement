@@ -78,6 +78,7 @@ class ReportPaperDatasource extends DataGridSource {
       DataGridCell<String>(columnName: "dvt", value: orderCell.dvt),
 
       DataGridCell<String>(columnName: "HD_special", value: orderCell.instructSpecial ?? ""),
+      DataGridCell<double>(columnName: "totalPrice", value: reportPaper.totalPrice),
 
       ...buildWasteNormCell(reportPaper),
     ];
@@ -222,9 +223,6 @@ class ReportPaperDatasource extends DataGridSource {
 
               final numVal = value.toDouble();
               displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
-            } else if (boolColumns.contains(colName)) {
-              alignment = Alignment.center;
-              displayValue = (value == true) ? "✅" : "";
 
               if (colName == "qtyReported" && value > 0) {
                 cellColor = Colors.amberAccent.withValues(alpha: 0.3);
@@ -253,6 +251,9 @@ class ReportPaperDatasource extends DataGridSource {
                   ),
                 );
               }
+            } else if (boolColumns.contains(colName)) {
+              alignment = Alignment.center;
+              displayValue = (value == true) ? "✅" : "";
             } else {
               alignment = Alignment.centerLeft;
               displayValue = value?.toString() ?? "";

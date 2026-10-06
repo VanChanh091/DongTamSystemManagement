@@ -1,16 +1,17 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/service/admin/admin_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/service/admin/admin_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:flutter/material.dart";
+import "package:google_fonts/google_fonts.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
 
 class AdminOrder extends StatefulWidget {
   const AdminOrder({super.key});
@@ -26,9 +27,10 @@ class _ManageOrderState extends State<AdminOrder> {
 
   final badgesController = Get.find<BadgesController>();
   final themeController = Get.find<ThemeController>();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   final TextEditingController reasonController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
 
   @override
   void initState() {
@@ -50,17 +52,266 @@ class _ManageOrderState extends State<AdminOrder> {
   Map<String, List<dynamic>> groupOrdersByPrefix(List<dynamic> orders) {
     final Map<String, List<dynamic>> grouped = {};
     for (var order in orders) {
-      final prefix = order.orderId.split('/').first; // lấy 3 số đầu
+      final prefix = order.orderId.split("/").first; // lấy 3 số đầu
       grouped.putIfAbsent(prefix, () => []);
       grouped[prefix]!.add(order);
     }
     return grouped;
   }
 
+  Future<void> _sendOtpCode() async {
+    if (selectedOrder == null) return;
+
+    try {
+      await AdminService().requestOtpCode(orderId: selectedOrder!.orderId);
+      if (!mounted) return;
+      showSnackBarSuccess(context, "Đã gửi mã OTP về Telegram thành công");
+    } catch (e) {
+      if (!mounted) return;
+      showSnackBarError(context, "Không thể gửi OTP về Telegram");
+    }
+  }
+
+  Future<void> _processApproveOrder({bool? confirmOverLimit, int? confirmationOTP}) async {
+    if (selectedOrder == null) return;
+
+    try {
+      await AdminService().updateStatusOrder(
+        orderId: selectedOrder!.orderId,
+        newStatus: "accept",
+        confirmOverLimit: confirmOverLimit,
+        confirmationOTP: confirmationOTP,
+      );
+      if (!mounted) return;
+
+      showSnackBarSuccess(context, "Phê duyệt thành công");
+      await _loadOrders();
+
+      badgesController.fetchPendingApprovals();
+      badgesController.fetchOrderPendingPlanning();
+
+      setState(() {
+        selectedOrder = null;
+      });
+    } on ApiException catch (e) {
+      if (!mounted) return;
+
+      switch (e.errorCode) {
+        case "REQUIRE_OTP_CONFIRMATION":
+          showSnackBarError(context, e.message!);
+          break;
+        case "INVALID_OTP":
+          showSnackBarError(context, e.message!);
+          break;
+        case "DEBT_LIMIT_EXCEEDED":
+          showSnackBarError(context, e.message!);
+          break;
+        default:
+          showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showSnackBarError(context, "Không thể lưu dữ liệu");
+    }
+  }
+
+  Future<void> _showConfirmOverLimitDialog() async {
+    bool success = await showConfirmDialog(
+      context: context,
+      title: "Xác nhận duyệt vượt hạn mức",
+      content:
+          "Bạn có chắc muốn phê duyệt đơn hàng ${selectedOrder?.orderId} vượt hạn mức công nợ?",
+      confirmText: "Xác Nhận",
+    );
+
+    if (success) {
+      await _processApproveOrder(confirmOverLimit: true);
+    }
+  }
+
+  void _showOtpApprovalDialog() {
+    final formKey = GlobalKey<FormState>();
+    otpController.clear();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Row(
+            children: [
+              Icon(Icons.security, color: Colors.indigo),
+              SizedBox(width: 8),
+              Text(
+                "Duyệt đơn qua mã OTP",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 380,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Mã đơn hàng: ${selectedOrder?.orderId}\nNhập mã OTP đã được gửi về Telegram để xác nhận duyệt:",
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: otpController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    decoration: const InputDecoration(
+                      labelText: "Mã OTP",
+                      hintText: "Nhập mã OTP (VD: 1234)",
+                      prefixIcon: Icon(Icons.key),
+                      border: OutlineInputBorder(),
+                      counterText: "",
+                    ),
+                    validator: (val) {
+                      if (val == null || val.trim().isEmpty) {
+                        return "Vui lòng nhập mã OTP";
+                      }
+                      if (int.tryParse(val.trim()) == null) {
+                        return "Mã OTP phải là số";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: _sendOtpCode,
+                      icon: const Icon(Icons.send_rounded, size: 16, color: Color(0xFF0088CC)),
+                      label: const Text(
+                        "Gửi mã OTP qua Telegram",
+                        style: TextStyle(color: Color(0xFF0088CC)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF475569),
+                side: const BorderSide(color: Color(0xFFCBD5E1)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              ),
+              onPressed: () => Navigator.pop(context),
+              child: Text("Hủy", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.indigo.shade600,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  final otp = int.parse(otpController.text.trim());
+                  Navigator.pop(context);
+                  _processApproveOrder(confirmationOTP: otp);
+                }
+              },
+              child: const Text(
+                "Xác nhận duyệt",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showRejectDialog() {
+    final formKey = GlobalKey<FormState>();
+    reasonController.clear();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          title: const Text(
+            "Nhập lý do từ chối",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: SizedBox(
+            width: 350,
+            height: 80,
+            child: Form(
+              key: formKey,
+              child: TextFormField(
+                controller: reasonController,
+                decoration: const InputDecoration(
+                  hintText: "Nhập lý do...",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return "Vui lòng nhập lý do từ chối";
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Hủy", style: TextStyle(fontSize: 16, color: Colors.black)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade600),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  Navigator.pop(context);
+
+                  await AdminService().updateStatusOrder(
+                    orderId: selectedOrder!.orderId,
+                    newStatus: "reject",
+                    rejectReason: reasonController.text,
+                  );
+
+                  if (context.mounted) {
+                    showSnackBarSuccess(context, "Từ chối phê duyệt thành công");
+
+                    await _loadOrders();
+
+                    //cập nhật lại badge
+                    badgesController.fetchPendingApprovals();
+
+                    setState(() {
+                      reasonController.clear();
+                      selectedOrder = null;
+                    });
+                  }
+                }
+              },
+              child: const Text("Xác nhận", style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();
     reasonController.dispose();
+    otpController.dispose();
   }
 
   @override
@@ -237,7 +488,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                         subtitle: Padding(
                                                           padding: const EdgeInsets.only(top: 4.0),
                                                           child: Text(
-                                                            'Sản phẩm: ${ordersPending.product.productName}',
+                                                            "Sản phẩm: ${ordersPending.product.productName}",
                                                             style: GoogleFonts.inter(
                                                               color: Colors.grey.shade700,
                                                               fontSize: 13,
@@ -251,7 +502,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                                               CrossAxisAlignment.end,
                                                           children: [
                                                             Text(
-                                                              'Tổng: ${OrderModel.formatCurrency(ordersPending.totalPrice)} đ',
+                                                              "Tổng: ${OrderModel.formatCurrency(ordersPending.totalPrice)} đ",
                                                               style: GoogleFonts.inter(
                                                                 color: Colors.blue.shade600,
                                                                 fontSize: 13,
@@ -287,14 +538,14 @@ class _ManageOrderState extends State<AdminOrder> {
                     child:
                         selectedOrder == null
                             ? Center(
-                              key: const ValueKey('no-selection'),
+                              key: const ValueKey("no-selection"),
                               child: Text(
-                                'Chọn một đơn hàng để xem chi tiết',
+                                "Chọn một đơn hàng để xem chi tiết",
                                 style: GoogleFonts.inter(fontSize: 16),
                               ),
                             )
                             : Padding(
-                              key: const ValueKey('detail'),
+                              key: const ValueKey("detail"),
                               padding: const EdgeInsets.all(24.0),
                               child: Column(
                                 children: [
@@ -313,147 +564,38 @@ class _ManageOrderState extends State<AdminOrder> {
                                   const SizedBox(height: 16),
 
                                   //button
-                                  Row(
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 10,
                                     children: [
-                                      //approve
+                                      // Duyệt Đơn thường
                                       AnimatedButton(
-                                        onPressed: () async {
-                                          try {
-                                            await AdminService().updateStatusOrder(
-                                              orderId: selectedOrder!.orderId,
-                                              newStatus: 'accept',
-                                              rejectReason: "",
-                                            );
-                                            if (!context.mounted) return;
-
-                                            showSnackBarSuccess(context, 'Phê duyệt thành công');
-                                            await _loadOrders();
-
-                                            //cập nhật lại badge
-                                            badgesController.fetchPendingApprovals();
-                                            badgesController.fetchOrderPendingPlanning();
-
-                                            setState(() {
-                                              selectedOrder = null;
-                                            });
-                                          } on ApiException catch (e) {
-                                            if (!context.mounted) return;
-
-                                            if (e.errorCode == "DEBT_LIMIT_EXCEEDED") {
-                                              showSnackBarError(
-                                                context,
-                                                'Vượt quá hạn mức công nợ của khách hàng này!',
-                                              );
-                                            } else {
-                                              showSnackBarError(context, 'Có lỗi xảy ra');
-                                            }
-                                          } catch (e) {
-                                            if (!context.mounted) return;
-                                            showSnackBarError(context, 'Không thể lưu dữ liệu');
-                                          }
-                                        },
-                                        label: 'Duyệt Đơn',
+                                        onPressed: () => _processApproveOrder(),
+                                        label: "Duyệt Đơn",
                                         icon: Icons.check,
                                         backgroundColor: themeController.buttonColor.value,
                                       ),
-                                      const SizedBox(width: 12),
 
-                                      //reject
+                                      // Duyệt vượt hạn mức
                                       AnimatedButton(
-                                        onPressed: () {
-                                          final formKey = GlobalKey<FormState>();
+                                        onPressed: () async => await _showConfirmOverLimitDialog(),
+                                        label: "Duyệt Vượt HM",
+                                        icon: Icons.warning_amber_rounded,
+                                        backgroundColor: Colors.orange.shade700,
+                                      ),
 
-                                          reasonController.clear();
+                                      // Duyệt OTP
+                                      AnimatedButton(
+                                        onPressed: _showOtpApprovalDialog,
+                                        label: "Duyệt OTP",
+                                        icon: Icons.security,
+                                        backgroundColor: Colors.indigo.shade600,
+                                      ),
 
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                backgroundColor: Colors.white,
-                                                title: const Text(
-                                                  'Nhập lý do từ chối',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 18,
-                                                  ),
-                                                ),
-                                                content: SizedBox(
-                                                  width: 350,
-                                                  height: 80,
-                                                  child: Form(
-                                                    key: formKey,
-                                                    child: TextFormField(
-                                                      controller: reasonController,
-                                                      decoration: const InputDecoration(
-                                                        hintText: 'Nhập lý do...',
-                                                        border: OutlineInputBorder(),
-                                                      ),
-                                                      validator: (value) {
-                                                        if (value == null || value.trim().isEmpty) {
-                                                          return 'Vui lòng nhập lý do từ chối';
-                                                        }
-                                                        return null;
-                                                      },
-                                                    ),
-                                                  ),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () => Navigator.pop(context),
-                                                    child: const Text(
-                                                      'Hủy',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  ElevatedButton(
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor: Colors.red.shade600,
-                                                    ),
-                                                    onPressed: () async {
-                                                      if (formKey.currentState!.validate()) {
-                                                        Navigator.pop(context);
-
-                                                        await AdminService().updateStatusOrder(
-                                                          orderId: selectedOrder!.orderId,
-                                                          newStatus: 'reject',
-                                                          rejectReason: reasonController.text,
-                                                        );
-
-                                                        if (context.mounted) {
-                                                          showSnackBarSuccess(
-                                                            context,
-                                                            "Từ chối phê duyệt thành công",
-                                                          );
-
-                                                          await _loadOrders();
-
-                                                          //cập nhật lại badge
-                                                          badgesController.fetchPendingApprovals();
-
-                                                          setState(() {
-                                                            reasonController.clear();
-                                                            selectedOrder = null;
-                                                          });
-                                                        }
-                                                      }
-                                                    },
-                                                    child: const Text(
-                                                      'Xác nhận',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 16,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              );
-                                            },
-                                          );
-                                        },
-                                        label: 'Từ chối',
+                                      // Từ chối
+                                      AnimatedButton(
+                                        onPressed: _showRejectDialog,
+                                        label: "Từ chối",
                                         icon: Icons.close,
                                         backgroundColor: Colors.red.shade600,
                                       ),
@@ -506,7 +648,7 @@ class _ManageOrderState extends State<AdminOrder> {
                 children: [
                   // Giá trị chính
                   TextSpan(
-                    text: unit != null ? '$value $unit' : value,
+                    text: unit != null ? "$value $unit" : value,
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w500,
                       color: valueColor ?? Colors.black87,
@@ -517,11 +659,11 @@ class _ManageOrderState extends State<AdminOrder> {
                   // Nếu có dữ liệu thứ 2 thì nối thêm vào
                   if (secondLabel != null) ...[
                     TextSpan(
-                      text: ' - $secondLabel ',
+                      text: " - $secondLabel ",
                       style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     TextSpan(
-                      text: secondValue ?? '',
+                      text: secondValue ?? "",
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
@@ -546,76 +688,76 @@ class _ManageOrderState extends State<AdminOrder> {
     // Danh sách các _infoRow
     final infoRows = [
       //left
-      _infoRow('🧾 Mã đơn:', order.orderId),
-      _infoRow('📅 Ngày nhận:', formatter.format(order.dayReceiveOrder!)),
-      _infoRow('🚚 Ngày giao:', formatter.format(order.dateRequestShipping!)),
-      _infoRow('👤 Tên khách hàng:', order.customer!.customerName),
-      _infoRow('🏢 Tên công ty:', order.customer!.companyName, valueColor: Colors.redAccent),
-      _infoRow('📦 Loại sản phẩm:', order.product!.typeProduct),
-      _infoRow('🛒 Tên sản phẩm:', order.product!.productName ?? "", valueColor: Colors.redAccent),
-      _infoRow('📦 Quy cách thùng:', order.QC_box.toString()),
-      _infoRow('🔢 Cấn lằn:', order.canLan.toString()),
+      _infoRow("🧾 Mã đơn:", order.orderId),
+      _infoRow("📅 Ngày nhận:", formatter.format(order.dayReceiveOrder!)),
+      _infoRow("🚚 Ngày giao:", formatter.format(order.dateRequestShipping!)),
+      _infoRow("👤 Tên khách hàng:", order.customer!.customerName),
+      _infoRow("🏢 Tên công ty:", order.customer!.companyName, valueColor: Colors.redAccent),
+      _infoRow("📦 Loại sản phẩm:", order.product!.typeProduct),
+      _infoRow("🛒 Tên sản phẩm:", order.product!.productName ?? "", valueColor: Colors.redAccent),
+      _infoRow("📦 Quy cách thùng:", order.QC_box.toString()),
+      _infoRow("🔢 Cấn lằn:", order.canLan.toString()),
       _infoRow(
-        '🔪 Dao xả:',
+        "🔪 Dao xả:",
         order.daoXa.toString(),
-        secondLabel: 'Chống thấm:',
-        secondValue: order.chongTham ? '✅' : '',
+        secondLabel: "Chống thấm:",
+        secondValue: order.chongTham ? "✅" : "",
         valueColor: Colors.redAccent,
       ),
       _infoRow(
-        '🔧 Kết cấu:',
-        '${order.formatterStructureOrder} - ${order.flute}',
+        "🔧 Kết cấu:",
+        "${order.formatterStructureOrder} - ${order.flute}",
         valueColor: Colors.redAccent,
       ),
       _infoRow(
-        '✂️ Dài (Tính Tiền):',
+        "✂️ Dài (Tính Tiền):",
         OrderModel.formatCurrency(order.lengthPaperCustomer),
         unit: "cm",
       ),
       _infoRow(
-        '✂️ Dài (Sản Xuất) :',
+        "✂️ Dài (Sản Xuất) :",
         OrderModel.formatCurrency(order.lengthPaperManufacture),
         unit: "cm",
       ),
-      _infoRow('📝 HD đặc biệt:', order.instructSpecial!),
+      _infoRow("📝 HD đặc biệt:", order.instructSpecial!),
 
       //right
       _infoRow(
-        '📏 Khổ (Tính Tiền):',
+        "📏 Khổ (Tính Tiền):",
         OrderModel.formatCurrency(order.paperSizeCustomer),
         unit: "cm",
       ),
       _infoRow(
-        '📏 Khổ (Sản Xuất):',
+        "📏 Khổ (Sản Xuất):",
         OrderModel.formatCurrency(order.paperSizeManufacture),
         unit: "cm",
       ),
-      _infoRow('📐 Đơn vị tính:', order.dvt, valueColor: Colors.redAccent),
-      _infoRow('🔢 Số lượng (Khách Hàng):', order.quantityCustomer.toString(), unit: ""),
-      _infoRow('🔢 Số lượng (Sản Xuất):', order.quantityManufacture.toString(), unit: ""),
-      _infoRow('📜 Số con:', OrderModel.formatCurrency(order.numberChild), unit: "Con"),
-      _infoRow('🌍 Diện tích:', OrderModel.formatCurrency(order.acreage ?? 0), unit: 'm²'),
+      _infoRow("📐 Đơn vị tính:", order.dvt, valueColor: Colors.redAccent),
+      _infoRow("🔢 Số lượng (Khách Hàng):", order.quantityCustomer.toString(), unit: ""),
+      _infoRow("🔢 Số lượng (Sản Xuất):", order.quantityManufacture.toString(), unit: ""),
+      _infoRow("📜 Số con:", OrderModel.formatCurrency(order.numberChild), unit: "Con"),
+      _infoRow("🌍 Diện tích:", OrderModel.formatCurrency(order.acreage ?? 0), unit: "m²"),
       if (!order.isBox)
         _infoRow(
-          '💲 Giá:',
+          "💲 Giá:",
           OrderModel.formatCurrency(order.price),
-          unit: 'VNĐ/${order.dvt == "M2" ? "m²" : order.dvt}',
+          unit: "VNĐ/${order.dvt == "M2" ? "m²" : order.dvt}",
           valueColor: Colors.redAccent,
         ),
       _infoRow(
-        '💵 Đơn Giá:',
+        "💵 Đơn Giá:",
         OrderModel.formatCurrency(order.pricePaper ?? 0),
         unit: "VNĐ/${order.dvt == "M2" ? "Tấm" : order.dvt}",
       ),
-      _infoRow('💵 Chiết khấu:', OrderModel.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
-      _infoRow('💵 Lợi nhuận:', OrderModel.formatCurrency(order.profit), unit: "VNĐ"),
-      _infoRow('💡 VAT:', order.vat.toString(), unit: "%"),
+      _infoRow("💵 Chiết khấu:", OrderModel.formatCurrency(order.discount ?? 0), unit: "VNĐ"),
+      _infoRow("💵 Lợi nhuận:", OrderModel.formatCurrency(order.profit), unit: "VNĐ"),
+      _infoRow("💡 VAT:", order.vat.toString(), unit: "%"),
       _infoRow(
-        '💰 Tổng tiền (VAT):',
-        'Trước ${OrderModel.formatCurrency(order.totalPrice ?? 0)} - Sau ${OrderModel.formatCurrency(order.totalPriceVAT ?? 0)}',
+        "💰 Tổng tiền (VAT):",
+        "Trước ${OrderModel.formatCurrency(order.totalPrice ?? 0)} - Sau ${OrderModel.formatCurrency(order.totalPriceVAT ?? 0)}",
         unit: "VNĐ",
       ),
-      _infoRow('📝 Ghi Chú:', order.note ?? ""),
+      _infoRow("📝 Ghi Chú:", order.note ?? ""),
     ];
 
     return Card(
@@ -630,7 +772,7 @@ class _ManageOrderState extends State<AdminOrder> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  '📄 Thông tin đơn hàng',
+                  "📄 Thông tin đơn hàng",
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -638,7 +780,7 @@ class _ManageOrderState extends State<AdminOrder> {
                   ),
                 ),
                 Text(
-                  'Nhân Viên: ${order.user!.fullName}',
+                  "Nhân Viên: ${order.user!.fullName}",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -673,8 +815,8 @@ class _ManageOrderState extends State<AdminOrder> {
             //   Row(
             //     crossAxisAlignment: CrossAxisAlignment.start,
             //     children: [
-            //       Expanded(child: _infoRow('📝 Hướng dẫn đặc biệt:', order.instructSpecial!)),
-            //       Expanded(child: _infoRow('📝 Ghi Chú:', order.note ?? "")),
+            //       Expanded(child: _infoRow("📝 Hướng dẫn đặc biệt:", order.instructSpecial!)),
+            //       Expanded(child: _infoRow("📝 Ghi Chú:", order.note ?? "")),
             //     ],
             //   ),
             // ],
@@ -685,7 +827,7 @@ class _ManageOrderState extends State<AdminOrder> {
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  '🖼️ Ảnh đơn hàng',
+                  "🖼️ Ảnh đơn hàng",
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -700,14 +842,14 @@ class _ManageOrderState extends State<AdminOrder> {
                   width: double.infinity,
                   constraints: const BoxConstraints(maxHeight: 400),
                   child: Image.network(
-                    order.orderImage?.imageUrl ?? '',
+                    order.orderImage?.imageUrl ?? "",
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
                         height: 200,
                         color: Colors.grey.shade200,
                         child: const Center(
-                          child: Text('Lỗi tải ảnh đơn hàng', style: TextStyle(color: Colors.red)),
+                          child: Text("Lỗi tải ảnh đơn hàng", style: TextStyle(color: Colors.red)),
                         ),
                       );
                     },
@@ -726,15 +868,15 @@ class _ManageOrderState extends State<AdminOrder> {
     final productImage = selectedOrder!.product!.productImage ?? "";
 
     final boolFields = [
-      {'label': 'Cán màng', 'value': box.canMang},
-      {'label': 'Xả', 'value': box.Xa},
-      {'label': 'Cắt khe', 'value': box.catKhe},
-      {'label': 'Bế', 'value': box.be},
-      {'label': 'Dán 1 mảnh', 'value': box.dan_1_Manh},
-      {'label': 'Dán 2 mảnh', 'value': box.dan_2_Manh},
-      {'label': 'Chống thấm', 'value': box.chongTham},
-      {'label': 'Đóng ghim 1 mảnh', 'value': box.dongGhim1Manh},
-      {'label': 'Đóng ghim 2 mảnh', 'value': box.dongGhim2Manh},
+      {"label": "Cán màng", "value": box.canMang},
+      {"label": "Xả", "value": box.Xa},
+      {"label": "Cắt khe", "value": box.catKhe},
+      {"label": "Bế", "value": box.be},
+      {"label": "Dán 1 mảnh", "value": box.dan_1_Manh},
+      {"label": "Dán 2 mảnh", "value": box.dan_2_Manh},
+      {"label": "Chống thấm", "value": box.chongTham},
+      {"label": "Đóng ghim 1 mảnh", "value": box.dongGhim1Manh},
+      {"label": "Đóng ghim 2 mảnh", "value": box.dongGhim2Manh},
     ];
 
     return Card(
@@ -748,7 +890,7 @@ class _ManageOrderState extends State<AdminOrder> {
           children: [
             const Center(
               child: Text(
-                '📦 Thông tin làm thùng',
+                "📦 Thông tin làm thùng",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -769,15 +911,15 @@ class _ManageOrderState extends State<AdminOrder> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _infoRow('🧾 In mặt trước:', box.inMatTruoc.toString()),
-                        _infoRow('🧾 In mặt sau:', box.inMatSau.toString()),
-                        _infoRow('📦 Đóng gói:', box.dongGoi.toString()),
-                        _infoRow('🔲 Mã khuôn:', box.maKhuon.toString()),
-                        _infoRow('✨ HD đặc biệt:', selectedOrder!.instructSpecial.toString()),
+                        _infoRow("🧾 In mặt trước:", box.inMatTruoc.toString()),
+                        _infoRow("🧾 In mặt sau:", box.inMatSau.toString()),
+                        _infoRow("📦 Đóng gói:", box.dongGoi.toString()),
+                        _infoRow("🔲 Mã khuôn:", box.maKhuon.toString()),
+                        _infoRow("✨ HD đặc biệt:", selectedOrder!.instructSpecial.toString()),
                         const SizedBox(height: 15),
 
                         const Text(
-                          '🛠️ Các yêu cầu tùy chỉnh:',
+                          "🛠️ Các yêu cầu tùy chỉnh:",
                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         const SizedBox(height: 8),
@@ -792,18 +934,18 @@ class _ManageOrderState extends State<AdminOrder> {
                                     child: Row(
                                       children: [
                                         Icon(
-                                          boolFields[j]['value'] as bool
+                                          boolFields[j]["value"] as bool
                                               ? Icons.check_circle
                                               : Icons.cancel,
                                           color:
-                                              boolFields[j]['value'] as bool
+                                              boolFields[j]["value"] as bool
                                                   ? Colors.green
                                                   : Colors.red,
                                         ),
                                         const SizedBox(width: 4),
                                         Expanded(
                                           child: Text(
-                                            boolFields[j]['label'] as String,
+                                            boolFields[j]["label"] as String,
                                             style: const TextStyle(
                                               fontWeight: FontWeight.w500,
                                               color: Colors.black87,
@@ -839,7 +981,7 @@ class _ManageOrderState extends State<AdminOrder> {
                                 fit: BoxFit.contain,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Center(
-                                    child: Text('Lỗi ảnh', style: TextStyle(fontSize: 16)),
+                                    child: Text("Lỗi ảnh", style: TextStyle(fontSize: 16)),
                                   );
                                 },
                               )

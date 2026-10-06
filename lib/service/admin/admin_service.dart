@@ -12,7 +12,6 @@ import "package:dongtam/data/models/user/user_admin_model.dart";
 import "package:dongtam/utils/handleError/dio_client.dart";
 import "package:dongtam/utils/helper/helper_service.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
-import "package:dongtam/utils/storage/secure_storage_service.dart";
 
 class AdminService {
   final Dio dioService = DioClient().dio;
@@ -32,26 +31,39 @@ class AdminService {
   Future<bool> updateStatusOrder({
     required String orderId,
     required String newStatus,
-    required String rejectReason,
+    String? rejectReason,
+    bool? confirmOverLimit,
+    int? confirmationOTP,
   }) async {
     try {
-      final token = await SecureStorageService().getToken();
-
-      await dioService.put(
-        "/api/admin/orders?id=$orderId",
-        data: {"newStatus": newStatus, "rejectReason": rejectReason},
-        options: Options(
-          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
-        ),
+      return HelperService().updateItem(
+        endpoint: "admin/orders",
+        queryParameters: {"orderId": orderId},
+        body: {
+          "newStatus": newStatus,
+          if (rejectReason != null) "rejectReason": rejectReason,
+          if (confirmOverLimit != null) "confirmOverLimit": confirmOverLimit,
+          if (confirmationOTP != null) "confirmationOTP": confirmationOTP,
+        },
       );
-
-      return true;
     } on DioException catch (e) {
       HelperService().handleDioException(e, "Lỗi khi thêm dữ liệu");
       return false;
     } catch (e, s) {
       AppLogger.e("Failed to load orders", error: e, stackTrace: s);
       throw Exception("Failed to update orders: $e");
+    }
+  }
+
+  Future<bool> requestOtpCode({required String orderId}) async {
+    try {
+      return HelperService().addItem(
+        endpoint: "admin/orders/send-otp",
+        queryParameters: {"orderId": orderId},
+      );
+    } catch (e, s) {
+      AppLogger.e("Failed to request OTP code", error: e, stackTrace: s);
+      throw Exception("Failed to request OTP code: $e");
     }
   }
 

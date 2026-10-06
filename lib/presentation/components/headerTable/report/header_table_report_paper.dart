@@ -30,6 +30,7 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
   {"key": "dvt", "title": "DVT"},
 
   {"key": "HD_special", "title": "HD Đặc Biệt"},
+  {"key": "totalPrice", "title": "Tổng Tiền"},
 
   //waste norm
   {"key": "bottom", "title": "Đáy"},
