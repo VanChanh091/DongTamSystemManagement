@@ -20,6 +20,7 @@ import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/presentation/components/shared/auto_complete_field.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
+import "package:dongtam/presentation/components/shared/debt_warning_banner.dart";
 import "package:dongtam/utils/helper/orderHelper/paper_structure_helper.dart";
 import "package:dongtam/utils/helper/paste_image_order.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
@@ -60,6 +61,7 @@ class _OrderDialogState extends State<OrderDialog> {
   List<CustomerModel> allCustomers = [];
   List<ProductModel> allProducts = [];
   List<PaperClassificationItem> allPapers = [];
+  CustomerModel? selectedCustomer;
 
   double uploadProgress = 0.0;
   bool isUploading = false;
@@ -179,6 +181,7 @@ class _OrderDialogState extends State<OrderDialog> {
     orderIdCustomerController.text = selectedOrder.orderIdCustomer ?? "";
 
     if (selectedOrder.customer != null) {
+      selectedCustomer = selectedOrder.customer;
       customerNameController.text = selectedOrder.customer!.customerName;
       customerCompanyController.text = selectedOrder.customer!.companyName;
     }
@@ -708,6 +711,9 @@ class _OrderDialogState extends State<OrderDialog> {
             );
           },
           onSelected: (customer) {
+            setState(() {
+              selectedCustomer = customer;
+            });
             customerIdController.text = customer.customerId;
             customerNameController.text = customer.customerName;
             customerCompanyController.text = customer.companyName;
@@ -728,6 +734,9 @@ class _OrderDialogState extends State<OrderDialog> {
             if (value.isEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
+                  setState(() {
+                    selectedCustomer = null;
+                  });
                   customerNameController.clear();
                   customerCompanyController.clear();
                 }
@@ -1123,7 +1132,7 @@ class _OrderDialogState extends State<OrderDialog> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 10),
+                        DebtWarningBanner(payment: selectedCustomer?.payment),
 
                         //base info
                         buildingCard(
@@ -1325,10 +1334,10 @@ class _OrderDialogState extends State<OrderDialog> {
     // Nếu người dùng bấm "Áp dụng vào đơn"
     if (result != null) {
       setState(() {
-        // 1. Hiển thị chuỗi gộp ra UI
+        // Hiển thị chuỗi gộp ra UI
         structureController.text = result.formattedString;
 
-        // 2. Tự động đổ vào 10 controller con để submit() đọc bình thường
+        // Tự động đổ vào controller con để submit đọc
         dayController.text = result.day ?? "";
         songEController.text = result.songE ?? "";
         matEController.text = result.matE ?? "";

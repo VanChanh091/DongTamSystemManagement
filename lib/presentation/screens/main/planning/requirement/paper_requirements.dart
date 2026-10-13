@@ -381,6 +381,8 @@ class _PaperRequirementsState extends State<PaperRequirements> {
                     child: SfDataGrid(
                       controller: dataGridController,
                       source: _cachedDatasource!,
+                      allowExpandCollapseGroup: true, // Bật grouping
+                      autoExpandGroups: true,
                       isScrollbarAlwaysShown: true,
                       columnWidthMode: ColumnWidthMode.auto,
                       selectionMode: SelectionMode.multiple,

@@ -72,7 +72,7 @@ class NotificationController extends GetxController {
     try {
       bool isSuccess = false;
 
-      if (type == "order") {
+      if (type == "order" || type == "inspection") {
         //confirm
         isSuccess = await NotificationService().confirmRequestChanging(
           notificationId: notif.notificationId,
@@ -91,7 +91,7 @@ class NotificationController extends GetxController {
         _updateUnreadCount();
 
         if (context.mounted) {
-          showSnackBarSuccess(context, "Đã ghi nhận phản hồi tác vụ");
+          showSnackBarSuccess(context, "Đã xác nhận thông báo");
         }
       }
     } catch (e) {

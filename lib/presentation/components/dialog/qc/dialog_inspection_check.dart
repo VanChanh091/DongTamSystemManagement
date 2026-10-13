@@ -1,10 +1,12 @@
 import "dart:typed_data";
 
+import "package:dongtam/data/controller/notification_controller.dart";
 import "package:dongtam/data/controller/upload_process_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/admin/qcInspection/admin_inspection_box.dart";
 import "package:dongtam/data/models/admin/qcInspection/admin_inspection_paper.dart";
 import "package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart";
+import "package:dongtam/data/models/qualityControl/qcInspection/inspection_request_model.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
@@ -119,11 +121,74 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
     return isKhoChanged || isMetToiExceeded;
   }
 
+  InspectionRequestModel? _currentInspectionRequest;
+  bool _isReceivingRequest = false;
+
   @override
   void initState() {
     super.initState();
     isAdmin = userController.hasAnyRole(roles: ["admin"]);
     futureCriteria = _fetchCriteriaData();
+    if (widget.planningId != null) {
+      _fetchInspectionRequest();
+    }
+  }
+
+  Future<void> _fetchInspectionRequest() async {
+    if (widget.planningId == null) return;
+    try {
+      final requests = await QualityControlService().getInspectionRequest(
+        planningId: widget.planningId!,
+      );
+      if (mounted && requests.isNotEmpty) {
+        setState(() {
+          _currentInspectionRequest = requests.first;
+        });
+      }
+    } catch (e) {
+      AppLogger.w("Không tải được yêu cầu kiểm tra cho planningId=${widget.planningId}: $e");
+    }
+  }
+
+  Future<void> _handleReceiveRequest() async {
+    if (_currentInspectionRequest == null) return;
+    setState(() => _isReceivingRequest = true);
+
+    try {
+      final success = await QualityControlService().qcReceivedRequest(
+        inspectionId: _currentInspectionRequest!.inspectionId,
+      );
+      if (mounted) {
+        if (success) {
+          showSnackBarSuccess(context, "Đã tiếp nhận yêu cầu kiểm tra thành công");
+          await _fetchInspectionRequest();
+          if (Get.isRegistered<NotificationController>()) {
+            Get.find<NotificationController>().fetchOldNotifications();
+          }
+        } else {
+          showSnackBarError(context, "Tiếp nhận yêu cầu thất bại");
+        }
+      }
+    } on ApiException catch (e) {
+      if (mounted) {
+        if (Navigator.canPop(context)) Navigator.of(context).pop();
+        final errorText = switch (e.errorCode) {
+          "INSPECTION_REQUEST_NOT_FOUND" => e.message!,
+          "REQUEST_ALREADY_RECEIVED_OR_EXPIRED" => e.message!,
+          _ => "Có lỗi xảy ra, vui lòng thử lại",
+        };
+        showSnackBarError(context, errorText);
+      }
+    } catch (e, s) {
+      AppLogger.e("Lỗi tiếp nhận yêu cầu kiểm tra", error: e, stackTrace: s);
+      if (mounted) {
+        showSnackBarError(context, "Có lỗi xảy ra khi tiếp nhận");
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isReceivingRequest = false);
+      }
+    }
   }
 
   // Lấy danh sách tiêu chí QC từ API
@@ -907,7 +972,39 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
               ),
             ),
 
-          if (isQC)
+          if (isQC) ...[
+            if (_currentInspectionRequest != null && _currentInspectionRequest!.isPending)
+              ElevatedButton(
+                onPressed: _isReceivingRequest ? null : _handleReceiveRequest,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff78D761),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text(
+                  "Tiếp nhận YC",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+                ),
+              ),
+            if (_currentInspectionRequest != null && _currentInspectionRequest!.isInProgress)
+              OutlinedButton(
+                onPressed: null,
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  side: BorderSide(color: Colors.green.shade200, width: 1),
+                  backgroundColor: Colors.green.shade50,
+                  disabledForegroundColor: const Color(0xff78D761),
+                ),
+                child: const Text(
+                  "Đã tiếp nhận",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xff78D761),
+                  ),
+                ),
+              ),
             ElevatedButton(
               onPressed: _sendQuickNotification,
               style: ElevatedButton.styleFrom(
@@ -916,10 +1013,11 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
               child: const Text(
-                "Gửi thông báo",
+                "Thông báo nhanh",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
               ),
             ),
+          ],
         ],
       ),
 

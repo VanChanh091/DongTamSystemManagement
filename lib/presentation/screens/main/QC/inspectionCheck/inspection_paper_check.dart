@@ -1,14 +1,17 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/planning/planning_paper_model.dart';
+import 'package:dongtam/data/models/qualityControl/qc_shift.dart';
 import 'package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
+import 'package:dongtam/presentation/components/shared/planning/shift_switch_widget.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
+import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -37,6 +40,12 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final headerScrollController = ScrollController();
+  final _qcService = QualityControlService();
+
+  //shift actions
+  Future<QcShiftModel?> getCurrentShiftActive() => _qcService.getCurrentShiftActive();
+  Future<bool> startShift() => _qcService.startShift();
+  Future<bool> endShift() => _qcService.endShift();
 
   //filter
   String machine = "Máy 1350";
@@ -51,7 +60,6 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   final _zoomNotifier = ValueNotifier<double>(1.0);
   final _selectedPlanningIdsNotifier = ValueNotifier<List<String>>([]);
 
-  bool _isSelectionChange = false;
   Map<String, double> columnWidths = {};
   List<PlanningPaperModel> planningList = [];
 
@@ -59,10 +67,14 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   List<PlanningPaperModel>? _cachedPapers;
   MachinePaperDatasource? _cachedDatasource;
 
+  bool _isSelectionChange = false;
+  bool isQC = false;
+
   @override
   void initState() {
     super.initState();
     loadInspectionPaper();
+    isQC = userController.hasAnyPermission(permission: ["QC"]);
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "production");
     ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
@@ -221,7 +233,26 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                   ),
                 ),
               ),
-              const Positioned(right: 10, child: MachinePaperColorLegendButton()),
+
+              Positioned(
+                right: 10,
+                child: Row(
+                  children: [
+                    // switch on/off shift
+                    if (isQC) ...[
+                      ShiftSwitchWidget(
+                        getCurrentShift: getCurrentShiftActive,
+                        onStartShift: startShift,
+                        onEndShift: endShift,
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+
+                    //hint button
+                    MachinePaperColorLegendButton(),
+                  ],
+                ),
+              ),
             ],
           ),
         ),

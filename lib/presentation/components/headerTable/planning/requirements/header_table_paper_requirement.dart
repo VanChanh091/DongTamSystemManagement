@@ -5,8 +5,8 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _paperRequirementColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
-  {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "dateRequestShipping", "title": "Ngày Dự Kiến"},
+  {"key": "customerName", "title": "Tên Khách Hàng"},
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "isFSC", "title": "Đơn FSC"},

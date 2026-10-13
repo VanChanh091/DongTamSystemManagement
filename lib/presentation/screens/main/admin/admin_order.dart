@@ -3,6 +3,7 @@ import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/service/admin/admin_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/debt_warning_banner.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
@@ -768,6 +769,8 @@ class _ManageOrderState extends State<AdminOrder> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            DebtWarningBanner(payment: selectedOrder!.customer?.payment, isForAdmin: true),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -809,17 +812,6 @@ class _ManageOrderState extends State<AdminOrder> {
                 ),
               ],
             ),
-
-            //instruct special
-            // if (order.instructSpecial != null && order.instructSpecial!.isNotEmpty) ...[
-            //   Row(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Expanded(child: _infoRow("📝 Hướng dẫn đặc biệt:", order.instructSpecial!)),
-            //       Expanded(child: _infoRow("📝 Ghi Chú:", order.note ?? "")),
-            //     ],
-            //   ),
-            // ],
 
             // Hình ảnh đơn hàng (nếu có)
             if (order.orderImage != null && order.orderImage?.imageUrl.isNotEmpty == true) ...[

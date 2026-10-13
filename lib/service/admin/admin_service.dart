@@ -113,7 +113,13 @@ class AdminService {
   Future<List<AdminMachinePaperModel>> getMachinePapers() async {
     return HelperService().fetchingData<AdminMachinePaperModel>(
       endpoint: "admin/machine-papers",
-      queryParameters: const {},
+      fromJson: (json) => AdminMachinePaperModel.fromJson(json),
+    );
+  }
+
+  Future<List<AdminMachinePaperModel>> getRawMachinePapers() async {
+    return HelperService().fetchingData<AdminMachinePaperModel>(
+      endpoint: "admin/machine-papers/machine-name",
       fromJson: (json) => AdminMachinePaperModel.fromJson(json),
     );
   }

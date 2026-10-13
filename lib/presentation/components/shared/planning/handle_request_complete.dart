@@ -53,6 +53,7 @@ Future<void> handlePlanningTask({
         "PLANNING_ALREADY_REQUESTED" => e.message!,
         "PLANNING_NO_PRODUCED_QUANTITY" => e.message!,
         "PLANNING_NOT_FAILED" => e.message!,
+        "INSPECTION_REQUEST_EXISTS" => e.message!,
         _ => "Có lỗi xảy ra, vui lòng thử lại",
       };
       showSnackBarError(context, errorText);

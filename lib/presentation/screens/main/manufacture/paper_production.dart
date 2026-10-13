@@ -11,6 +11,7 @@ import "package:dongtam/presentation/components/shared/planning/machine_paper_co
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/service/quality_control_service.dart";
 import "package:dongtam/utils/socket/init_socket_manufacture.dart";
 import "package:dongtam/presentation/sources/planning/machine_paper_data_source.dart";
 import "package:dongtam/service/manufacture_service.dart";
@@ -614,6 +615,30 @@ class _PaperProductionState extends State<PaperProduction> {
                                         if (!context.mounted) return;
                                         showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
                                       }
+                                    } else if (value == "request-check") {
+                                      if (selectedPlanningIds.isEmpty) {
+                                        showSnackBarError(
+                                          context,
+                                          "Chưa chọn dòng để yêu cầu kiểm tra",
+                                        );
+                                      }
+                                      if (selectedPlanningIds.length > 1) {
+                                        showSnackBarError(
+                                          context,
+                                          "Chỉ được chọn một dòng để yêu cầu kiểm tra",
+                                        );
+                                      }
+
+                                      await handlePlanningTask(
+                                        context: context,
+                                        selectedPlanningIds: selectedPlanningIds,
+                                        content: "Xác nhận yêu cầu kiểm đơn hàng này?",
+                                        onExecute:
+                                            (id) => QualityControlService().createInspectionRequest(
+                                              planningId: id.first,
+                                            ),
+                                        onLoadPlanning: loadPlanning,
+                                      );
                                     } else if (value == "request") {
                                       await handlePlanningTask(
                                         context: context,
@@ -693,6 +718,13 @@ class _PaperProductionState extends State<PaperProduction> {
                                           child: ListTile(
                                             leading: Icon(Symbols.done_outline),
                                             title: Text("Xác Nhận Sản Xuất"),
+                                          ),
+                                        ),
+                                        const PopupMenuItem<String>(
+                                          value: "request-check",
+                                          child: ListTile(
+                                            leading: Icon(Symbols.checklist_rtl),
+                                            title: Text("Yêu Cầu Kiểm"),
                                           ),
                                         ),
                                         const PopupMenuItem<String>(

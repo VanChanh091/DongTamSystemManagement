@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_sample_result_model.dart';
 import 'package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_sample_submit_model.dart';
 import 'package:dongtam/data/models/qualityControl/qcWaitingCheck/qc_session_model.dart';
+import 'package:dongtam/data/models/qualityControl/qc_shift.dart';
+import 'package:dongtam/data/models/qualityControl/qcInspection/inspection_request_model.dart';
 import 'package:dongtam/utils/handleError/dio_client.dart';
 import 'package:dongtam/utils/helper/helper_service.dart';
 
@@ -64,7 +66,6 @@ class QualityControlService {
     );
   }
 
-  //===========================ORCHESTRATOR================================
   Future<bool> submitQC({
     required int inboundQty,
     required String processType,
@@ -83,6 +84,58 @@ class QualityControlService {
     };
 
     return HelperService().addItem(endpoint: "qc/submit", body: data);
+  }
+
+  //============================QC SHIFT=================================
+  Future<QcShiftModel?> getCurrentShiftActive() async {
+    return HelperService().fetchSingleData<QcShiftModel>(
+      endpoint: "qc/shift",
+      queryParameters: {},
+      parser: (json) => QcShiftModel.fromJson(json as Map<String, dynamic>),
+    );
+  }
+
+  Future<bool> startShift() async {
+    return HelperService().addItem(endpoint: "qc/shift/start");
+  }
+
+  Future<bool> endShift() async {
+    return HelperService().updateItem(endpoint: "qc/shift/end");
+  }
+
+  //========================INSPECTION REQUEST=============================
+
+  // Lấy danh sách yêu cầu kiểm tra theo planningId
+  Future<List<InspectionRequestModel>> getInspectionRequest({required int planningId}) async {
+    return HelperService().fetchingData<InspectionRequestModel>(
+      endpoint: "qc/inspection-request/planning",
+      queryParameters: {"planningId": planningId},
+      fromJson: (json) => InspectionRequestModel.fromJson(json),
+    );
+  }
+
+  // Tạo yêu cầu kiểm tra mới từ sản xuất
+  Future<bool> createInspectionRequest({required int planningId}) async {
+    return HelperService().addItem(
+      endpoint: "qc/inspection-request",
+      queryParameters: {"planningId": planningId},
+    );
+  }
+
+  // QC đã tiếp nhận yêu cầu
+  Future<bool> qcReceivedRequest({required int inspectionId}) async {
+    return HelperService().updateItem(
+      endpoint: "qc/inspection-request/receive",
+      queryParameters: {"inspectionId": inspectionId},
+    );
+  }
+
+  // QC cập nhật kết quả kiểm tra
+  Future<bool> updateInspectionRequest({required int inspectionId, required String status}) async {
+    return HelperService().updateItem(
+      endpoint: "qc/inspection-request",
+      queryParameters: {"inspectionId": inspectionId, "status": status},
+    );
   }
 
   //==========================SCRAP REPORT=================================

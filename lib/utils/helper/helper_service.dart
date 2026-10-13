@@ -146,7 +146,12 @@ class HelperService {
         ),
       );
 
-      final data = response.data["data"];
+      final rawData = response.data;
+      if (rawData == null) return null;
+
+      final data = (rawData is Map<String, dynamic> && rawData.containsKey("data"))
+          ? rawData["data"]
+          : rawData;
       if (data == null) return null;
 
       return parser(data);

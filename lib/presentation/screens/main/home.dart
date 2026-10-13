@@ -3,6 +3,7 @@ import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_pap
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
+import "package:dongtam/service/quality_control_service.dart";
 import "package:get/get.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
@@ -84,6 +85,7 @@ class _HomePageState extends State<HomePage> {
   final unsavedChangeController = Get.put(UnsavedChangeController());
 
   bool _isSidebarOpen = false;
+  bool isQC = false;
 
   static const double _sidebarOpenWidth = 310;
   static const double _sidebarCollapsedWidth = 65;
@@ -91,6 +93,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    isQC = userController.hasAnyPermission(permission: ["QC"]);
 
     _pages = _initPages();
     _cachedMenuConfigs = getSidebarConfigs(badgesController, () => showThemeColorDialog(context));
@@ -294,6 +297,17 @@ class _HomePageState extends State<HomePage> {
 
   void logout() async {
     try {
+      if (isQC) {
+        try {
+          await QualityControlService().endShift();
+        } catch (qcError) {
+          AppLogger.e("Lỗi kết thúc ca QC, tiếp tục đăng xuất...", error: qcError);
+        }
+      }
+
+      // Dọn dẹp dữ liệu controller trước khi xoá khỏi memory
+      badgesController.clearAllBadge();
+
       final secureStorage = SecureStorageService();
       await secureStorage.clearAll();
 
@@ -312,8 +326,6 @@ class _HomePageState extends State<HomePage> {
         Get.delete<NotificationController>(force: true);
         AppLogger.i("NotificationController has been forcibly terminated.");
       }
-
-      badgesController.clearAllBadge();
 
       if (!mounted) return;
       showSnackBarSuccess(context, "Đăng xuất thành công");

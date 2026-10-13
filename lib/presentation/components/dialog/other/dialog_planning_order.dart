@@ -34,7 +34,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   final badgesController = Get.find<BadgesController>();
   late String originalOrderId;
-  final List<String> machineList = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+  final List<String> machineList = [
+    "Máy 1350",
+    "Máy 1800",
+    "Máy 1900",
+    "Máy 2 Lớp",
+    "Máy Quấn Cuồn",
+  ];
 
   //order
   DateTime? dateShipping;

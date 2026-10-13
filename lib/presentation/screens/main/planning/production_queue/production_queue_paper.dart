@@ -1,37 +1,37 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/unsaved_change_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_planning.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_change_machine.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
-import 'package:dongtam/presentation/components/shared/planning/save_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/utils/helper/warning_unsaved_change.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_planning.dart";
+import "package:dongtam/presentation/components/dialog/other/dialog_change_machine.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
+import "package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart";
+import "package:dongtam/presentation/components/shared/planning/save_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/planning/machine_paper_data_source.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/utils/helper/warning_unsaved_change.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ProductionQueuePaper extends StatefulWidget {
   const ProductionQueuePaper({super.key});
@@ -45,7 +45,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   late List<GridColumn> columns;
 
   //controllers
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -57,9 +57,9 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   String machine = "Máy 1350";
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
-    'Mã Đơn Hàng': "orderId",
-    'Tên Khách Hàng': "customerName",
-    'Khổ Cấp Giấy': "ghepKho",
+    "Mã Đơn Hàng": "orderId",
+    "Tên Khách Hàng": "customerName",
+    "Khổ Cấp Giấy": "ghepKho",
   };
 
   double displayTotalPrice = 0.0;
@@ -98,7 +98,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
     loadPlanning();
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "planning");
-    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "queuePaper", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -106,10 +106,10 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
-    timeStartController.text = '6:00';
+    timeStartController.text = "6:00";
     totalTimeWorkingController.text = "24";
   }
 
@@ -185,8 +185,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         rows
             .map((row) {
               final cell = row.getCells().firstWhere(
-                (c) => c.columnName == 'planningId',
-                orElse: () => const DataGridCell(columnName: '', value: ''),
+                (c) => c.columnName == "planningId",
+                orElse: () => const DataGridCell(columnName: "", value: ""),
               );
               return cell.value.toString();
             })
@@ -308,6 +308,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   Widget _buildHeaderBar() {
     return Column(
       children: [
+        //title
         SizedBox(
           width: double.infinity,
           child: Stack(
@@ -350,15 +351,15 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           LeftButtonSearch(
                             selectedType: searchType,
                             types: const [
-                              'Tất cả',
-                              'Mã Đơn Hàng',
-                              'Tên Khách Hàng',
-                              'Khổ Cấp Giấy',
+                              "Tất cả",
+                              "Mã Đơn Hàng",
+                              "Tên Khách Hàng",
+                              "Khổ Cấp Giấy",
                             ],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = value != 'Tất cả';
+                                isTextFieldEnabled = value != "Tất cả";
 
                                 if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                                   searchController.clear();
@@ -408,7 +409,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         timeStartController: timeStartController,
                                         totalTimeWorkingController: totalTimeWorkingController,
                                         getRows: () => _cachedDatasource!.rows,
-                                        idColumn: 'planningId',
+                                        idColumn: "planningId",
                                         isBox: false,
                                         backgroundColor: themeController.buttonColor,
                                         machine: machine,
@@ -430,7 +431,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                         showGroup = !showGroup;
                                       });
                                     },
-                                    label: showGroup ? 'Tắt nhóm' : 'Bật nhóm',
+                                    label: showGroup ? "Tắt nhóm" : "Bật nhóm",
                                     icon: showGroup ? Symbols.ungroup : Symbols.ad_group,
                                     backgroundColor: themeController.buttonColor,
                                   ),
@@ -443,7 +444,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     onConfirmComplete: (ids) async {
                                       return await PlanningService().confirmCompletePlanning(
                                         ids: ids,
-                                        action: 'CONFIRM_COMPLETE',
+                                        action: "CONFIRM_COMPLETE",
                                       );
                                     },
                                     backgroundColor: themeController.buttonColor,
@@ -455,7 +456,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                   buildDropdownItems(
                                     value: machine,
                                     items: const [
-                                      'Máy 1350',
+                                      "Máy 1350",
                                       "Máy 1900",
                                       "Máy 2 Lớp",
                                       "Máy Quấn Cuồn",
@@ -481,7 +482,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     icon: const Icon(Icons.more_vert, color: Colors.black),
                                     color: Colors.white,
                                     onSelected: (value) async {
-                                      if (value == 'change') {
+                                      if (value == "change") {
                                         if (selectedPlanningIds.isEmpty) {
                                           showSnackBarError(
                                             context,
@@ -535,7 +536,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             badgesController.fetchPlanningStop();
                                           },
                                         );
-                                      } else if (value == 'reject') {
+                                      } else if (value == "reject") {
                                         await handlePlanningAction(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
@@ -550,7 +551,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             badgesController.fetchPlanningStop();
                                           },
                                         );
-                                      } else if (value == 'acceptLack') {
+                                      } else if (value == "acceptLack") {
                                         await handlePlanningAction(
                                           context: context,
                                           selectedPlanningIds: selectedPlanningIds,
@@ -562,20 +563,20 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                           errorMessage: "Có lỗi xảy ra khi thực thi",
                                           onSuccess: () => loadPlanning(clearSelection: true),
                                         );
-                                      } else if (value == 'forceComplete') {
+                                      } else if (value == "forceComplete") {
                                         runCompletePlanningFlow(
                                           context: context,
                                           selectedIds: selectedPlanningIds,
                                           onConfirmComplete: (ids) async {
                                             return await PlanningService().confirmCompletePlanning(
                                               ids: ids,
-                                              action: 'CONFIRM_COMPLETE',
+                                              action: "CONFIRM_COMPLETE",
                                               forceComplete: true,
                                             );
                                           },
                                           onReload: () => loadPlanning(clearSelection: true),
                                         );
-                                      } else if (value == 'notify') {
+                                      } else if (value == "notify") {
                                         bool confirm = await showConfirmDialog(
                                           context: context,
                                           title: "Xác Nhận Lịch Sản Xuất",
@@ -604,7 +605,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             showSnackBarError(context, "Lỗi khi gửi lịch sản xuất");
                                           }
                                         }
-                                      } else if (value == 'note') {
+                                      } else if (value == "note") {
                                         if (selectedPlanningIds.isEmpty) {
                                           showSnackBarError(
                                             context,
@@ -659,7 +660,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                             }
                                           },
                                         );
-                                      } else if (value == 'export') {
+                                      } else if (value == "export") {
                                         await showDialog(
                                           context: context,
                                           builder:
@@ -673,59 +674,59 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                     itemBuilder:
                                         (BuildContext context) => [
                                           const PopupMenuItem<String>(
-                                            value: 'change',
+                                            value: "change",
                                             child: ListTile(
                                               leading: Icon(Symbols.construction),
-                                              title: Text('Chuyển Máy'),
+                                              title: Text("Chuyển Máy"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'stop',
+                                            value: "stop",
                                             child: ListTile(
                                               leading: Icon(Symbols.pause_circle),
-                                              title: Text('Dừng Chạy Đơn'),
+                                              title: Text("Dừng Chạy Đơn"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'reject',
+                                            value: "reject",
                                             child: ListTile(
                                               leading: Icon(Symbols.cancel_rounded),
-                                              title: Text('Hủy Chạy Đơn'),
+                                              title: Text("Hủy Chạy Đơn"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'acceptLack',
+                                            value: "acceptLack",
                                             child: ListTile(
                                               leading: Icon(Icons.approval_outlined),
-                                              title: Text('Chấp Nhận Thiếu SL'),
+                                              title: Text("Chấp Nhận Thiếu SL"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'forceComplete',
+                                            value: "forceComplete",
                                             child: ListTile(
                                               leading: Icon(Icons.check_circle_outline),
-                                              title: Text('Hoàn Thành Ngay'),
+                                              title: Text("Hoàn Thành Ngay"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'notify',
+                                            value: "notify",
                                             child: ListTile(
                                               leading: Icon(Symbols.send),
-                                              title: Text('Gửi Kế Hoạch SX'),
+                                              title: Text("Gửi Kế Hoạch SX"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'note',
+                                            value: "note",
                                             child: ListTile(
                                               leading: Icon(Symbols.note_add),
-                                              title: Text('Thêm Ghi Chú'),
+                                              title: Text("Thêm Ghi Chú"),
                                             ),
                                           ),
                                           const PopupMenuItem<String>(
-                                            value: 'export',
+                                            value: "export",
                                             child: ListTile(
                                               leading: Icon(Symbols.file_download),
-                                              title: Text('Xuất Excel'),
+                                              title: Text("Xuất Excel"),
                                             ),
                                           ),
                                         ],
@@ -839,7 +840,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
             selectedPlanningIds: _selectedPlanningIdsNotifier.value,
             unsavedChange: unsavedChangeController,
             showGroup: showGroup,
-            page: 'planning',
+            page: "planning",
           );
         }
 
@@ -869,24 +870,24 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                   StackedHeaderRow(
                     cells: [
                       StackedHeaderCell(
-                        columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
+                        columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
                         child: Obx(
-                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                          () => formatColumn(label: "Số Lượng", themeController: themeController),
                         ),
                       ),
                       StackedHeaderCell(
                         columnNames: [
-                          'bottom',
-                          'fluteE',
-                          'fluteE2',
-                          'fluteB',
-                          'fluteC',
-                          'knife',
-                          'totalLoss',
+                          "bottom",
+                          "fluteE",
+                          "fluteE2",
+                          "fluteB",
+                          "fluteC",
+                          "knife",
+                          "totalLoss",
                         ],
                         child: Obx(
                           () => formatColumn(
-                            label: 'Định Mức Phế Liệu (Kg)',
+                            label: "Định Mức Phế Liệu (Kg)",
                             themeController: themeController,
                           ),
                         ),
@@ -909,7 +910,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                 onColumnResizeEnd:
                     (details) => GridResizeHelper.onResizeEnd(
                       details: details,
-                      tableKey: 'queuePaper',
+                      tableKey: "queuePaper",
                       columnWidths: columnWidths,
                       setState: setState,
                     ),
@@ -1033,7 +1034,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         planningList?.where((p) => planningIds.contains(p.planningId)).toList() ?? [];
 
     //pause or cancel order
-    if (status == 'complete') {
+    if (status == "complete") {
       //check dayCompleted
       final hasDayCompleted = selectedPlannings.any((p) => p.dayCompleted == null);
       if (hasDayCompleted) {
@@ -1055,7 +1056,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         final success = await PlanningService().pauseOrAcceptLackQty(
           ids: planningIds,
           newStatus: status,
-          action: 'PAUSE_OR_ACCEPT_LACK',
+          action: "PAUSE_OR_ACCEPT_LACK",
         );
 
         if (success) {
@@ -1066,11 +1067,11 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         }
       } on ApiException catch (e) {
         final errorText = switch (e.errorCode) {
-          'CANNOT_REJECT_PRODUCED_PLANNING' => e.message!,
-          'CANNOT_COMPLETE_WITHOUT_SORT' => e.message!,
+          "CANNOT_REJECT_PRODUCED_PLANNING" => e.message!,
+          "CANNOT_COMPLETE_WITHOUT_SORT" => e.message!,
           "PLANNING_NOT_REQUESTED" => e.message!,
           "PLANNING_HAS_OUTBOUND_DETAILS" => e.message!,
-          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+          _ => "Có lỗi xảy ra, vui lòng thử lại",
         };
 
         if (context.mounted) {
