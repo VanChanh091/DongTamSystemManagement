@@ -8,9 +8,9 @@ import 'package:dongtam/presentation/components/shared/planning/widgets_planning
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart';
 import 'package:dongtam/presentation/sources/synthetic/report/errProduction/yearly_err_production_data_source.dart';
-import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
+import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -82,10 +82,9 @@ class _SyntheticYearlyErrProductionState extends State<SyntheticYearlyErrProduct
   Future<void> _loadMachines() async {
     try {
       final List<String> list = ["Tất cả"];
-      final machines = await AdminService().getMachinePapers();
-      for (final m in machines) {
-        final name = m.machineName.trim();
-        if (name.isNotEmpty && !list.contains(name)) {
+      final machines = await MachineHelper.getMachinePaperNames();
+      for (final name in machines) {
+        if (!list.contains(name)) {
           list.add(name);
         }
       }

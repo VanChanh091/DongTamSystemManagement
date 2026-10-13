@@ -59,10 +59,7 @@ class _PaperPickerDialogState extends State<PaperPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final basePapers =
-        widget.isFluteOnly
-            ? widget.allPapers.where((p) => p.layerType == 'FLUTE').toList()
-            : widget.allPapers.toList();
+    final basePapers = widget.allPapers.toList();
 
     final suppliers = ["Tất cả", ...basePapers.map((p) => p.supplierName).toSet()];
 
@@ -78,6 +75,18 @@ class _PaperPickerDialogState extends State<PaperPickerDialog> {
 
     final linerPapers = filteredList.where((p) => p.layerType != 'FLUTE').toList();
     final flutePapers = filteredList.where((p) => p.layerType == 'FLUTE').toList();
+
+    final firstList = widget.isFluteOnly ? flutePapers : linerPapers;
+    final firstTitle = widget.isFluteOnly ? "GIẤY SÓNG" : "GIẤY MẶT";
+    final firstIcon = widget.isFluteOnly ? Icons.waves_rounded : Icons.layers_outlined;
+    final firstColor = widget.isFluteOnly ? const Color(0xFFB45309) : const Color(0xFF15803D);
+    final firstBgColor = widget.isFluteOnly ? const Color(0xFFFEF3C7) : const Color(0xFFDCFCE7);
+
+    final secondList = widget.isFluteOnly ? linerPapers : flutePapers;
+    final secondTitle = widget.isFluteOnly ? "GIẤY MẶT" : "GIẤY SÓNG";
+    final secondIcon = widget.isFluteOnly ? Icons.layers_outlined : Icons.waves_rounded;
+    final secondColor = widget.isFluteOnly ? const Color(0xFF15803D) : const Color(0xFFB45309);
+    final secondBgColor = widget.isFluteOnly ? const Color(0xFFDCFCE7) : const Color(0xFFFEF3C7);
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -235,15 +244,15 @@ class _PaperPickerDialogState extends State<PaperPickerDialog> {
                         : CustomScrollView(
                           physics: const BouncingScrollPhysics(),
                           slivers: [
-                            // 1. GIẤY MẶT
-                            if (linerPapers.isNotEmpty) ...[
+                            // 1. NHÓM ƯU TIÊN 1
+                            if (firstList.isNotEmpty) ...[
                               SliverToBoxAdapter(
                                 child: _buildSectionHeader(
-                                  title: "GIẤY MẶT",
-                                  count: linerPapers.length,
-                                  icon: Icons.layers_outlined,
-                                  color: const Color(0xFF15803D),
-                                  bgColor: const Color(0xFFDCFCE7),
+                                  title: firstTitle,
+                                  count: firstList.length,
+                                  icon: firstIcon,
+                                  color: firstColor,
+                                  bgColor: firstBgColor,
                                 ),
                               ),
                               SliverGrid(
@@ -254,21 +263,21 @@ class _PaperPickerDialogState extends State<PaperPickerDialog> {
                                   childAspectRatio: 2.8,
                                 ),
                                 delegate: SliverChildBuilderDelegate(
-                                  (context, index) => _buildCardItem(linerPapers[index]),
-                                  childCount: linerPapers.length,
+                                  (context, index) => _buildCardItem(firstList[index]),
+                                  childCount: firstList.length,
                                 ),
                               ),
                             ],
 
-                            // 2. GIẤY SÓNG
-                            if (flutePapers.isNotEmpty) ...[
+                            // 2. NHÓM ƯU TIÊN 2
+                            if (secondList.isNotEmpty) ...[
                               SliverToBoxAdapter(
                                 child: _buildSectionHeader(
-                                  title: "GIẤY SÓNG",
-                                  count: flutePapers.length,
-                                  icon: Icons.waves_rounded,
-                                  color: const Color(0xFFB45309),
-                                  bgColor: const Color(0xFFFEF3C7),
+                                  title: secondTitle,
+                                  count: secondList.length,
+                                  icon: secondIcon,
+                                  color: secondColor,
+                                  bgColor: secondBgColor,
                                 ),
                               ),
                               SliverGrid(
@@ -279,8 +288,8 @@ class _PaperPickerDialogState extends State<PaperPickerDialog> {
                                   childAspectRatio: 2.8,
                                 ),
                                 delegate: SliverChildBuilderDelegate(
-                                  (context, index) => _buildCardItem(flutePapers[index]),
-                                  childCount: flutePapers.length,
+                                  (context, index) => _buildCardItem(secondList[index]),
+                                  childCount: secondList.length,
                                 ),
                               ),
                             ],

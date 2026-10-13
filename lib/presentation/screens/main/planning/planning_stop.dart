@@ -1,24 +1,24 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/sources/planning/machine_paper_data_source.dart';
-import 'package:dongtam/service/planning_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
+import "package:dongtam/presentation/sources/planning/machine_paper_data_source.dart";
+import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class PlanningStop extends StatefulWidget {
   const PlanningStop({super.key});
@@ -35,7 +35,7 @@ class _PlanningStopState extends State<PlanningStop> {
   final badgesController = Get.find<BadgesController>();
   final themeController = Get.find<ThemeController>();
   final userController = Get.find<UserController>();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   TextEditingController searchController = TextEditingController();
   Map<String, double> columnWidths = {}; //map header table
@@ -55,7 +55,7 @@ class _PlanningStopState extends State<PlanningStop> {
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "planning");
 
-    ColumnWidthTable.loadWidths(tableKey: 'planningStop', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "planningStop", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -140,7 +140,7 @@ class _PlanningStopState extends State<PlanningStop> {
                 children: [
                   handleCancelOrContinue(
                     isPlan: isPlan,
-                    action: 'planning',
+                    action: "planning",
                     label: "Tiếp Tục Chạy",
                     iconData: Symbols.check,
                   ),
@@ -148,7 +148,7 @@ class _PlanningStopState extends State<PlanningStop> {
 
                   handleCancelOrContinue(
                     isPlan: isPlan,
-                    action: 'cancel',
+                    action: "cancel",
                     label: "Hủy Đơn",
                     iconData: Symbols.cancel,
                   ),
@@ -175,7 +175,7 @@ class _PlanningStopState extends State<PlanningStop> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['plannings'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["plannings"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -188,15 +188,15 @@ class _PlanningStopState extends State<PlanningStop> {
         }
 
         final data = snapshot.data!;
-        final plannings = data['plannings'] as List<PlanningPaperModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final plannings = data["plannings"] as List<PlanningPaperModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         machinePaperDatasource = MachinePaperDatasource(
           planning: plannings,
           selectedPlanningIds: selectedPlanningIds,
           showGroup: true,
-          page: 'planning',
+          page: "planning",
         );
 
         return Column(
@@ -220,48 +220,48 @@ class _PlanningStopState extends State<PlanningStop> {
                   StackedHeaderRow(
                     cells: [
                       StackedHeaderCell(
-                        columnNames: ['quantityOrd', 'runningPlanProd', 'qtyProduced'],
+                        columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
                         child: Obx(
-                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                          () => formatColumn(label: "Số Lượng", themeController: themeController),
                         ),
                       ),
                       StackedHeaderCell(
                         columnNames: [
-                          'bottom',
-                          'fluteE',
-                          'fluteE2',
-                          'fluteB',
-                          'fluteC',
-                          'knife',
-                          'totalLoss',
+                          "bottom",
+                          "fluteE",
+                          "fluteE2",
+                          "fluteB",
+                          "fluteC",
+                          "knife",
+                          "totalLoss",
                         ],
                         child: Obx(
                           () => formatColumn(
-                            label: 'Định Mức Phế Liệu',
+                            label: "Định Mức Phế Liệu",
                             themeController: themeController,
                           ),
                         ),
                       ),
                       StackedHeaderCell(
                         columnNames: [
-                          'inMatTruoc',
-                          'inMatSau',
-                          'canLanBox',
-                          'canMang',
-                          'xa',
-                          'catKhe',
-                          'be',
-                          'dan_1_Manh',
-                          'dan_2_Manh',
-                          'dongGhimMotManh',
-                          'dongGhimHaiManh',
-                          'chongTham',
-                          'dongGoi',
-                          'maKhuon',
+                          "inMatTruoc",
+                          "inMatSau",
+                          "canLanBox",
+                          "canMang",
+                          "xa",
+                          "catKhe",
+                          "be",
+                          "dan_1_Manh",
+                          "dan_2_Manh",
+                          "dongGhimMotManh",
+                          "dongGhimHaiManh",
+                          "chongTham",
+                          "dongGoi",
+                          "maKhuon",
                         ],
                         child: Obx(
                           () =>
-                              formatColumn(label: 'Công Đoạn 2', themeController: themeController),
+                              formatColumn(label: "Công Đoạn 2", themeController: themeController),
                         ),
                       ),
                     ],
@@ -282,7 +282,7 @@ class _PlanningStopState extends State<PlanningStop> {
                 onColumnResizeEnd:
                     (details) => GridResizeHelper.onResizeEnd(
                       details: details,
-                      tableKey: 'planningStop',
+                      tableKey: "planningStop",
                       columnWidths: columnWidths,
                       setState: setState,
                     ),
@@ -298,9 +298,9 @@ class _PlanningStopState extends State<PlanningStop> {
                         selectedRows
                             .map((row) {
                               final cell = row.getCells().firstWhere(
-                                (c) => c.columnName == 'planningId',
+                                (c) => c.columnName == "planningId",
                                 orElse:
-                                    () => const DataGridCell(columnName: 'planningId', value: ''),
+                                    () => const DataGridCell(columnName: "planningId", value: ""),
                               );
                               return cell.value.toString();
                             })
@@ -390,14 +390,14 @@ class _PlanningStopState extends State<PlanningStop> {
                   AppLogger.e("Error in cancelOrContinue: $e", stackTrace: s);
 
                   if (mounted) {
-                    showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
+                    showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại");
                   }
                 }
               }
               : null,
       label: label,
       icon: iconData,
-      backgroundColor: action == 'cancel' ? const Color(0xffEA4346) : themeController.buttonColor,
+      backgroundColor: action == "cancel" ? const Color(0xffEA4346) : themeController.buttonColor,
     );
   }
 }

@@ -14,6 +14,7 @@ import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
+import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -48,13 +49,16 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   Future<bool> endShift() => _qcService.endShift();
 
   //filter
-  String machine = "Máy 1350";
   String filterType = "all";
   final Map<String, String> filterOptions = {
     "all": "Tất cả",
     "gtZero": "Còn SL Chạy",
     "ltZero": "Hết SL Chạy",
   };
+
+  String machine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   //notifiers
   final _zoomNotifier = ValueNotifier<double>(1.0);
@@ -73,7 +77,10 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     loadInspectionPaper();
+
     isQC = userController.hasAnyPermission(permission: ["QC"]);
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "production");
@@ -81,6 +88,20 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
       setState(() {
         columnWidths = w;
       });
+    });
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
     });
   }
 
@@ -359,7 +380,7 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
                               //choose machine
                               buildDropdownItems(
                                 value: machine,
-                                items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+                                items: machineList,
                                 onChanged: (value) {
                                   if (value != null) {
                                     changeMachine(value);

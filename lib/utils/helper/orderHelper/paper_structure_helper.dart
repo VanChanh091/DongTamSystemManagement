@@ -6,8 +6,16 @@ import 'package:dongtam/data/models/order/model_helper/paper_classification_item
 class PaperStructureHelper extends StatefulWidget {
   final List<PaperClassificationItem> allPapers;
   final Map<String, String?>? initialData;
+  final String? initialWave;
+  final int? initialLayerCount;
 
-  const PaperStructureHelper({super.key, required this.allPapers, this.initialData});
+  const PaperStructureHelper({
+    super.key,
+    required this.allPapers,
+    this.initialData,
+    this.initialWave,
+    this.initialLayerCount,
+  });
 
   @override
   State<PaperStructureHelper> createState() => _PaperStructureHelperState();
@@ -30,8 +38,30 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
 
     // Nếu tạo mới hoàn toàn (chưa có dữ liệu gì)
     if (data == null || data.values.every((v) => v == null || v.trim().isEmpty)) {
-      currentWave = "E";
-      currentLayerCount = 2;
+      // Trường hợp 1 lớp: chỉ có Đáy, không có sóng
+      if (widget.initialLayerCount == 1) {
+        currentWave = "";
+        currentLayerCount = 1;
+        return;
+      }
+
+      // Trường hợp có truyền wave & layerCount từ sản phẩm
+      final wave = widget.initialWave?.trim();
+      final layer = widget.initialLayerCount;
+
+      if (wave != null && wave.isNotEmpty && waveConfigs.containsKey(wave)) {
+        currentWave = wave;
+        final allowed = waveConfigs[wave]?["layers"] as List<int>? ?? [2, 3];
+        if (layer != null && allowed.contains(layer)) {
+          currentLayerCount = layer;
+        } else {
+          currentLayerCount = waveConfigs[wave]!["defaultLayer"] as int;
+        }
+      } else {
+        // Fallback về mặc định (sóng E, 2 lớp hoặc theo layer nếu hợp lệ)
+        currentWave = "E";
+        currentLayerCount = (layer != null && [2, 3].contains(layer)) ? layer : 2;
+      }
       return;
     }
 
@@ -162,7 +192,7 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
   List<Map<String, dynamic>> _generateSlots(String wave, int layers) {
     if (layers == 1) {
       return [
-        {"name": "Đáy", "isFlute": false, "prefix": "", "field": "day"}
+        {"name": "Đáy", "isFlute": false, "prefix": "", "field": "day"},
       ];
     }
 
@@ -302,29 +332,21 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                         spacing: 8,
                         children:
                             waveConfigs.keys.map((wave) {
-                              final isSelected =
-                                  currentWave == wave && currentLayerCount > 1;
+                              final isSelected = currentWave == wave && currentLayerCount > 1;
                               return ChoiceChip(
                                 label: Text(wave),
                                 selected: isSelected,
                                 selectedColor: const Color(0xFF2563EB),
                                 checkmarkColor: Colors.white,
                                 labelStyle: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? Colors.white
-                                          : const Color(0xFF334155),
-                                  fontWeight:
-                                      isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w500,
+                                  color: isSelected ? Colors.white : const Color(0xFF334155),
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                   fontSize: 12,
                                 ),
                                 onSelected: (_) {
                                   setState(() {
                                     currentWave = wave;
-                                    currentLayerCount =
-                                        waveConfigs[wave]!["defaultLayer"] as int;
+                                    currentLayerCount = waveConfigs[wave]!["defaultLayer"] as int;
                                     chosenSlots.clear();
                                   });
                                 },
@@ -356,14 +378,8 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                                 selectedColor: const Color(0xFF2563EB),
                                 checkmarkColor: Colors.white,
                                 labelStyle: TextStyle(
-                                  color:
-                                      isSelected
-                                          ? Colors.white
-                                          : const Color(0xFF334155),
-                                  fontWeight:
-                                      isSelected
-                                          ? FontWeight.bold
-                                          : FontWeight.w500,
+                                  color: isSelected ? Colors.white : const Color(0xFF334155),
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                                   fontSize: 12,
                                 ),
                                 onSelected: (_) {
@@ -377,9 +393,7 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                                         currentWave = "E";
                                       }
                                       currentLayerCount = layer;
-                                      chosenSlots.removeWhere(
-                                        (key, _) => key >= layer,
-                                      );
+                                      chosenSlots.removeWhere((key, _) => key >= layer);
                                     }
                                   });
                                 },

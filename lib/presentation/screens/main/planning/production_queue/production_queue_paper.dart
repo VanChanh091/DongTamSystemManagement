@@ -17,6 +17,7 @@ import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
@@ -54,13 +55,17 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   final headerScrollController = ScrollController();
 
   //search
-  String machine = "Máy 1350";
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
     "Tên Khách Hàng": "customerName",
     "Khổ Cấp Giấy": "ghepKho",
   };
+
+  //machine
+  String machine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   double displayTotalPrice = 0.0;
   Map<String, double> columnWidths = {};
@@ -95,6 +100,8 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     loadPlanning();
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "planning");
@@ -111,6 +118,20 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
         "${now.year}";
     timeStartController.text = "6:00";
     totalTimeWorkingController.text = "24";
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
+    });
   }
 
   void loadPlanning({bool clearSelection = false}) {
@@ -455,12 +476,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                                   //change machine
                                   buildDropdownItems(
                                     value: machine,
-                                    items: const [
-                                      "Máy 1350",
-                                      "Máy 1900",
-                                      "Máy 2 Lớp",
-                                      "Máy Quấn Cuồn",
-                                    ],
+                                    items: machineList,
                                     onChanged: (value) async {
                                       if (value == null) return;
 

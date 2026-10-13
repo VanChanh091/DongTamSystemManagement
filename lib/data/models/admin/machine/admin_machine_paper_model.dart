@@ -2,7 +2,6 @@ import "package:dongtam/utils/helper/helper_model.dart";
 
 class AdminMachinePaperModel {
   int machineId;
-  String machineName;
   int timeChangeSize;
   int timeChangeSameSize;
   int speed2Layer;
@@ -13,6 +12,7 @@ class AdminMachinePaperModel {
   int speed7Layer;
   int paperRollSpeed;
   double machinePerformance;
+  String machineName;
   String type;
 
   AdminMachinePaperModel({
@@ -33,17 +33,17 @@ class AdminMachinePaperModel {
 
   factory AdminMachinePaperModel.fromJson(Map<String, dynamic> json) {
     return AdminMachinePaperModel(
-      machineId: json["machineId"],
-      machineName: json["machineName"],
-      timeChangeSize: json["timeChangeSize"] ?? 0,
-      timeChangeSameSize: json["timeChangeSameSize"] ?? 0,
-      speed2Layer: json["speed2Layer"] ?? 0,
-      speed3Layer: json["speed3Layer"] ?? 0,
-      speed4Layer: json["speed4Layer"] ?? 0,
-      speed5Layer: json["speed5Layer"] ?? 0,
-      speed6Layer: json["speed6Layer"] ?? 0,
-      speed7Layer: json["speed7Layer"] ?? 0,
-      paperRollSpeed: json["paperRollSpeed"] ?? 0,
+      machineId: toInt(json["machineId"]),
+      machineName: json["machineName"] ?? "",
+      timeChangeSize: toInt(json["timeChangeSize"]),
+      timeChangeSameSize: toInt(json["timeChangeSameSize"]),
+      speed2Layer: toInt(json["speed2Layer"]),
+      speed3Layer: toInt(json["speed3Layer"]),
+      speed4Layer: toInt(json["speed4Layer"]),
+      speed5Layer: toInt(json["speed5Layer"]),
+      speed6Layer: toInt(json["speed6Layer"]),
+      speed7Layer: toInt(json["speed7Layer"]),
+      paperRollSpeed: toInt(json["paperRollSpeed"]),
       machinePerformance: toDouble(json["machinePerformance"]),
       type: json["type"] ?? "",
     );

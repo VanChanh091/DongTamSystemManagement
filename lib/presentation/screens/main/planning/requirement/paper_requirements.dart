@@ -13,6 +13,7 @@ import "package:dongtam/presentation/sources/planning/requirements/layer_require
 import "package:dongtam/presentation/sources/planning/requirements/paper_requirement_data_source.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
@@ -55,11 +56,6 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   PaperRequirementsDataSource? _cachedDatasource;
   List<PaperRequirementLayerModel> selectedPaperLayers = [];
 
-  String machine = "Máy 1350";
-  bool _isSelectionChange = false;
-  bool isTextFieldEnabled = false;
-  bool isSearching = false;
-
   // Search & Filter
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
@@ -68,13 +64,25 @@ class _PaperRequirementsState extends State<PaperRequirements> {
     "Ghép Khổ": "ghepKho",
   };
 
+  //machine
+  String machine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
+
   //cache grand totals paper required for smooth animated
   double _lastPaperRequired = 0;
   double _lastTotalPrice = 0;
 
+  //flag
+  bool _isSelectionChange = false;
+  bool isTextFieldEnabled = false;
+  bool isSearching = false;
+
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     loadPaperRequirements();
 
     columnsRequirements = buildPaperRequirementColumns(themeController: themeController);
@@ -90,6 +98,20 @@ class _PaperRequirementsState extends State<PaperRequirements> {
       setState(() {
         columnWidthLayers = w;
       });
+    });
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
     });
   }
 
@@ -129,7 +151,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
     final List<int> currentSelectedIds =
         dataGridController.selectedRows.map((row) {
           final value =
-              row.getCells().firstWhere((cell) => cell.columnName == 'requirementId').value;
+              row.getCells().firstWhere((cell) => cell.columnName == "requirementId").value;
           return value as int;
         }).toList();
 
@@ -287,11 +309,11 @@ class _PaperRequirementsState extends State<PaperRequirements> {
             // Cụm tìm kiếm bên trái
             LeftButtonSearch(
               selectedType: searchType,
-              types: const ['Tất cả', 'Mã Đơn Hàng', 'Tên Khách Hàng', 'Ghép Khổ'],
+              types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Ghép Khổ"],
               onTypeChanged: (value) {
                 setState(() {
                   searchType = value;
-                  isTextFieldEnabled = value != 'Tất cả';
+                  isTextFieldEnabled = value != "Tất cả";
 
                   if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                     searchController.clear();
@@ -310,7 +332,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
             // Dropdown chọn máy bên phải
             buildDropdownItems(
               value: machine,
-              items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+              items: machineList,
               onChanged: (value) {
                 setState(() {
                   machine = value!;
@@ -552,14 +574,14 @@ class _PaperRequirementsState extends State<PaperRequirements> {
         List<PaperRequirementGhepKhoSummary> summaryList = [];
 
         if (snapshot.hasData && data != null) {
-          totalRequiredQty = double.tryParse(data['totalRequiredQty']?.toString() ?? "") ?? 0.0;
-          totalPrice = double.tryParse(data['totalPrice']?.toString() ?? "") ?? 0.0;
-          totalRecords = int.tryParse(data['totalRecords']?.toString() ?? "") ?? 0;
+          totalRequiredQty = double.tryParse(data["totalRequiredQty"]?.toString() ?? "") ?? 0.0;
+          totalPrice = double.tryParse(data["totalPrice"]?.toString() ?? "") ?? 0.0;
+          totalRecords = int.tryParse(data["totalRecords"]?.toString() ?? "") ?? 0;
 
           _lastPaperRequired = totalRequiredQty;
           _lastTotalPrice = totalPrice;
 
-          final rawSummary = data['summaryByGhepKho'] as List?;
+          final rawSummary = data["summaryByGhepKho"] as List?;
           if (rawSummary != null) {
             summaryList =
                 rawSummary

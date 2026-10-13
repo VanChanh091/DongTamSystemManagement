@@ -12,6 +12,7 @@ import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/helper/helper_model.dart';
+import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -88,11 +89,11 @@ class _SyntheticMonthlyErrProductionState extends State<SyntheticMonthlyErrProdu
   Future<void> _loadMachines() async {
     try {
       final List<String> list = ["Tất cả"];
+
       if (selectedType == "paper") {
-        final machines = await AdminService().getMachinePapers();
-        for (final m in machines) {
-          final name = m.machineName.trim();
-          if (name.isNotEmpty && !list.contains(name)) {
+        final machines = await MachineHelper.getMachinePaperNames();
+        for (final name in machines) {
+          if (!list.contains(name)) {
             list.add(name);
           }
         }

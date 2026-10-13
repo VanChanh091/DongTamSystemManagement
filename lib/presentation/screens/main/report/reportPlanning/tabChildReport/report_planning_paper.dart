@@ -10,6 +10,7 @@ import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
+import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -36,14 +37,18 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   final themeController = Get.find<ThemeController>();
   final headerScrollController = ScrollController();
 
+  //filters & machine
   String searchType = "Tất cả";
-  String machine = "Máy 1350";
   final Map<String, String> searchFieldMap = {
     "Mã Đơn Hàng": "orderId",
     "Tên Khách Hàng": "customerName",
     "Ngày Báo Cáo": "dayReported",
     "Trưởng Máy": "shiftManagement",
   };
+
+  String machine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   Map<String, double> columnWidths = {}; //map header table
   final _zoomNotifier = ValueNotifier<double>(1.0);
@@ -73,6 +78,8 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     loadReportPaper();
 
     columns = buildReportPaperColumn(themeController: themeController);
@@ -80,6 +87,20 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
       setState(() {
         columnWidths = w;
       });
+    });
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
     });
   }
 
@@ -389,7 +410,7 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
                               //choose machine
                               buildDropdownItems(
                                 value: machine,
-                                items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+                                items: machineList,
                                 onChanged: (value) {
                                   if (value != null) {
                                     changeMachine(value);

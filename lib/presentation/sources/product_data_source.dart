@@ -1,7 +1,7 @@
-import 'package:dongtam/data/models/product/product_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/product/product_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ProductDataSource extends DataGridSource {
   List<ProductModel> products = [];
@@ -24,10 +24,12 @@ class ProductDataSource extends DataGridSource {
 
   List<DataGridCell> buildProductCells(ProductModel product, int index) {
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "productId", value: product.productId),
       DataGridCell<String>(columnName: "typeProduct", value: product.typeProduct),
       DataGridCell<String>(columnName: "productName", value: product.productName ?? ""),
+      DataGridCell<int>(columnName: "layerCount", value: product.layerCount ?? 0),
+      DataGridCell<String>(columnName: "wave", value: product.wave ?? ""),
       DataGridCell<String>(columnName: "maKhuon", value: product.maKhuon ?? ""),
       DataGridCell<String>(
         columnName: "imageProduct",
@@ -59,7 +61,7 @@ class ProductDataSource extends DataGridSource {
                 dataCell.value is num ? Alignment.centerRight : Alignment.centerLeft;
 
             // Nếu là cột hình ảnh thì custom hiển thị
-            if (dataCell.columnName == 'imageProduct') {
+            if (dataCell.columnName == "imageProduct") {
               final imageUrl = dataCell.value?.toString() ?? "";
               final hasImage = imageUrl.isNotEmpty && imageUrl != "Không có ảnh";
 

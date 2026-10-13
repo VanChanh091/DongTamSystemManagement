@@ -8,6 +8,8 @@ const List<Map<String, dynamic>> _headerProduct = [
   {"key": "productId", "title": "Mã Sản Phẩm"},
   {"key": "typeProduct", "title": "Loại Sản Phẩm"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
+  {"key": "layerCount", "title": "Số lớp"},
+  {"key": "wave", "title": "Loại Sóng"},
   {"key": "maKhuon", "title": "Mã Khuôn"},
   {"key": "imageProduct", "title": "Hình ảnh"},
 ];

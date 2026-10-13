@@ -13,6 +13,7 @@ import "package:dongtam/service/scrap_report_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
@@ -41,15 +42,16 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
   late String shiftProduction = "Ca 1";
   final List<String> itemShiftProduction = ["Ca 1", "Ca 2", "Ca 3"];
 
+  //machine
   late String machine = "Máy 1350";
-  final List<String> itemsMachine = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   DateTime? dayCompleted;
   final _dayCompletedController = TextEditingController();
 
   String? shiftManagementSelected;
   final _shiftManagementController = TextEditingController();
-
   final _shiftProductionController = TextEditingController();
 
   final _qtyWasteNormController = TextEditingController();
@@ -64,6 +66,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
   @override
   void initState() {
     super.initState();
+    _loadRawMachine();
     futureEmployee = EmployeeService().getEmployeeByPosition();
 
     if (widget.scrapReport != null) {
@@ -84,6 +87,20 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
       _dayCompletedController.text =
           dayCompleted != null ? DateFormat("dd/MM/yyyy").format(dayCompleted!) : "";
     }
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
+    });
   }
 
   void scrapReportInitState() {
@@ -386,7 +403,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
                           Expanded(
                             flex: 3,
                             child: ValidationHelper.dropdownForTypes(
-                              items: itemsMachine,
+                              items: machineList,
                               type: machine,
                               onChanged: (value) {
                                 setState(() {

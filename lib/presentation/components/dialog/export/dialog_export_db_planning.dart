@@ -1,5 +1,6 @@
 import "dart:io";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
 import "package:intl/intl.dart";
 import "package:flutter/material.dart";
@@ -23,7 +24,28 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
 
   //machine
   String machine = "Máy 1350";
-  final List<String> itemsMachine = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRawMachine();
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
+    });
+  }
 
   Future<void> pickedDate(BuildContext context) async {
     final DateTime? date = await showDatePicker(
@@ -169,7 +191,7 @@ class _DialogExportDbPlanningsState extends State<DialogExportDbPlannings> {
 
                 if (value == "machine") ...[
                   ValidationHelper.dropdownForTypes(
-                    items: itemsMachine,
+                    items: machineList,
                     type: machine,
                     onChanged: (value) {
                       setState(() {

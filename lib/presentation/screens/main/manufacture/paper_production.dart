@@ -12,6 +12,7 @@ import "package:dongtam/presentation/components/shared/planning/widgets_planning
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/socket/init_socket_manufacture.dart";
 import "package:dongtam/presentation/sources/planning/machine_paper_data_source.dart";
 import "package:dongtam/service/manufacture_service.dart";
@@ -75,8 +76,13 @@ class _PaperProductionState extends State<PaperProduction> {
 
   //permission
   String machine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
+
+  //convert machine
   Map<String, String> permissionToMachineMap = {
     "machine1350": "Máy 1350",
+    "machine1800": "Máy 1800",
     "machine1900": "Máy 1900",
     "machine2Layer": "Máy 2 Lớp",
     "MachineRollPaper": "Máy Quấn Cuồn",
@@ -112,6 +118,8 @@ class _PaperProductionState extends State<PaperProduction> {
     );
 
     _initSocket.registerSocket(machine);
+
+    _loadRawMachine();
     loadPlanning();
 
     columns = buildMachinePaperColumns(themeController: themeController, page: "production");
@@ -119,6 +127,20 @@ class _PaperProductionState extends State<PaperProduction> {
       setState(() {
         columnWidths = w;
       });
+    });
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
     });
   }
 
@@ -542,12 +564,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                 //choose machine
                                 buildDropdownItems(
                                   value: machine,
-                                  items: const [
-                                    "Máy 1350",
-                                    "Máy 1900",
-                                    "Máy 2 Lớp",
-                                    "Máy Quấn Cuồn",
-                                  ],
+                                  items: machineList,
                                   onChanged: (value) {
                                     if (value != null) {
                                       changeMachine(value);

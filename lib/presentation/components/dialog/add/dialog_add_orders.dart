@@ -62,6 +62,7 @@ class _OrderDialogState extends State<OrderDialog> {
   List<ProductModel> allProducts = [];
   List<PaperClassificationItem> allPapers = [];
   CustomerModel? selectedCustomer;
+  ProductModel? selectedProduct;
 
   double uploadProgress = 0.0;
   bool isUploading = false;
@@ -186,6 +187,7 @@ class _OrderDialogState extends State<OrderDialog> {
       customerCompanyController.text = selectedOrder.customer!.companyName;
     }
     if (selectedOrder.product != null) {
+      selectedProduct = selectedOrder.product;
       typeProduct.text = selectedOrder.product!.typeProduct;
       nameSpController.text = selectedOrder.product!.productName ?? "";
     }
@@ -278,9 +280,51 @@ class _OrderDialogState extends State<OrderDialog> {
     try {
       final result = await ProductService().getProducts(noPaging: true);
       allProducts = result["products"] as List<ProductModel>;
+      if (selectedProduct == null && productIdController.text.trim().isNotEmpty) {
+        final code = productIdController.text.trim().toUpperCase();
+        selectedProduct = allProducts.firstWhereOrNull(
+          (p) => p.productId.trim().toUpperCase() == code,
+        );
+      }
     } catch (e, s) {
       AppLogger.e("Lỗi khi tải danh sách sản phẩm", error: e, stackTrace: s);
     }
+  }
+
+  void _onProductIdChanged(String value) {
+    _productIdDebounce?.cancel();
+    _productIdDebounce = Timer(const Duration(milliseconds: 300), () async {
+      final code = value.trim().toUpperCase();
+      if (code.isEmpty || !mounted) return;
+
+      // 1. Tìm nhanh trong cache danh sách allProducts
+      ProductModel? matched = allProducts.firstWhereOrNull(
+        (p) => p.productId.trim().toUpperCase() == code,
+      );
+
+      // 2. Nếu chưa có trong cache, gọi API tìm kiếm
+      if (matched == null) {
+        try {
+          final result = await ProductService().getProducts(field: "productId", keyword: code);
+          if (result["products"] != null && result["products"] is List<ProductModel>) {
+            final list = result["products"] as List<ProductModel>;
+            matched = list.firstWhereOrNull((p) => p.productId.trim().toUpperCase() == code);
+          }
+        } catch (e) {
+          AppLogger.e("Lỗi tìm kiếm sản phẩm theo mã: $e");
+        }
+      }
+
+      if (matched != null && mounted) {
+        setState(() {
+          selectedProduct = matched;
+          typeProduct.text = matched!.typeProduct;
+          nameSpController.text = matched.productName ?? "";
+          maKhuonController.text = matched.maKhuon ?? "";
+          _autoSetDvtByProduct(matched.typeProduct);
+        });
+      }
+    });
   }
 
   Future<void> _fetchAllPaperCodes() async {
@@ -786,6 +830,7 @@ class _OrderDialogState extends State<OrderDialog> {
             );
           },
           onSelected: (product) {
+            selectedProduct = product;
             productIdController.text = product.productId;
             typeProduct.text = product.typeProduct;
             nameSpController.text = product.productName ?? "";
@@ -808,11 +853,14 @@ class _OrderDialogState extends State<OrderDialog> {
             if (value.isEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
+                  selectedProduct = null;
                   typeProduct.clear();
                   nameSpController.clear();
                   maKhuonController.clear();
                 }
               });
+            } else {
+              _onProductIdChanged(value);
             }
           },
         ),
@@ -1311,6 +1359,21 @@ class _OrderDialogState extends State<OrderDialog> {
   }
 
   Future<void> _handleOpenStructureBuilder() async {
+    String? initialWave;
+    int? initialLayerCount;
+
+    if (selectedProduct != null) {
+      final layer = selectedProduct!.layerCount;
+      final wave = selectedProduct!.wave?.trim();
+
+      if (layer != null && layer > 0) {
+        initialLayerCount = layer;
+      }
+      if (wave != null && wave.isNotEmpty) {
+        initialWave = wave;
+      }
+    }
+
     final result = await showDialog<PaperStructureResult>(
       barrierDismissible: false,
       context: context,
@@ -1328,6 +1391,8 @@ class _OrderDialogState extends State<OrderDialog> {
               "songE2": songE2Controller.text,
               "matE2": matE2Controller.text,
             },
+            initialWave: initialWave,
+            initialLayerCount: initialLayerCount,
           ),
     );
 

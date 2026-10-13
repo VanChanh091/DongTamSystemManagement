@@ -4,6 +4,8 @@ class ProductModel {
   String? productName;
   String? maKhuon;
   String? productImage;
+  int? layerCount;
+  String? wave;
 
   ProductModel({
     required this.productId,
@@ -11,6 +13,8 @@ class ProductModel {
     this.productName,
     this.maKhuon,
     this.productImage,
+    this.layerCount,
+    this.wave,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +24,8 @@ class ProductModel {
       productName: json["productName"] ?? "",
       maKhuon: json["maKhuon"] ?? "",
       productImage: json["productImage"] ?? "",
+      layerCount: json["layerCount"] ?? 0,
+      wave: json["wave"] ?? "",
     );
   }
 
@@ -30,6 +36,8 @@ class ProductModel {
       "productName": productName,
       "maKhuon": maKhuon,
       "productImage": productImage,
+      "layerCount": layerCount,
+      "wave": wave,
     };
   }
 }

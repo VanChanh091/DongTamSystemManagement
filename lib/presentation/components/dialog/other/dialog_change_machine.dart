@@ -1,6 +1,7 @@
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
@@ -20,20 +21,35 @@ class ChangeMachineDialog extends StatefulWidget {
 class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
   final formKey = GlobalKey<FormState>();
   late List<int> planningIds = [];
-  final List<String> machineList = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
 
-  //planning
   late String chooseMachine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   @override
   void initState() {
     super.initState();
+    _loadRawMachine();
 
     planningIds = widget.planning.map((p) => p.planningId).toList();
 
     if (widget.planning.isNotEmpty) {
       chooseMachine = widget.planning.first.chooseMachine;
     }
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(chooseMachine)) {
+        chooseMachine = machineList.first;
+      }
+    });
   }
 
   void submit() async {

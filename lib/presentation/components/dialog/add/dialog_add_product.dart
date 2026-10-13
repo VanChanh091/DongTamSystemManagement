@@ -30,6 +30,8 @@ class _ProductDialogState extends State<ProductDialog> {
   final nameProductController = TextEditingController();
   final maKhuonController = TextEditingController();
   final typeProductController = TextEditingController();
+  final layerCountController = TextEditingController();
+  final waveController = TextEditingController();
 
   String typeProduct = "Giấy Tấm";
   final List<String> itemsTypeProduct = [
@@ -55,6 +57,8 @@ class _ProductDialogState extends State<ProductDialog> {
       nameProductController.text = widget.product?.productName ?? "";
       maKhuonController.text = widget.product?.maKhuon ?? "";
       productImageUrl = widget.product!.productImage;
+      layerCountController.text = widget.product?.layerCount?.toString() ?? "";
+      waveController.text = widget.product?.wave ?? "";
 
       //dropdown
       typeProduct = widget.product!.typeProduct;
@@ -92,6 +96,8 @@ class _ProductDialogState extends State<ProductDialog> {
         productName: nameProductController.superClean,
         maKhuon: maKhuonController.trimmed,
         productImage: productImageUrl ?? "",
+        layerCount: int.tryParse(layerCountController.trimmed),
+        wave: waveController.trimmed,
       );
 
       final bool isAdd = widget.product == null;
@@ -235,6 +241,8 @@ class _ProductDialogState extends State<ProductDialog> {
     nameProductController.dispose();
     maKhuonController.dispose();
     typeProductController.dispose();
+    layerCountController.dispose();
+    waveController.dispose();
   }
 
   @override
@@ -270,6 +278,22 @@ class _ProductDialogState extends State<ProductDialog> {
           label: "Tên sản phẩm",
           controller: nameProductController,
           icon: Icons.production_quantity_limits,
+        ),
+      },
+      {
+        "leftKey": "Số lớp",
+        "leftValue": validateInput(
+          label: "Số lớp",
+          controller: layerCountController,
+          icon: Icons.layers,
+        ),
+      },
+      {
+        "leftKey": "Loại Sóng",
+        "leftValue": validateInput(
+          label: "Loại Sóng",
+          controller: waveController,
+          icon: Icons.waves,
         ),
       },
       {

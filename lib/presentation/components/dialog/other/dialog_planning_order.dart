@@ -6,6 +6,7 @@ import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
 import "package:dongtam/service/planning_service.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
@@ -34,13 +35,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final formKey = GlobalKey<FormState>();
   final badgesController = Get.find<BadgesController>();
   late String originalOrderId;
-  final List<String> machineList = [
-    "Máy 1350",
-    "Máy 1800",
-    "Máy 1900",
-    "Máy 2 Lớp",
-    "Máy Quấn Cuồn",
-  ];
+
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   //order
   DateTime? dateShipping;
@@ -103,6 +100,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     orderInitState();
 
     fillDataOrderToPlanning();
@@ -175,6 +174,19 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     //structure replace
     _updateStructureController();
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(chooseMachine)) {
+        chooseMachine = machineList.first;
+      }
+    });
   }
 
   String formatterStructureOrder({
@@ -277,8 +289,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
         return;
       }
     } else {
-      if (chooseMachine == "Máy 2 Lớp" && chooseMachine == "Máy Quấn Cuồn") {
-        showSnackBarError(context, "Đơn này không được chạy ở Máy 2 Lớp!");
+      if (chooseMachine == "Máy 2 Lớp" || chooseMachine == "Máy Quấn Cuồn") {
+        showSnackBarError(context, "Đơn này không được chạy ở máy này!");
         return;
       }
     }

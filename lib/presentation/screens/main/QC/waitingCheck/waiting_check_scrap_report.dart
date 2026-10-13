@@ -13,6 +13,7 @@ import 'package:dongtam/service/scrap_report_service.dart';
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
+import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -53,6 +54,8 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
 
   //filter by machine & status
   String machine = "Máy 1350";
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   String filterType = "pending";
   final Map<String, String> filterOptions = {
@@ -81,6 +84,8 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     loadScrapReports();
 
     columns = buildScrapReportColumn(themeController: themeController);
@@ -89,6 +94,20 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
       setState(() {
         columnWidths = w;
       });
+    });
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
     });
   }
 
@@ -282,7 +301,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                           buildDropdownItems(
                             width: 160,
                             value: machine,
-                            items: const ['Máy 1350', "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"],
+                            items: machineList,
                             onChanged: (value) {
                               if (value == null) return;
                               setState(() {

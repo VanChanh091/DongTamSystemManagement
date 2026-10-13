@@ -10,6 +10,7 @@ import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/report/inspection_paper_data_source.dart";
 import "package:dongtam/service/report_service.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
@@ -34,7 +35,8 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   final themeController = Get.find<ThemeController>();
 
   String machine = "Máy 1350";
-  final List<String> machineList = ["Máy 1350", "Máy 1900", "Máy 2 Lớp", "Máy Quấn Cuồn"];
+  List<String> machineList = [];
+  Map<String, int?> rawMachineMap = {};
 
   String searchType = "Tất cả";
   final Map<String, String> searchFieldMap = {
@@ -71,6 +73,8 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   @override
   void initState() {
     super.initState();
+
+    _loadRawMachine();
     loadInspectionPaper();
 
     columns = buildInspectionPaperColumn(themeController: themeController);
@@ -78,6 +82,20 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
       setState(() {
         columnWidths = w;
       });
+    });
+  }
+
+  Future<void> _loadRawMachine() async {
+    final result = await MachineHelper.getRawMachinePapers();
+    if (!mounted) return;
+
+    setState(() {
+      rawMachineMap = result.nameToIdMap;
+      machineList = result.machineNames;
+
+      if (machineList.isNotEmpty && !machineList.contains(machine)) {
+        machine = machineList.first;
+      }
     });
   }
 
