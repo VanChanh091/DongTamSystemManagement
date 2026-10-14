@@ -8,6 +8,8 @@ class PaperStructureResult {
   final String? matB;
   final String? songC;
   final String? matC;
+  final String? songA;
+  final String? matA;
   final String? songE2;
   final String? matE2;
 
@@ -20,9 +22,28 @@ class PaperStructureResult {
     this.matB,
     this.songC,
     this.matC,
+    this.songA,
+    this.matA,
     this.songE2,
     this.matE2,
   });
+
+  static String format({
+    String? day,
+    String? songE,
+    String? matE,
+    String? songB,
+    String? matB,
+    String? songC,
+    String? matC,
+    String? songA,
+    String? matA,
+    String? songE2,
+    String? matE2,
+  }) {
+    final parts = [day, songE, matE, songB, matB, songC, matC, songA, matA, songE2, matE2];
+    return parts.where((part) => part != null && part.trim().isNotEmpty).join('/');
+  }
 
   factory PaperStructureResult.fromMap(String formatted, Map<String, String?> map) {
     return PaperStructureResult(
@@ -34,6 +55,8 @@ class PaperStructureResult {
       matB: map["matB"],
       songC: map["songC"],
       matC: map["matC"],
+      songA: map["songA"],
+      matA: map["matA"],
       songE2: map["songE2"],
       matE2: map["matE2"],
     );
@@ -49,6 +72,8 @@ class PaperStructureResult {
       matB: null,
       songC: null,
       matC: null,
+      songA: null,
+      matA: null,
       songE2: null,
       matE2: null,
     );

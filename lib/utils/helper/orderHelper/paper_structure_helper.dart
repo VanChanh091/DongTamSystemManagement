@@ -36,7 +36,7 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
   void _initFromExistingData() {
     final data = widget.initialData;
 
-    // Nếu tạo mới hoàn toàn (chưa có dữ liệu gì)
+    // Nếu tạo mới hoàn toàn
     if (data == null || data.values.every((v) => v == null || v.trim().isEmpty)) {
       // Trường hợp 1 lớp: chỉ có Đáy, không có sóng
       if (widget.initialLayerCount == 1) {
@@ -71,6 +71,7 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
     final hasE = hasField("songE") || hasField("matE");
     final hasB = hasField("songB") || hasField("matB");
     final hasC = hasField("songC") || hasField("matC");
+    final hasA = hasField("songA") || hasField("matA");
     final hasE2 = hasField("songE2") || hasField("matE2");
 
     // Đếm số lớp đang có dữ liệu
@@ -80,7 +81,7 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
     }
 
     // Nếu chỉ có Đáy (1 lớp) và không có bất kỳ sóng/mặt nào
-    if (hasDay && !hasE && !hasB && !hasC && !hasE2) {
+    if (hasDay && !hasE && !hasB && !hasC && !hasE2 && !hasA) {
       currentWave = "";
       currentLayerCount = 1;
     } else {
@@ -88,7 +89,7 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
       final detected =
           hasE2
               ? (hasB ? "EBE" : (hasC ? "ECE" : "EE"))
-              : [if (hasE) "E", if (hasB) "B", if (hasC) "C"].join();
+              : [if (hasE) "E", if (hasB) "B", if (hasC) "C", if (hasA) "A"].join();
 
       currentWave = waveConfigs.containsKey(detected) ? detected : "BC";
 
@@ -119,8 +120,8 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
       if (p.paperCode.toUpperCase() == clean) return p;
     }
 
-    // Tìm sau khi gỡ bỏ tiền tố E2, B, C, E
-    for (final prefix in ["E2", "B", "C", "E"]) {
+    // Tìm sau khi gỡ bỏ tiền tố E2, B, C, A, E
+    for (final prefix in ["E2", "B", "C", "A", "E"]) {
       if (clean.startsWith(prefix) && clean.length > prefix.length) {
         final stripped = clean.substring(prefix.length);
         for (final p in widget.allPapers) {
@@ -151,6 +152,10 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
       "layers": [2, 3],
       "defaultLayer": 2,
     },
+    "A": {
+      "layers": [3],
+      "defaultLayer": 3,
+    },
 
     // Sóng đôi: 4 & 5 lớp
     "EE": {
@@ -162,6 +167,10 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
       "defaultLayer": 4,
     },
     "EC": {
+      "layers": [4, 5],
+      "defaultLayer": 4,
+    },
+    "EA": {
       "layers": [4, 5],
       "defaultLayer": 4,
     },
@@ -200,10 +209,12 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
       "E": ["E"],
       "B": ["B"],
       "C": ["C"],
-      "BC": ["B", "C"],
+      "A": ["A"],
+      "EE": ["E", "E2"],
       "EB": ["E", "B"],
       "EC": ["E", "C"],
-      "EE": ["E", "E2"],
+      "EA": ["E", "A"],
+      "BC": ["B", "C"],
       "EBE": ["E", "B", "E2"],
       "ECE": ["E", "C", "E2"],
       "EBC": ["E", "B", "C"],
@@ -218,10 +229,10 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
     }
 
     for (final f in flutes) {
-      // 1. Lớp Sóng
+      // Lớp Sóng
       slots.add({"name": "Sóng $f", "isFlute": true, "prefix": f, "field": "song$f"});
 
-      // 2. Lớp Mặt tương ứng
+      // Lớp Mặt tương ứng
       if (slots.length < layers) {
         slots.add({"name": "Mặt $f", "isFlute": false, "prefix": "", "field": "mat$f"});
       }
@@ -318,87 +329,101 @@ class _PaperStructureHelperState extends State<PaperStructureHelper> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Loại sóng:",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF475569),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text(
+                          "Loại sóng:",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF475569),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Wrap(
-                        spacing: 8,
-                        children:
-                            waveConfigs.keys.map((wave) {
-                              final isSelected = currentWave == wave && currentLayerCount > 1;
-                              return ChoiceChip(
-                                label: Text(wave),
-                                selected: isSelected,
-                                selectedColor: const Color(0xFF2563EB),
-                                checkmarkColor: Colors.white,
-                                labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : const Color(0xFF334155),
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  fontSize: 12,
-                                ),
-                                onSelected: (_) {
-                                  setState(() {
-                                    currentWave = wave;
-                                    currentLayerCount = waveConfigs[wave]!["defaultLayer"] as int;
-                                    chosenSlots.clear();
-                                  });
-                                },
-                              );
-                            }).toList(),
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children:
+                              waveConfigs.keys.map((wave) {
+                                final isSelected = currentWave == wave && currentLayerCount > 1;
+                                return ChoiceChip(
+                                  label: Text(wave),
+                                  selected: isSelected,
+                                  selectedColor: const Color(0xFF2563EB),
+                                  checkmarkColor: Colors.white,
+                                  labelStyle: TextStyle(
+                                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                    fontSize: 12,
+                                  ),
+                                  onSelected: (_) {
+                                    setState(() {
+                                      currentWave = wave;
+                                      currentLayerCount = waveConfigs[wave]!["defaultLayer"] as int;
+                                      chosenSlots.clear();
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        "Số lớp:",
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF475569),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text(
+                          "Số lớp:",
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF475569),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Wrap(
-                        spacing: 8,
-                        children:
-                            availableLayers.map((layer) {
-                              final isSelected = currentLayerCount == layer;
-                              return ChoiceChip(
-                                label: Text("$layer Lớp"),
-                                selected: isSelected,
-                                selectedColor: const Color(0xFF2563EB),
-                                checkmarkColor: Colors.white,
-                                labelStyle: TextStyle(
-                                  color: isSelected ? Colors.white : const Color(0xFF334155),
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  fontSize: 12,
-                                ),
-                                onSelected: (_) {
-                                  setState(() {
-                                    if (layer == 1) {
-                                      currentWave = "";
-                                      currentLayerCount = 1;
-                                      chosenSlots.clear();
-                                    } else {
-                                      if (currentWave.isEmpty) {
-                                        currentWave = "E";
+                      Expanded(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children:
+                              availableLayers.map((layer) {
+                                final isSelected = currentLayerCount == layer;
+                                return ChoiceChip(
+                                  label: Text("$layer Lớp"),
+                                  selected: isSelected,
+                                  selectedColor: const Color(0xFF2563EB),
+                                  checkmarkColor: Colors.white,
+                                  labelStyle: TextStyle(
+                                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                    fontSize: 12,
+                                  ),
+                                  onSelected: (_) {
+                                    setState(() {
+                                      if (layer == 1) {
+                                        currentWave = "";
+                                        currentLayerCount = 1;
+                                        chosenSlots.clear();
+                                      } else {
+                                        if (currentWave.isEmpty) {
+                                          currentWave = "E";
+                                        }
+                                        currentLayerCount = layer;
+                                        chosenSlots.removeWhere((key, _) => key >= layer);
                                       }
-                                      currentLayerCount = layer;
-                                      chosenSlots.removeWhere((key, _) => key >= layer);
-                                    }
-                                  });
-                                },
-                              );
-                            }).toList(),
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                        ),
                       ),
                     ],
                   ),

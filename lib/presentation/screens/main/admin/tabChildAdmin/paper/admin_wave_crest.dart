@@ -17,12 +17,12 @@ class AdminWaveCrest extends StatefulWidget {
 }
 
 class AdminWaveCrestState extends State<AdminWaveCrest> {
-  late Future<List<AdminWaveCrestModel>> futureAdminWaveCrest;
+  late Future<List<AdminWaveCrestCoeffModel>> futureAdminWaveCrest;
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   int? selectedWaveCrest;
   List<int> isSelected = [];
-  List<AdminWaveCrestModel> updatedWaveCrest = [];
+  List<AdminWaveCrestCoeffModel> updatedWaveCrest = [];
   bool selectedAll = false;
 
   @override
@@ -128,6 +128,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                             "fluteE_2": item.fluteE_2,
                             "fluteB": item.fluteB,
                             "fluteC": item.fluteC,
+                            "fluteA": item.fluteA,
                             "machineName": item.machineName,
                           },
                         );
@@ -274,7 +275,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
   }
 
   Widget _buildTableSection() {
-    return FutureBuilder<List<AdminWaveCrestModel>>(
+    return FutureBuilder<List<AdminWaveCrestCoeffModel>>(
       future: futureAdminWaveCrest,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -351,6 +352,7 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
               DataColumn(label: styleText("Đầu E2")),
               DataColumn(label: styleText("Đầu B")),
               DataColumn(label: styleText("Đầu C")),
+              DataColumn(label: styleText("Đầu A")),
               DataColumn(label: styleText("Loại Máy")),
             ],
             rows: List<DataRow>.generate(data.length, (index) {
@@ -423,6 +425,16 @@ class AdminWaveCrestState extends State<AdminWaveCrest> {
                       onChanged: (value) {
                         setState(() {
                           waveCrest.fluteC = double.tryParse(value) ?? 0;
+                        });
+                      },
+                    ),
+                  ),
+                  DataCell(
+                    styleCellAdmin(
+                      text: waveCrest.fluteA.toString(),
+                      onChanged: (value) {
+                        setState(() {
+                          waveCrest.fluteA = double.tryParse(value) ?? 0;
                         });
                       },
                     ),

@@ -132,6 +132,7 @@ class MachinePaperDatasource extends DataGridSource {
       buildWasteCell(columnName: "fluteE2", value: planning.fluteE2 ?? 0),
       buildWasteCell(columnName: "fluteB", value: planning.fluteB ?? 0),
       buildWasteCell(columnName: "fluteC", value: planning.fluteC ?? 0),
+      buildWasteCell(columnName: "fluteA", value: planning.fluteA ?? 0),
       buildWasteCell(columnName: "knife", value: planning.knife ?? 0),
       buildWasteCell(columnName: "totalLoss", value: planning.totalLoss ?? 0),
       buildWasteCell(columnName: "qtyWastes", value: planning.qtyWasteNorm ?? 0),

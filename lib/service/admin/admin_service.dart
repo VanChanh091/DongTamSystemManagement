@@ -240,11 +240,11 @@ class AdminService {
   //==========================WAVE CREST COEFFICIENT================================
 
   //get all wave crest
-  Future<List<AdminWaveCrestModel>> getAllWaveCrest() async {
-    return HelperService().fetchingData<AdminWaveCrestModel>(
+  Future<List<AdminWaveCrestCoeffModel>> getAllWaveCrest() async {
+    return HelperService().fetchingData<AdminWaveCrestCoeffModel>(
       endpoint: "admin/wave-crest-coeff",
       queryParameters: const {},
-      fromJson: (json) => AdminWaveCrestModel.fromJson(json),
+      fromJson: (json) => AdminWaveCrestCoeffModel.fromJson(json),
     );
   }
 

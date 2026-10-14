@@ -51,6 +51,7 @@ const List<Map<String, dynamic>> _headerSyntheticPaper = [
   {"key": "fluteE2", "title": "Sóng E2"},
   {"key": "fluteB", "title": "Sóng B"},
   {"key": "fluteC", "title": "Sóng C"},
+  {"key": "fluteA", "title": "Sóng A"},
   {"key": "knife", "title": "Dao"},
   {"key": "totalLoss", "title": "Tổng PL"},
 

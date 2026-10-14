@@ -1,3 +1,4 @@
+import "package:dongtam/data/models/order/model_helper/paper_structure_result.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/box_machine_time.dart";
 import "package:dongtam/data/models/planning/time_overflow_planning.dart";
@@ -9,7 +10,8 @@ class PlanningBoxModel {
   final int planningBoxId;
 
   final int qtyPaper;
-  final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
+  final String? day, matE, matB, matC, matA, matE2;
+  final String? songE, songB, songC, songA, songE2;
   final double length, size;
 
   final String? statusRequest;
@@ -29,10 +31,12 @@ class PlanningBoxModel {
     this.matE,
     this.matB,
     this.matC,
+    this.matA,
     this.matE2,
     this.songE,
     this.songB,
     this.songC,
+    this.songA,
     this.songE2,
     required this.length,
     required this.size,
@@ -47,18 +51,19 @@ class PlanningBoxModel {
     this.inbound,
   });
 
-  String get formatterStructureOrder {
-    final parts = [day, songE, matE, songB, matB, songC, matC, songE2, matE2];
-    final formattedParts = <String>[];
-
-    for (final part in parts) {
-      if (part != null && part.isNotEmpty) {
-        formattedParts.add(part);
-      }
-    }
-
-    return formattedParts.join("/");
-  }
+  String get formatterStructureOrder => PaperStructureResult.format(
+    day: day,
+    songE: songE,
+    matE: matE,
+    songB: songB,
+    matB: matB,
+    songC: songC,
+    matC: matC,
+    songA: songA,
+    matA: matA,
+    songE2: songE2,
+    matE2: matE2,
+  );
 
   static String formatTimeOfDay({required TimeOfDay timeOfDay}) {
     final hour = timeOfDay.hour.toString().padLeft(2, "0");

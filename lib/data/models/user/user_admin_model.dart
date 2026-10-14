@@ -73,6 +73,7 @@ class UserAdminModel {
       "accountant": "Kế toán",
       "production": "Sản xuất",
       "machine1350": "Máy 1350",
+      "machine1800": "Máy 1800",
       "machine1900": "Máy 1900",
       "machine2Layer": "Máy 2 Lớp",
       "MachineRollPaper": "Máy Quấn Cuồn",

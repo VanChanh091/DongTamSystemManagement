@@ -37,6 +37,7 @@ final List<Map<String, dynamic>> _reportPaperColumns = [
   {"key": "fluteE", "title": "Sóng E"},
   {"key": "fluteB", "title": "Sóng B"},
   {"key": "fluteC", "title": "Sóng C"},
+  {"key": "fluteA", "title": "Sóng A"},
   {"key": "knife", "title": "Dao"},
   {"key": "totalLoss", "title": "Tổng PL"},
   {"key": "qtyWasteRp", "title": "PL Báo Cáo"},

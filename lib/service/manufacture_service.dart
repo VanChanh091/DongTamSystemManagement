@@ -1,10 +1,10 @@
-import 'package:dio/dio.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/utils/handleError/dio_client.dart';
-import 'package:dongtam/utils/helper/helper_service.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/secure_storage_service.dart';
+import "package:dio/dio.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/utils/handleError/dio_client.dart";
+import "package:dongtam/utils/helper/helper_service.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/secure_storage_service.dart";
 
 class ManufactureService {
   final Dio dioService = DioClient().dio;
@@ -53,18 +53,22 @@ class ManufactureService {
 
     final method = isUpdate ? dioService.put : dioService.post;
 
+    final Map<String, dynamic> data = {
+      "qtyProduced": qtyProduced,
+      "dayCompleted": fullDateTime.toIso8601String(),
+      "reportedBy": reportedBy,
+      ...reportData,
+    };
+
+    print("Data to send: $data");
+
     try {
       await method(
-        '/api/manufacture/paper',
+        "/api/manufacture/paper",
         queryParameters: {"planningId": planningId, "action": isUpdate ? action : null},
-        data: {
-          "qtyProduced": qtyProduced,
-          "dayCompleted": fullDateTime.toIso8601String(),
-          "reportedBy": reportedBy,
-          ...reportData,
-        },
+        data: data,
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
@@ -74,11 +78,11 @@ class ManufactureService {
       return false;
     } catch (e, s) {
       AppLogger.e(
-        "Failed to ${isUpdate ? 'update' : 'create'} report paper",
+        "Failed to ${isUpdate ? "update" : "create"} report paper",
         error: e,
         stackTrace: s,
       );
-      throw Exception('Failed to ${isUpdate ? 'update' : 'create'} report paper: $e');
+      throw Exception("Failed to ${isUpdate ? "update" : "create"} report paper: $e");
     }
   }
 
@@ -129,7 +133,7 @@ class ManufactureService {
 
     try {
       final response = await method(
-        '/api/manufacture/box',
+        "/api/manufacture/box",
         queryParameters: {
           "planningBoxId": planningBoxId,
           "machine": machine,
@@ -143,11 +147,11 @@ class ManufactureService {
           "reportedBy": reportedBy,
         },
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
         ),
       );
 
-      final bool isLastStage = response.data['data']['isLastStage'] ?? false;
+      final bool isLastStage = response.data["data"]["isLastStage"] ?? false;
 
       return {"success": true, "isLastStage": isLastStage};
     } on DioException catch (e) {
@@ -155,7 +159,7 @@ class ManufactureService {
       return {"success": false, "isLastStage": false};
     } catch (e, s) {
       AppLogger.e(
-        "Failed to ${isUpdate ? 'update' : 'create'} report box",
+        "Failed to ${isUpdate ? "update" : "create"} report box",
         error: e,
         stackTrace: s,
       );

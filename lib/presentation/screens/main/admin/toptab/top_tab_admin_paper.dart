@@ -31,7 +31,7 @@ class _TopTabAdminPaperState extends State<TopTabAdminPaper> {
               overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: const [
                 Tab(text: "Thời Gian Máy Sóng"),
-                Tab(text: "Định Mức PL Giấy"),
+                Tab(text: "Định Mức Phế Liệu"),
                 Tab(text: "Hệ Số Máy Sóng"),
                 Tab(text: "Độ Cao Sóng"),
               ],

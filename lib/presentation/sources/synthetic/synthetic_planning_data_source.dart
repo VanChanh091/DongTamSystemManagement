@@ -118,6 +118,7 @@ class DashboardPaperDataSource extends DataGridSource {
       buildWasteCell(columnName: "fluteE2", value: paper.fluteE2 ?? 0),
       buildWasteCell(columnName: "fluteB", value: paper.fluteB ?? 0),
       buildWasteCell(columnName: "fluteC", value: paper.fluteC ?? 0),
+      buildWasteCell(columnName: "fluteA", value: paper.fluteA ?? 0),
       buildWasteCell(columnName: "knife", value: paper.knife ?? 0),
       buildWasteCell(columnName: "totalLoss", value: paper.totalLoss ?? 0),
 

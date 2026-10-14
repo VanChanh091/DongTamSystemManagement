@@ -898,6 +898,7 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
                           "fluteE2",
                           "fluteB",
                           "fluteC",
+                          "fluteA",
                           "knife",
                           "totalLoss",
                         ],

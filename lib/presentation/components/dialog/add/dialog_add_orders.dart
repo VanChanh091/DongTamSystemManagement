@@ -58,6 +58,7 @@ class _OrderDialogState extends State<OrderDialog> {
 
   late String originalOrderId;
 
+  final List<VoidCallback> _fieldListeners = [];
   List<CustomerModel> allCustomers = [];
   List<ProductModel> allProducts = [];
   List<PaperClassificationItem> allPapers = [];
@@ -83,10 +84,13 @@ class _OrderDialogState extends State<OrderDialog> {
   final matEController = TextEditingController();
   final matBController = TextEditingController();
   final matCController = TextEditingController();
+  final matAController = TextEditingController();
   final matE2Controller = TextEditingController();
+
   final songEController = TextEditingController();
   final songBController = TextEditingController();
   final songCController = TextEditingController();
+  final songAController = TextEditingController();
   final songE2Controller = TextEditingController();
 
   //specs
@@ -197,10 +201,12 @@ class _OrderDialogState extends State<OrderDialog> {
     matEController.text = selectedOrder.matE ?? "";
     matBController.text = selectedOrder.matB ?? "";
     matCController.text = selectedOrder.matC ?? "";
+    matAController.text = selectedOrder.matA ?? "";
     matE2Controller.text = selectedOrder.matE2 ?? "";
     songEController.text = selectedOrder.songE ?? "";
     songBController.text = selectedOrder.songB ?? "";
     songCController.text = selectedOrder.songC ?? "";
+    songAController.text = selectedOrder.songA ?? "";
     songE2Controller.text = selectedOrder.songE2 ?? "";
 
     structureController.text = selectedOrder.formatterStructureOrder;
@@ -291,6 +297,15 @@ class _OrderDialogState extends State<OrderDialog> {
     }
   }
 
+  Future<void> _fetchAllPaperCodes() async {
+    try {
+      final result = await OrderService().getPaperCodeForStructure();
+      allPapers = result;
+    } catch (e, s) {
+      AppLogger.e("Lỗi khi tải danh sách giấy", error: e, stackTrace: s);
+    }
+  }
+
   void _onProductIdChanged(String value) {
     _productIdDebounce?.cancel();
     _productIdDebounce = Timer(const Duration(milliseconds: 300), () async {
@@ -326,17 +341,6 @@ class _OrderDialogState extends State<OrderDialog> {
       }
     });
   }
-
-  Future<void> _fetchAllPaperCodes() async {
-    try {
-      final result = await OrderService().getPaperCodeForStructure();
-      allPapers = result;
-    } catch (e, s) {
-      AppLogger.e("Lỗi khi tải danh sách giấy", error: e, stackTrace: s);
-    }
-  }
-
-  final List<VoidCallback> _fieldListeners = [];
 
   void addListenerForField() {
     _fieldListeners.add(
@@ -390,6 +394,7 @@ class _OrderDialogState extends State<OrderDialog> {
       final String songEValue = OrderModel.addPrefixIfNeeded(songEController.text, "E");
       final String songBValue = OrderModel.addPrefixIfNeeded(songBController.text, "B");
       final String songCValue = OrderModel.addPrefixIfNeeded(songCController.text, "C");
+      final String songAValue = OrderModel.addPrefixIfNeeded(songAController.text, "A");
       final String songE2Value = OrderModel.addPrefixIfNeeded(songE2Controller.text, "E");
 
       final newBox = BoxModel(
@@ -424,10 +429,12 @@ class _OrderDialogState extends State<OrderDialog> {
         matE: matEController.trimmed.toUpperCase(),
         matB: matBController.trimmed.toUpperCase(),
         matC: matCController.trimmed.toUpperCase(),
+        matA: matAController.trimmed.toUpperCase(),
         matE2: matE2Controller.trimmed.toUpperCase(),
         songE: songEValue,
         songB: songBValue,
         songC: songCValue,
+        songA: songAValue,
         songE2: songE2Value,
 
         lengthPaperCustomer: lengthCustomerController.toDoubleRound,
@@ -600,10 +607,12 @@ class _OrderDialogState extends State<OrderDialog> {
     matEController.dispose();
     matBController.dispose();
     matCController.dispose();
+    matAController.dispose();
     matE2Controller.dispose();
     songEController.dispose();
     songBController.dispose();
     songCController.dispose();
+    songAController.dispose();
     songE2Controller.dispose();
     lengthCustomerController.dispose();
     lengthManufactureController.dispose();
@@ -1388,6 +1397,8 @@ class _OrderDialogState extends State<OrderDialog> {
               "matB": matBController.text,
               "songC": songCController.text,
               "matC": matCController.text,
+              "songA": songAController.text,
+              "matA": matAController.text,
               "songE2": songE2Controller.text,
               "matE2": matE2Controller.text,
             },
@@ -1408,6 +1419,8 @@ class _OrderDialogState extends State<OrderDialog> {
         matEController.text = result.matE ?? "";
         songBController.text = result.songB ?? "";
         matBController.text = result.matB ?? "";
+        songAController.text = result.songA ?? "";
+        matAController.text = result.matA ?? "";
         songCController.text = result.songC ?? "";
         matCController.text = result.matC ?? "";
         songE2Controller.text = result.songE2 ?? "";

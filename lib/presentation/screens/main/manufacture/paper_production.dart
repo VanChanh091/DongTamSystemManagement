@@ -1,7 +1,7 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
-import "package:dongtam/presentation/components/dialog/add/dialog_add_report_production.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_report_production.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_scrap_report.dart";
 import "package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart";
 import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
@@ -247,8 +247,8 @@ class _PaperProductionState extends State<PaperProduction> {
         rows
             .map((row) {
               final cell = row.getCells().firstWhere(
-                (c) => c.columnName == 'planningId',
-                orElse: () => const DataGridCell(columnName: '', value: ''),
+                (c) => c.columnName == "planningId",
+                orElse: () => const DataGridCell(columnName: "", value: ""),
               );
               return cell.value.toString();
             })
@@ -276,7 +276,13 @@ class _PaperProductionState extends State<PaperProduction> {
   @override
   Widget build(BuildContext context) {
     bool permissionCheck = userController.hasAnyPermission(
-      permission: ["machine1350", "machine1900", "machine2Layer", "MachineRollPaper"],
+      permission: [
+        "machine1350",
+        "machine1800",
+        "machine1900",
+        "machine2Layer",
+        "MachineRollPaper",
+      ],
     );
 
     return Scaffold(
@@ -876,6 +882,7 @@ class _PaperProductionState extends State<PaperProduction> {
                           "fluteE2",
                           "fluteB",
                           "fluteC",
+                          "fluteA",
                           "knife",
                           "totalLoss",
                         ],

@@ -49,10 +49,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final matEOrderController = TextEditingController();
   final matBOrderController = TextEditingController();
   final matCOrderController = TextEditingController();
+  final matAOrderController = TextEditingController();
   final matE2OrderController = TextEditingController();
   final songEOrderController = TextEditingController();
   final songBOrderController = TextEditingController();
   final songCOrderController = TextEditingController();
+  final songAOrderController = TextEditingController();
   final songE2OrderController = TextEditingController();
   final lengthOrderController = TextEditingController();
   final sizeOrderController = TextEditingController();
@@ -74,10 +76,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final matEReplaceController = TextEditingController();
   final matBReplaceController = TextEditingController();
   final matCReplaceController = TextEditingController();
+  final matAReplaceController = TextEditingController();
   final matE2ReplaceController = TextEditingController();
   final songEReplaceController = TextEditingController();
   final songBReplaceController = TextEditingController();
   final songCReplaceController = TextEditingController();
+  final songAReplaceController = TextEditingController();
   final songE2ReplaceController = TextEditingController();
   final lengthPaperPlanningController = TextEditingController();
   final sizePaperPLaningController = TextEditingController();
@@ -95,6 +99,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final matBController = TextEditingController();
   final songCController = TextEditingController();
   final matCController = TextEditingController();
+  final songAController = TextEditingController();
+  final matAController = TextEditingController();
   final songE2Controller = TextEditingController();
 
   @override
@@ -125,10 +131,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
     matEOrderController.text = order.matE.toString();
     matBOrderController.text = order.matB.toString();
     matCOrderController.text = order.matC.toString();
+    matAOrderController.text = order.matA.toString();
     matE2OrderController.text = order.matE2.toString();
     songEOrderController.text = order.songE.toString();
     songBOrderController.text = order.songB.toString();
     songCOrderController.text = order.songC.toString();
+    songAOrderController.text = order.songA.toString();
     songE2OrderController.text = order.songE2.toString();
     songController.text = order.flute.toString();
     qcBoxController.text = order.QC_box.toString();
@@ -153,10 +161,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matEReplaceController: matEOrderController,
       matBReplaceController: matBOrderController,
       matCReplaceController: matCOrderController,
+      matAReplaceController: matAOrderController,
       matE2ReplaceController: matE2OrderController,
       songEReplaceController: songEOrderController,
       songBReplaceController: songBOrderController,
       songCReplaceController: songCOrderController,
+      songAReplaceController: songAOrderController,
       songE2ReplaceController: songE2OrderController,
       lengthPaperPlanningController: lengthOrderController,
       sizePaperPLaningController: sizeOrderController,
@@ -197,6 +207,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
     required String matBReplace,
     required String songCReplace,
     required String matCReplace,
+    required String songAReplace,
+    required String matAReplace,
     required String songE2Replace,
     required String matE2Replace,
   }) {
@@ -208,6 +220,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matBReplace,
       songCReplace,
       matCReplace,
+      songAReplace,
+      matAReplace,
       songE2Replace,
       matE2Replace,
     ].where((e) => e.trim().isNotEmpty).join("/");
@@ -222,6 +236,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matBReplace: matBReplaceController.text,
       songCReplace: songCReplaceController.text,
       matCReplace: matCReplaceController.text,
+      songAReplace: songAReplaceController.text,
+      matAReplace: matAReplaceController.text,
       songE2Replace: songE2ReplaceController.text,
       matE2Replace: matE2ReplaceController.text,
     );
@@ -236,6 +252,8 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matBReplaceController,
       songCReplaceController,
       matCReplaceController,
+      songAReplaceController,
+      matAReplaceController,
       songE2ReplaceController,
       matE2ReplaceController,
     ]) {
@@ -305,10 +323,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
       matEReplace: matEReplaceController.trimmed,
       matBReplace: matBReplaceController.trimmed,
       matCReplace: matCReplaceController.trimmed,
+      matAReplace: matAReplaceController.trimmed,
       matE2Replace: matE2ReplaceController.trimmed,
       songEReplace: songEReplaceController.trimmed,
       songBReplace: songBReplaceController.trimmed,
       songCReplace: songCReplaceController.trimmed,
+      songAReplace: songAReplaceController.trimmed,
       songE2Replace: songE2ReplaceController.trimmed,
 
       lengthPaperPlanning: double.tryParse(lengthPaperPlanningController.trimmed) ?? 0,
@@ -365,10 +385,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
     matEOrderController.dispose();
     matBOrderController.dispose();
     matCOrderController.dispose();
+    matAOrderController.dispose();
     matE2OrderController.dispose();
     songEOrderController.dispose();
     songBOrderController.dispose();
     songCOrderController.dispose();
+    songAOrderController.dispose();
     songE2OrderController.dispose();
     songController.dispose();
     qcBoxController.dispose();
@@ -388,10 +410,12 @@ class _PLanningDialogState extends State<PLanningDialog> {
     matEReplaceController.dispose();
     matBReplaceController.dispose();
     matCReplaceController.dispose();
+    matAReplaceController.dispose();
     matE2ReplaceController.dispose();
     songEReplaceController.dispose();
     songBReplaceController.dispose();
     songCReplaceController.dispose();
+    songAReplaceController.dispose();
     songE2ReplaceController.dispose();
     lengthPaperPlanningController.dispose();
     sizePaperPLaningController.dispose();
@@ -498,11 +522,11 @@ class _PLanningDialogState extends State<PLanningDialog> {
       },
 
       {
-        "leftKey": "Sóng E2",
+        "leftKey": "Mặt A",
         "leftValue": ValidationHelper.planningInput(
-          label: "Sóng E2 thay thế (g)",
-          controller: songE2ReplaceController,
-          icon: Symbols.airwave,
+          label: "Mặt A thay thế (g)",
+          controller: matAReplaceController,
+          icon: Symbols.vertical_align_center,
         ),
         "middleKey": "Mặt E2",
         "middleValue": ValidationHelper.planningInput(
@@ -516,6 +540,23 @@ class _PLanningDialogState extends State<PLanningDialog> {
           controller: dayReplaceController,
           icon: Symbols.vertical_align_bottom,
         ),
+      },
+
+      {
+        "leftKey": "Sóng A",
+        "leftValue": ValidationHelper.planningInput(
+          label: "Sóng A thay thế (g)",
+          controller: songAReplaceController,
+          icon: Symbols.airwave,
+        ),
+        "middleKey": "Sóng E2",
+        "middleValue": ValidationHelper.planningInput(
+          label: "Sóng E2 thay thế (g)",
+          controller: songE2ReplaceController,
+          icon: Symbols.airwave,
+        ),
+        "rightKey": "",
+        "rightValue": const SizedBox.shrink(),
       },
 
       {

@@ -96,6 +96,7 @@ class ReportPaperDatasource extends DataGridSource {
       buildWasteNormCell("fluteE", planningPaper.fluteE ?? 0),
       buildWasteNormCell("fluteB", planningPaper.fluteB ?? 0),
       buildWasteNormCell("fluteC", planningPaper.fluteC ?? 0),
+      buildWasteNormCell("fluteA", planningPaper.fluteA ?? 0),
       buildWasteNormCell("knife", planningPaper.knife ?? 0),
       buildWasteNormCell("totalLoss", planningPaper.totalLoss ?? 0),
       buildWasteNormCell("qtyWasteRp", reportPaper.qtyWasteNorm),

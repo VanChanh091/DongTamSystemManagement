@@ -1,5 +1,6 @@
 import "package:dongtam/data/models/customer/customer_model.dart";
 import "package:dongtam/data/models/order/box_model.dart";
+import "package:dongtam/data/models/order/model_helper/paper_structure_result.dart";
 import "package:dongtam/data/models/order/order_images.dart";
 import "package:dongtam/data/models/planning/planning_box_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
@@ -21,7 +22,7 @@ class OrderModel {
   final bool chongTham, isBox, isFSC;
 
   final String? flute, QC_box, canLan;
-  final String? day, matE, matB, matC, matE2, songE, songB, songC, songE2;
+  final String? day, matE, matB, matC, matA, matE2, songE, songB, songC, songA, songE2;
   final String? instructSpecial, rejectReason, orderIdCustomer, note;
   final double? discount, acreage, pricePaper, totalPrice, totalPriceVAT, volume;
   final DateTime? dateRequestShipping, dayReceiveOrder;
@@ -55,10 +56,12 @@ class OrderModel {
     this.matE,
     this.matB,
     this.matC,
+    this.matA,
     this.matE2,
     this.songE,
     this.songB,
     this.songC,
+    this.songA,
     this.songE2,
     required this.lengthPaperCustomer,
     required this.lengthPaperManufacture,
@@ -107,18 +110,19 @@ class OrderModel {
     return NumberFormat("#,###.##").format(value);
   }
 
-  String get formatterStructureOrder {
-    final parts = [day, songE, matE, songB, matB, songC, matC, songE2, matE2];
-    final formattedParts = <String>[];
-
-    for (final part in parts) {
-      if (part != null && part.isNotEmpty) {
-        formattedParts.add(part);
-      }
-    }
-
-    return formattedParts.join("/");
-  }
+  String get formatterStructureOrder => PaperStructureResult.format(
+    day: day,
+    songE: songE,
+    matE: matE,
+    songB: songB,
+    matB: matB,
+    songC: songC,
+    matC: matC,
+    songA: songA,
+    matA: matA,
+    songE2: songE2,
+    matE2: matE2,
+  );
 
   //listener
   static VoidCallback listenerForFieldNeed(
@@ -174,15 +178,19 @@ class OrderModel {
       QC_box: json["QC_box"] ?? "",
       canLan: json["canLan"] ?? "",
       daoXa: json["daoXa"] ?? "",
+
       day: json["day"] ?? "",
       matE: json["matE"] ?? "",
       matB: json["matB"] ?? "",
       matC: json["matC"] ?? "",
+      matA: json["matA"] ?? "",
       matE2: json["matE2"] ?? "",
       songE: json["songE"] ?? "",
       songB: json["songB"] ?? "",
       songC: json["songC"] ?? "",
+      songA: json["songA"] ?? "",
       songE2: json["songE2"] ?? "",
+
       dvt: json["dvt"] ?? "",
       vat: json["vat"] ?? 0,
       quantityCustomer: json["quantityCustomer"] ?? 0,
@@ -249,10 +257,12 @@ class OrderModel {
       "matE": matE,
       "matB": matB,
       "matC": matC,
+      "matA": matA,
       "matE2": matE2,
       "songE": songE,
       "songB": songB,
       "songC": songC,
+      "songA": songA,
       "songE2": songE2,
       "lengthPaperCustomer": lengthPaperCustomer,
       "lengthPaperManufacture": lengthPaperManufacture,

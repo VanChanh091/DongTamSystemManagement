@@ -1,3 +1,4 @@
+import "package:dongtam/data/models/order/model_helper/paper_structure_result.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_box_model.dart";
 import "package:dongtam/data/models/planning/planning_stages.dart";
@@ -10,8 +11,8 @@ class PlanningPaperModel {
   final int planningId;
   final DateTime? dayStart, dayCompleted;
   final TimeOfDay? timeRunning, timeStart;
-  final String? dayReplace, matEReplace, matBReplace, matCReplace, matE2Replace;
-  final String? songEReplace, songBReplace, songCReplace, songE2Replace;
+  final String? dayReplace, matEReplace, matBReplace, matCReplace, matAReplace, matE2Replace;
+  final String? songEReplace, songBReplace, songCReplace, songAReplace, songE2Replace;
 
   final double lengthPaperPlanning, sizePaperPLaning;
   final double? totalPrice;
@@ -19,7 +20,7 @@ class PlanningPaperModel {
   final int? qtyProduced;
   final int ghepKho;
 
-  final double? bottom, fluteE, fluteB, fluteC, fluteE2, knife, totalLoss;
+  final double? bottom, fluteE, fluteB, fluteC, fluteA, fluteE2, knife, totalLoss;
   final double? qtyWasteNorm;
 
   final String chooseMachine;
@@ -56,10 +57,12 @@ class PlanningPaperModel {
     this.matEReplace,
     this.matBReplace,
     this.matCReplace,
+    this.matAReplace,
     this.matE2Replace,
     this.songEReplace,
     this.songBReplace,
     this.songCReplace,
+    this.songAReplace,
     this.songE2Replace,
 
     required this.lengthPaperPlanning,
@@ -73,6 +76,7 @@ class PlanningPaperModel {
     this.fluteE,
     this.fluteB,
     this.fluteC,
+    this.fluteA,
     this.fluteE2,
     this.knife,
     this.totalLoss,
@@ -103,28 +107,19 @@ class PlanningPaperModel {
     this.inbound,
   });
 
-  String get formatterStructureOrder {
-    final parts = [
-      dayReplace,
-      songEReplace,
-      matEReplace,
-      songBReplace,
-      matBReplace,
-      songCReplace,
-      matCReplace,
-      songE2Replace,
-      matE2Replace,
-    ];
-    final formattedParts = <String>[];
-
-    for (final part in parts) {
-      if (part != null && part.isNotEmpty) {
-        formattedParts.add(part);
-      }
-    }
-
-    return formattedParts.join("/");
-  }
+  String get formatterStructureOrder => PaperStructureResult.format(
+    day: dayReplace,
+    songE: songEReplace,
+    matE: matEReplace,
+    songB: songBReplace,
+    matB: matBReplace,
+    songC: songCReplace,
+    matC: matCReplace,
+    songA: songAReplace,
+    matA: matAReplace,
+    songE2: songE2Replace,
+    matE2: matE2Replace,
+  );
 
   int get getTotalQtyInbound => inbound?.fold(0, (sum, e) => sum! + e.qtyInbound) ?? 0;
 
@@ -161,14 +156,18 @@ class PlanningPaperModel {
               : null,
 
       runningPlan: json["runningPlan"] ?? 0,
+
       dayReplace: json["dayReplace"] ?? "",
       matEReplace: json["matEReplace"] ?? "",
       matBReplace: json["matBReplace"] ?? "",
       matCReplace: json["matCReplace"] ?? "",
+      matAReplace: json["matAReplace"] ?? "",
       matE2Replace: json["matE2Replace"] ?? "",
+
       songEReplace: json["songEReplace"] ?? "",
       songBReplace: json["songBReplace"] ?? "",
       songCReplace: json["songCReplace"] ?? "",
+      songAReplace: json["songAReplace"] ?? "",
       songE2Replace: json["songE2Replace"] ?? "",
 
       lengthPaperPlanning: toDouble(json["lengthPaperPlanning"]),
@@ -183,6 +182,7 @@ class PlanningPaperModel {
       fluteE: toDouble(json["fluteE"]),
       fluteB: toDouble(json["fluteB"]),
       fluteC: toDouble(json["fluteC"]),
+      fluteA: toDouble(json["fluteA"]),
       fluteE2: toDouble(json["fluteE2"]),
       knife: toDouble(json["knife"]),
 
@@ -233,10 +233,12 @@ class PlanningPaperModel {
       "matEReplace": matEReplace,
       "matBReplace": matBReplace,
       "matCReplace": matCReplace,
+      "matAReplace": matAReplace,
       "matE2Replace": matE2Replace,
       "songEReplace": songEReplace,
       "songBReplace": songBReplace,
       "songCReplace": songCReplace,
+      "songAReplace": songAReplace,
       "songE2Replace": songE2Replace,
       "lengthPaperPlanning": lengthPaperPlanning,
       "sizePaperPLaning": sizePaperPLaning,
