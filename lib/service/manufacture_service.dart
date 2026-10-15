@@ -60,8 +60,6 @@ class ManufactureService {
       ...reportData,
     };
 
-    print("Data to send: $data");
-
     try {
       await method(
         "/api/manufacture/paper",

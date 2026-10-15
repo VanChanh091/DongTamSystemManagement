@@ -1,6 +1,7 @@
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:flutter/widgets.dart";
 
@@ -10,6 +11,7 @@ Future<void> handlePlanningTask({
   required Future<bool> Function(List<int> ids) onExecute,
   required VoidCallback onLoadPlanning,
   required String content,
+  String? title,
 }) async {
   try {
     if (selectedPlanningIds.isEmpty) {
@@ -19,7 +21,7 @@ Future<void> handlePlanningTask({
 
     final bool confirm = await showConfirmDialog(
       context: context,
-      title: "⚠️ Xác nhận",
+      title: title ?? "⚠️ Xác nhận",
       content: content,
       confirmText: "Ok",
       confirmColor: const Color(0xffEA4346),
@@ -65,5 +67,38 @@ Future<void> handlePlanningTask({
     if (context.mounted) {
       showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại sau");
     }
+  }
+}
+
+Future<void> loadMachineDropdown({
+  required BuildContext context,
+  required String currentMachine,
+  required void Function(Map<String, int?> map, List<String> list, String? selected) onUpdate,
+}) async {
+  try {
+    final result = await MachineHelper.getRawMachinePapers();
+
+    // Widget bị unmount thì dừng
+    if (!context.mounted) return;
+
+    // Ép kiểu từ dynamic sang Map<String, int?>
+    final Map<String, int?> map =
+        (result.nameToIdMap as Map?)?.map(
+          (key, value) => MapEntry(key.toString(), value as int?),
+        ) ??
+        {};
+
+    final List<String> list = List<String>.from(result.machineNames);
+
+    String? selected = currentMachine;
+    // Nếu danh sách có dữ liệu và giá trị hiện tại bị rỗng hoặc không nằm trong danh sách
+    if (list.isNotEmpty && (!list.contains(currentMachine))) {
+      selected = list.first;
+    }
+
+    // Truyền 3 giá trị qua callback
+    onUpdate(map, list, selected);
+  } catch (e, s) {
+    AppLogger.e("Error loading dropdown data: $e", stackTrace: s);
   }
 }

@@ -1,7 +1,7 @@
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/service/planning_service.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
@@ -22,7 +22,7 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
   final formKey = GlobalKey<FormState>();
   late List<int> planningIds = [];
 
-  late String chooseMachine = "Máy 1350";
+  late String machine = "Máy 1350";
   List<String> machineList = [];
   Map<String, int?> rawMachineMap = {};
 
@@ -34,22 +34,24 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
     planningIds = widget.planning.map((p) => p.planningId).toList();
 
     if (widget.planning.isNotEmpty) {
-      chooseMachine = widget.planning.first.chooseMachine;
+      machine = widget.planning.first.chooseMachine;
     }
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(chooseMachine)) {
-        chooseMachine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void submit() async {
@@ -59,13 +61,13 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
 
     try {
       await PlanningService().changeMachinePlanning(
-        newMachine: chooseMachine,
+        newMachine: machine,
         planningIds: planningIds,
         action: "CHANGE_MACHINE",
       );
 
       if (!mounted) return; // check context
-      showSnackBarSuccess(context, "Chuyển đơn hàng sang $chooseMachine thành công");
+      showSnackBarSuccess(context, "Chuyển đơn hàng sang $machine thành công");
 
       if (!mounted) return; // check context
       widget.onChangeMachine();
@@ -162,10 +164,10 @@ class _ChangeMachineDialogState extends State<ChangeMachineDialog> {
                           const SizedBox(height: 12),
                           ValidationHelper.dropdownForTypes(
                             items: machineList,
-                            type: chooseMachine,
+                            type: machine,
                             onChanged: (value) {
                               setState(() {
-                                chooseMachine = value!;
+                                machine = value!;
                               });
                             },
                           ),

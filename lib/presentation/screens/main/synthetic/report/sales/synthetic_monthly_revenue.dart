@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/synthetic/reportRevenue/report_monthly_revenue_model.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_picker_month.dart';
+import 'package:dongtam/presentation/components/dialog/date/dialog_picker_month.dart';
 import 'package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_monthly_revenue.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -72,7 +72,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
       selectedUserId = userController.userId.value.toString();
     }
 
-    if (isManager) {
+    if (isManager && widget.scope != RevenueScope.synthetic) {
       _loadSalesUsers();
     }
     _loadMonthlyRevenue();
@@ -129,8 +129,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
 
   void _fetchData() {
     final bool isAll =
-        widget.scope == RevenueScope.synthetic ||
-        (widget.scope == RevenueScope.admin && selectedUserId == null);
+        widget.scope == RevenueScope.synthetic || selectedUserId == null;
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<MonthlyRevenueReport>(
@@ -327,7 +326,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                               ),
                               const SizedBox(width: 12),
 
-                              if (isManager) ...[
+                              if (isManager && widget.scope != RevenueScope.synthetic) ...[
                                 buildDropdownItems(
                                   value:
                                       salesUserItems.contains(selectedSalesUser)
@@ -340,7 +339,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                                       setState(() {
                                         selectedSalesUser = value;
                                         selectedUserId = salesUserMap[value];
-                                        _loadMonthlyRevenue();
+                                        _fetchData();
                                       });
                                     }
                                   },

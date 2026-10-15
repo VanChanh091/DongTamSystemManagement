@@ -6,6 +6,7 @@ import "package:dongtam/presentation/components/shared/animation/animated_button
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/service/employee_service.dart";
 import "package:dongtam/service/manufacture_service.dart";
@@ -13,7 +14,6 @@ import "package:dongtam/service/scrap_report_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";
@@ -66,6 +66,7 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
   @override
   void initState() {
     super.initState();
+
     _loadRawMachine();
     futureEmployee = EmployeeService().getEmployeeByPosition();
 
@@ -90,17 +91,19 @@ class _ScrapReportDialogState extends State<ScrapReportDialog> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void scrapReportInitState() {

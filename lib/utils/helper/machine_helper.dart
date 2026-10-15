@@ -13,11 +13,8 @@ class RawMachineResult {
     required this.rawMachines,
   });
 
-  static RawMachineResult empty() => RawMachineResult(
-    machineNames: [],
-    nameToIdMap: {},
-    rawMachines: [],
-  );
+  static RawMachineResult empty() =>
+      RawMachineResult(machineNames: [], nameToIdMap: {}, rawMachines: []);
 }
 
 class MachineHelper {
@@ -56,13 +53,13 @@ class MachineHelper {
     }
   }
 
-  /// Lấy nhanh danh sách tên máy (`List<String>`)
+  /// Lấy nhanh danh sách tên máy
   static Future<List<String>> getMachinePaperNames({bool forceRefresh = false}) async {
     final result = await getRawMachinePapers(forceRefresh: forceRefresh);
     return result.machineNames;
   }
 
-  /// Xóa cache (gọi khi admin thêm/sửa/xóa máy)
+  /// Xóa cache
   static void clearCache() {
     _cachedResult = null;
   }

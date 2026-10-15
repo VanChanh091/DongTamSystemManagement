@@ -7,6 +7,7 @@ import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/presentation/components/dialog/export/dialog_export_planning.dart";
 import "package:dongtam/presentation/components/dialog/other/dialog_change_machine.dart";
 import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart";
 import "package:dongtam/presentation/components/shared/planning/save_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
@@ -17,7 +18,6 @@ import "package:dongtam/presentation/components/shared/dialog_shared.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
@@ -121,17 +121,19 @@ class _ProductionQueuePaperState extends State<ProductionQueuePaper> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void loadPlanning({bool clearSelection = false}) {

@@ -5,12 +5,12 @@ import "package:dongtam/presentation/components/headerTable/report/header_table_
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/report/inspection_paper_data_source.dart";
 import "package:dongtam/service/report_service.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
@@ -86,17 +86,19 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void _fetchData() {
@@ -418,6 +420,7 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
                                 "sizePaper",
                                 "lengthPaper",
                                 "runningPlan",
+                                "canLan",
                                 "isFSC",
                               ],
                               child: Obx(

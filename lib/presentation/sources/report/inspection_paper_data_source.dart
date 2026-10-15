@@ -57,14 +57,15 @@ class InspectionPaperDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "orderId", value: paper.orderId),
       DataGridCell<String>(columnName: "customerName", value: customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
-      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "structure", value: paper.formatterStructureOrder),
       DataGridCell<String>(columnName: "flute", value: order?.flute ?? ""),
+      DataGridCell<String>(columnName: "canLan", value: order?.canLan ?? ""),
 
       DataGridCell<double>(columnName: "sizePaper", value: paper.sizePaperPLaning),
       DataGridCell<double>(columnName: "lengthPaper", value: paper.lengthPaperPlanning),
       DataGridCell<int>(columnName: "runningPlan", value: paper.runningPlan),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "note", value: inspecPaper.note),
       DataGridCell<String>(columnName: "imgError", value: inspecPaper.imgError),

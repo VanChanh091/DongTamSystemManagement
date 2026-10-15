@@ -1,7 +1,7 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/synthetic/errorProduction/yearly_error_production_model.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_picker_year.dart';
+import 'package:dongtam/presentation/components/dialog/date/dialog_picker_year.dart';
 import 'package:dongtam/presentation/components/headerTable/synthetic/report/errProduction/header_table_yearly_err_production.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';

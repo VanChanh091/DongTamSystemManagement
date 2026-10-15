@@ -176,7 +176,7 @@ class SyntheticService {
 
   //========================= REPORTS =========================
   Future<Map<String, dynamic>> getRevenueReport<T>({
-    required String type, // "daily" | "yearly"
+    required String type, // "daily" | "monthly" | "yearly"
     required String dataKey,
     required T Function(Map<String, dynamic>) fromJson,
     int? page,

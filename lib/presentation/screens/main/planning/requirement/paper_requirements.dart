@@ -4,18 +4,22 @@ import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_ghep_kho_summary.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_layers.dart";
 import "package:dongtam/data/models/planning/requirements/paper_requirement_model.dart";
+import "package:dongtam/presentation/components/dialog/other/dialog_summary_requirement.dart";
 import "package:dongtam/presentation/components/headerTable/planning/requirements/header_table_layer_requirement.dart";
 import "package:dongtam/presentation/components/headerTable/planning/requirements/header_table_paper_requirement.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/sources/planning/requirements/layer_requirement_data_source.dart";
 import "package:dongtam/presentation/sources/planning/requirements/paper_requirement_data_source.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
+import "package:dongtam/socket/socket_service.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/socket/init_socket_manufacture.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -32,10 +36,12 @@ class PaperRequirements extends StatefulWidget {
 
 class _PaperRequirementsState extends State<PaperRequirements> {
   late Future<Map<String, dynamic>> futureRequirements;
+  late InitSocketManufacture _initSocket;
   late List<GridColumn> columnsRequirements;
   late List<GridColumn> columnsLayers;
 
   //controllers
+  final socketService = SocketService();
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -82,6 +88,21 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   void initState() {
     super.initState();
 
+    _initSocket = InitSocketManufacture(
+      context: context,
+      socketService: socketService,
+      eventNames: ["planningPaperUpdated"],
+      onLoadData: loadPaperRequirements,
+      onMachineChanged: (newMachine) {
+        setState(() {
+          machine = newMachine;
+          _selectedRequirementIdsNotifier.value = [];
+        });
+      },
+    );
+
+    _initSocket.registerSocket(machine);
+
     _loadRawMachine();
     loadPaperRequirements();
 
@@ -102,17 +123,23 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
+  }
 
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+  Future<void> changeMachine(String newMachine) async {
+    _initSocket.changeMachine(oldMachine: machine, newMachine: newMachine);
   }
 
   void _fetchData() {
@@ -198,6 +225,7 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   void dispose() {
     super.dispose();
     _zoomNotifier.dispose();
+    _initSocket.stop(machine);
     _selectedRequirementIdsNotifier.dispose();
     headerScrollController.dispose();
     searchController.dispose();
@@ -326,21 +354,47 @@ class _PaperRequirementsState extends State<PaperRequirements> {
               buttonColor: themeController.buttonColor,
               onSearch: searchRequirement,
             ),
-
             const SizedBox(width: 16),
 
-            // Dropdown chọn máy bên phải
-            buildDropdownItems(
-              value: machine,
-              items: machineList,
-              onChanged: (value) {
-                setState(() {
-                  machine = value!;
-                  _selectedRequirementIdsNotifier.value = [];
-                  selectedPaperLayers = [];
-                  loadPaperRequirements();
-                });
-              },
+            // Nút tính định mức & Dropdown chọn máy bên phải
+            Row(
+              children: [
+                // calculate requirement button
+                AnimatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder:
+                          (context) => DialogSummaryRequirement(
+                            initialMachine: machine,
+                            machineList: machineList,
+                          ),
+                    );
+                  },
+                  label: "Tính Định Mức",
+                  icon: Icons.calculate_outlined,
+                  backgroundColor: themeController.buttonColor.value,
+                ),
+                const SizedBox(width: 12),
+
+                //machine
+                buildDropdownItems(
+                  value: machine,
+                  items: machineList,
+                  onChanged: (value) {
+                    setState(() {
+                      machine = value!;
+                      _selectedRequirementIdsNotifier.value = [];
+                      selectedPaperLayers = [];
+                      loadPaperRequirements();
+                    });
+
+                    if (value != null) {
+                      changeMachine(value);
+                    }
+                  },
+                ),
+              ],
             ),
           ],
         ),

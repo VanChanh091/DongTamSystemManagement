@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/dialog/other/dialog_picker_month.dart';
+import 'package:dongtam/presentation/components/dialog/date/dialog_picker_month.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:flutter/material.dart';
 import 'package:dongtam/data/controller/theme_controller.dart';
@@ -80,7 +80,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
       selectedUserId = userController.userId.value.toString();
     }
 
-    if (isManager) {
+    if (isManager && widget.scope != RevenueScope.synthetic) {
       _loadSalesUsers();
     }
     _loadDailyRevenue();
@@ -138,8 +138,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
   void _fetchData() {
     final keyword = searchController.text.trim();
     final bool isAll =
-        widget.scope == RevenueScope.synthetic ||
-        (widget.scope == RevenueScope.admin && selectedUserId == null);
+        widget.scope == RevenueScope.synthetic || selectedUserId == null;
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerDailyRevenueRow>(
@@ -290,14 +289,17 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // search
-                      LeftButtonSearch(
-                        showDropdown: false,
-                        controller: searchController,
-                        hintText: "Tìm theo khách hàng...",
-                        buttonColor: themeController.buttonColor,
-                        onSearch: _searchCustomer,
-                      ),
+                      // search (chỉ hiện khi không phải màn hình tổng hợp)
+                      if (widget.scope != RevenueScope.synthetic)
+                        LeftButtonSearch(
+                          showDropdown: false,
+                          controller: searchController,
+                          hintText: "Tìm theo khách hàng...",
+                          buttonColor: themeController.buttonColor,
+                          onSearch: _searchCustomer,
+                        )
+                      else
+                        const SizedBox(),
                       const SizedBox(width: 12),
 
                       //buttons
@@ -358,7 +360,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                               ),
                               const SizedBox(width: 12),
 
-                              if (isManager) ...[
+                              if (isManager && widget.scope != RevenueScope.synthetic) ...[
                                 buildDropdownItems(
                                   value:
                                       salesUserItems.contains(selectedSalesUser)
@@ -372,7 +374,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                                         selectedSalesUser = value;
                                         selectedUserId = salesUserMap[value];
                                         currentPage = 1;
-                                        _loadDailyRevenue();
+                                        _fetchData();
                                       });
                                     }
                                   },

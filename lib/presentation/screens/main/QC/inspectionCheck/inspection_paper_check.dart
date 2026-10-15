@@ -5,6 +5,7 @@ import 'package:dongtam/data/models/qualityControl/qc_shift.dart';
 import 'package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
 import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
 import 'package:dongtam/presentation/components/shared/planning/shift_switch_widget.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
@@ -14,7 +15,6 @@ import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/service/quality_control_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -92,17 +92,19 @@ class _InspectionPaperCheckState extends State<InspectionPaperCheck> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void loadInspectionPaper() {

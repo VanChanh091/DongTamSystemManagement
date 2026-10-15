@@ -10,7 +10,7 @@ class ResponsiveSize {
     double baseWidth;
     switch (type) {
       case ResponsiveType.xSmall:
-        baseWidth = 300;
+        baseWidth = 250;
         break;
       case ResponsiveType.small:
         baseWidth = 400;

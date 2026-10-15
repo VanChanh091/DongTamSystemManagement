@@ -292,6 +292,22 @@ class PlanningService {
     );
   }
 
+  Future<double?> calculateSummaryByGhepKho({
+    required int ghepKho,
+    required String machine,
+    required DateTime dayStart,
+  }) async {
+    return HelperService().fetchSingleData<double>(
+      endpoint: "planning/paper-requirements/summary",
+      queryParameters: {
+        "ghepKho": ghepKho,
+        "machine": machine,
+        "dayStart": DateFormat("yyyy-MM-dd").format(dayStart),
+      },
+      parser: (json) => double.tryParse(json.toString()) ?? 0.0,
+    );
+  }
+
   Future<List<PaperRequirementLayerModel>> getLayersByRequirementId({
     required int requirementId,
   }) async {

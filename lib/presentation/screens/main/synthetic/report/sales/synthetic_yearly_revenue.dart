@@ -1,5 +1,5 @@
 import "package:dongtam/data/controller/theme_controller.dart";
-import "package:dongtam/presentation/components/dialog/other/dialog_picker_year.dart";
+import "package:dongtam/presentation/components/dialog/date/dialog_picker_year.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/synthetic/reportRevenue/report_yearly_revenue_model.dart";
 import "package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_yearly_revenue.dart";
@@ -83,7 +83,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
       selectedUserId = userController.userId.value.toString();
     }
 
-    if (isManager) {
+    if (isManager && widget.scope != RevenueScope.synthetic) {
       _loadSalesUsers();
     }
     _loadYearlyRevenue();
@@ -141,8 +141,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
   void _fetchData() {
     final keyword = searchController.text.trim();
     final bool isAll =
-        widget.scope == RevenueScope.synthetic ||
-        (widget.scope == RevenueScope.admin && selectedUserId == null);
+        widget.scope == RevenueScope.synthetic || selectedUserId == null;
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerYearRevenue>(
@@ -295,14 +294,17 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      //search
-                      LeftButtonSearch(
-                        showDropdown: false,
-                        controller: searchController,
-                        hintText: "Tìm theo khách hàng...",
-                        buttonColor: themeController.buttonColor,
-                        onSearch: searchRevenue,
-                      ),
+                      // search (chỉ hiện khi không phải màn hình tổng hợp)
+                      if (widget.scope != RevenueScope.synthetic)
+                        LeftButtonSearch(
+                          showDropdown: false,
+                          controller: searchController,
+                          hintText: "Tìm theo khách hàng...",
+                          buttonColor: themeController.buttonColor,
+                          onSearch: searchRevenue,
+                        )
+                      else
+                        const SizedBox(),
                       const SizedBox(width: 12),
 
                       //buttons
@@ -363,7 +365,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
                               ),
                               const SizedBox(width: 12),
 
-                              if (isManager) ...[
+                              if (isManager && widget.scope != RevenueScope.synthetic) ...[
                                 buildDropdownItems(
                                   value:
                                       salesUserItems.contains(selectedSalesUser)
@@ -377,7 +379,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
                                         selectedSalesUser = value;
                                         selectedUserId = salesUserMap[value];
                                         currentPage = 1;
-                                        _loadYearlyRevenue();
+                                        _fetchData();
                                       });
                                     }
                                   },

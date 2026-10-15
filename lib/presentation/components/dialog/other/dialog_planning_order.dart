@@ -3,10 +3,10 @@
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
 import "package:dongtam/presentation/screens/main/planning/waiting_for_planing.dart";
 import "package:dongtam/service/planning_service.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
@@ -68,7 +68,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
   final noteController = TextEditingController();
 
   //planning
-  late String chooseMachine = "Máy 1350";
+  late String machine = "Máy 1350";
   final ghepKhoController = TextEditingController();
   final numberChildController = TextEditingController();
   final fluteController = TextEditingController();
@@ -187,16 +187,19 @@ class _PLanningDialogState extends State<PLanningDialog> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(chooseMachine)) {
-        chooseMachine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   String formatterStructureOrder({
@@ -289,13 +292,13 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
     // check flute để sắp đúng máy
     if (flute.startsWith("2")) {
-      if (chooseMachine == "Máy 2 Lớp") {
+      if (machine == "Máy 2 Lớp") {
         // Máy 2 lớp bắt buộc phải có cả Dài và Khổ (length > 0)
         if (lengthVal <= 0) {
           showSnackBarError(context, "Máy 2 Lớp yêu cầu phải có chiều dài!");
           return;
         }
-      } else if (chooseMachine == "Máy Quấn Cuồn") {
+      } else if (machine == "Máy Quấn Cuồn") {
         // Máy Quấn Cuộn chỉ có Khổ, không có Dài (length phải bằng 0)
         if (lengthVal > 0) {
           showSnackBarError(context, "Máy Quấn Cuộn không được có chiều dài!");
@@ -307,7 +310,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
         return;
       }
     } else {
-      if (chooseMachine == "Máy 2 Lớp" || chooseMachine == "Máy Quấn Cuồn") {
+      if (machine == "Máy 2 Lớp" || machine == "Máy Quấn Cuồn") {
         showSnackBarError(context, "Đơn này không được chạy ở máy này!");
         return;
       }
@@ -336,7 +339,7 @@ class _PLanningDialogState extends State<PLanningDialog> {
 
       ghepKho: int.tryParse(ghepKhoController.trimmed) ?? 0,
       numberChild: int.tryParse(numberChildController.trimmed) ?? 0,
-      chooseMachine: chooseMachine,
+      chooseMachine: machine,
       hasBox: widget.order!.isBox,
       status: "planning",
 
@@ -620,9 +623,9 @@ class _PLanningDialogState extends State<PLanningDialog> {
         "leftKey": "Chọn Máy",
         "leftValue": ValidationHelper.dropdownForTypes(
           items: machineList,
-          type: chooseMachine,
+          type: machine,
           onChanged: (value) {
-            setState(() => chooseMachine = value!);
+            setState(() => machine = value!);
           },
         ),
         "middleKey": "Dao Xả",

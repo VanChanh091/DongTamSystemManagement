@@ -440,7 +440,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                                             selectedSalesUser = value;
                                             selectedUserId = salesUserMap[value];
                                             currentPage = 1;
-                                            loadDebtCustomer();
+                                            _fetchData();
                                           });
                                         }
                                       },

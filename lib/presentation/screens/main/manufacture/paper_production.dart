@@ -12,7 +12,6 @@ import "package:dongtam/presentation/components/shared/planning/widgets_planning
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/service/quality_control_service.dart";
-import "package:dongtam/utils/helper/machine_helper.dart";
 import "package:dongtam/utils/socket/init_socket_manufacture.dart";
 import "package:dongtam/presentation/sources/planning/machine_paper_data_source.dart";
 import "package:dongtam/service/manufacture_service.dart";
@@ -131,17 +130,19 @@ class _PaperProductionState extends State<PaperProduction> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void _fetchData() {
@@ -510,59 +511,63 @@ class _PaperProductionState extends State<PaperProduction> {
                                 ),
                                 const SizedBox(width: 8),
 
-                                //edit qty report
+                                //request check
                                 AnimatedButton(
                                   onPressed:
                                       isEdit
                                           ? () async {
                                             try {
-                                              final int selectedPlanningId = int.parse(
-                                                selectedPlanningIds.first,
-                                              );
-
-                                              final selectedPlanning = planningList.firstWhere(
-                                                (p) => p.planningId == selectedPlanningId,
-                                                orElse:
-                                                    () =>
-                                                        throw Exception("Không tìm thấy kế hoạch"),
-                                              );
-
-                                              final existingData = {
-                                                "manager": selectedPlanning.shiftManagement,
-                                                "shift": selectedPlanning.shiftProduction,
-                                              };
-
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (_) => DialogReportProduction(
-                                                      planningId: selectedPlanning.planningId,
-                                                      initialData: existingData,
-                                                      onReport: () => loadPlanning(),
-                                                    ),
-                                              );
-                                            } catch (e, s) {
                                               if (selectedPlanningIds.isEmpty) {
                                                 showSnackBarError(
                                                   context,
-                                                  "Chưa chọn dòng cần sửa",
+                                                  "Chưa chọn dòng để yêu cầu kiểm tra",
                                                 );
+                                              }
+                                              if (selectedPlanningIds.length > 1) {
+                                                showSnackBarError(
+                                                  context,
+                                                  "Chỉ được chọn một dòng để yêu cầu kiểm tra",
+                                                );
+                                              }
+
+                                              await handlePlanningTask(
+                                                context: context,
+                                                selectedPlanningIds: selectedPlanningIds,
+                                                title: "⚠️ Yêu cầu kiểm đầu hàng",
+                                                content: "Xác nhận yêu cầu kiểm đơn hàng này?",
+                                                onExecute:
+                                                    (id) => QualityControlService()
+                                                        .createInspectionRequest(
+                                                          planningId: id.first,
+                                                        ),
+                                                onLoadPlanning: loadPlanning,
+                                              );
+                                            } catch (e, s) {
+                                              if (selectedPlanningIds.isEmpty) {
+                                                if (context.mounted) {
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Chưa chọn dòng cần sửa",
+                                                  );
+                                                }
                                               } else {
                                                 AppLogger.e(
                                                   "Lỗi khi mở dialog",
                                                   error: e,
                                                   stackTrace: s,
                                                 );
-                                                showSnackBarError(
-                                                  context,
-                                                  "Đã xảy ra lỗi khi mở báo cáo.",
-                                                );
+                                                if (context.mounted) {
+                                                  showSnackBarError(
+                                                    context,
+                                                    "Đã xảy ra lỗi khi mở báo cáo.",
+                                                  );
+                                                }
                                               }
                                             }
                                           }
                                           : null,
-                                  label: "Sửa Báo Cáo",
-                                  icon: Symbols.construction,
+                                  label: "Yêu Cầu Kiểm",
+                                  icon: Symbols.checklist_rtl,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 8),
@@ -638,29 +643,33 @@ class _PaperProductionState extends State<PaperProduction> {
                                         if (!context.mounted) return;
                                         showSnackBarError(context, "Có lỗi khi xác nhận SX: $e");
                                       }
-                                    } else if (value == "request-check") {
+                                    } else if (value == "editReport") {
                                       if (selectedPlanningIds.isEmpty) {
-                                        showSnackBarError(
-                                          context,
-                                          "Chưa chọn dòng để yêu cầu kiểm tra",
-                                        );
-                                      }
-                                      if (selectedPlanningIds.length > 1) {
-                                        showSnackBarError(
-                                          context,
-                                          "Chỉ được chọn một dòng để yêu cầu kiểm tra",
-                                        );
+                                        showSnackBarError(context, "Chưa chọn dòng cần sửa");
                                       }
 
-                                      await handlePlanningTask(
+                                      final int selectedPlanningId = int.parse(
+                                        selectedPlanningIds.first,
+                                      );
+
+                                      final selectedPlanning = planningList.firstWhere(
+                                        (p) => p.planningId == selectedPlanningId,
+                                        orElse: () => throw Exception("Không tìm thấy kế hoạch"),
+                                      );
+
+                                      final existingData = {
+                                        "manager": selectedPlanning.shiftManagement,
+                                        "shift": selectedPlanning.shiftProduction,
+                                      };
+
+                                      showDialog(
                                         context: context,
-                                        selectedPlanningIds: selectedPlanningIds,
-                                        content: "Xác nhận yêu cầu kiểm đơn hàng này?",
-                                        onExecute:
-                                            (id) => QualityControlService().createInspectionRequest(
-                                              planningId: id.first,
+                                        builder:
+                                            (_) => DialogReportProduction(
+                                              planningId: selectedPlanning.planningId,
+                                              initialData: existingData,
+                                              onReport: () => loadPlanning(),
                                             ),
-                                        onLoadPlanning: loadPlanning,
                                       );
                                     } else if (value == "request") {
                                       await handlePlanningTask(
@@ -744,10 +753,10 @@ class _PaperProductionState extends State<PaperProduction> {
                                           ),
                                         ),
                                         const PopupMenuItem<String>(
-                                          value: "request-check",
+                                          value: "editReport",
                                           child: ListTile(
-                                            leading: Icon(Symbols.checklist_rtl),
-                                            title: Text("Yêu Cầu Kiểm"),
+                                            leading: Icon(Symbols.construction),
+                                            title: Text("Sửa Báo Cáo"),
                                           ),
                                         ),
                                         const PopupMenuItem<String>(

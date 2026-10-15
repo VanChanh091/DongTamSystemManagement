@@ -206,13 +206,14 @@ final List<Map<String, dynamic>> inspectionBoxColumns = [
   {"key": "orderId", "title": "Mã Đơn Hàng"},
   {"key": "customerName", "title": "Tên Khách Hàng"},
   {"key": "productName", "title": "Tên Sản Phẩm"},
-  {"key": "isFSC", "title": "Đơn FSC"},
 
   {"key": "structure", "title": "Kết Cấu Đặt Hàng"},
   {"key": "qcBox", "title": "Quy Cách"},
+  {"key": "canLan", "title": "Cấn Lằn"},
   {"key": "sizePaper", "title": "Khổ (cm)"},
   {"key": "lengthPaper", "title": "Dài (cm)"},
   {"key": "runningPlan", "title": "Kế Hoạch Chạy"},
+  {"key": "isFSC", "title": "Đơn FSC"},
 
   {"key": "note", "title": "Ghi Chú"},
   {"key": "imgError", "title": "Ảnh Lỗi"},

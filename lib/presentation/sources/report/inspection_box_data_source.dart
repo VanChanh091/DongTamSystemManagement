@@ -50,13 +50,14 @@ class InspectionBoxDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "orderId", value: box?.orderId ?? ""),
       DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
       DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
-      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "structure", value: box?.formatterStructureOrder ?? ""),
       DataGridCell<String>(columnName: "qcBox", value: order?.QC_box ?? ""),
+      DataGridCell<String>(columnName: "canLan", value: order?.canLan ?? ""),
       DataGridCell<double>(columnName: "sizePaper", value: box?.size ?? 0),
       DataGridCell<double>(columnName: "lengthPaper", value: box?.length ?? 0),
       DataGridCell<int>(columnName: "runningPlan", value: boxtime?.runningPlan ?? 0),
+      DataGridCell<bool>(columnName: "isFSC", value: order?.isFSC ?? false),
 
       DataGridCell<String>(columnName: "note", value: inspectionBox.note),
       DataGridCell<String>(columnName: "imgError", value: inspectionBox.imgError),

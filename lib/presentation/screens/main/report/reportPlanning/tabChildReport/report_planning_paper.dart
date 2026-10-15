@@ -3,6 +3,7 @@ import 'package:dongtam/data/models/report/report_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_excel_report.dart';
 import 'package:dongtam/presentation/components/headerTable/report/header_table_report_paper.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/sources/report/report_paper_data_source.dart';
@@ -10,7 +11,6 @@ import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -91,17 +91,19 @@ class _ReportPlanningPaperState extends State<ReportPlanningPaper> {
   }
 
   Future<void> _loadRawMachine() async {
-    final result = await MachineHelper.getRawMachinePapers();
-    if (!mounted) return;
-
-    setState(() {
-      rawMachineMap = result.nameToIdMap;
-      machineList = result.machineNames;
-
-      if (machineList.isNotEmpty && !machineList.contains(machine)) {
-        machine = machineList.first;
-      }
-    });
+    await loadMachineDropdown(
+      context: context,
+      currentMachine: machine,
+      onUpdate: (map, list, selected) {
+        setState(() {
+          rawMachineMap = map;
+          machineList = list;
+          if (selected != null) {
+            machine = selected;
+          }
+        });
+      },
+    );
   }
 
   void _fetchData() {
