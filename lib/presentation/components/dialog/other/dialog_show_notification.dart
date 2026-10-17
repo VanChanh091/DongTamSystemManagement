@@ -341,42 +341,40 @@ Widget buildNotificationActionButtons({
             ),
       );
     }
+  // Nếu là thông báo kiểm tra QC (Yêu cầu hoặc Nhắc nhở từ hệ thống): luôn có nút Xác nhận
+  final bool isInspectionType =
+      notif.type == "INSPECTION_REQUEST" || notif.type == "INSPECTION_REMIND";
+  if (isInspectionType) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xff78D761),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            minimumSize: const Size(0, 36),
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            elevation: 0,
+          ),
+          onPressed:
+              () => controller.executeAction(
+                context: context,
+                notif: notif,
+                action: "receive",
+                type: "inspection",
+              ),
+          child: const Text(
+            "Xác nhận",
+            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
   }
 
   if (status == RequestStatus.pending) {
-    // Nếu là thông báo kiểm tra QC: không hiển thị nút từ chối, chỉ hiển thị nút Tiếp nhận
-    final bool isInspectionType =
-        notif.type == "INSPECTION_REQUEST" || notif.type == "INSPECTION_REMIND";
-    if (isInspectionType) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xff78D761),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-              minimumSize: const Size(0, 36),
-              visualDensity: VisualDensity.compact,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-              elevation: 0,
-            ),
-            onPressed:
-                () => controller.executeAction(
-                  context: context,
-                  notif: notif,
-                  action: "receive",
-                  type: "inspection",
-                ),
-            child: const Text(
-              "Xác nhận",
-              style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
-            ),
-          ),
-        ],
-      );
-    }
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [

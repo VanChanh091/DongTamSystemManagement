@@ -1,4 +1,5 @@
 {
   "serverIp": "localhost",
+  "serverIpPm2": "192.168.1.145",
   "serverPort": 5000
 }
