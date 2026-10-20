@@ -109,11 +109,11 @@ class ScrapReportDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final scrapId = row.getCells().firstWhere((cell) => cell.columnName == 'scrapId').value;
+    final scrapId = row.getCells().firstWhere((cell) => cell.columnName == "scrapId").value;
     final isSelected = selectedScrapIds.contains(scrapId);
 
     //get value cell
-    final statusCell = getCellValue<String>(row, 'status', "");
+    final statusCell = getCellValue<String>(row, "status", "");
 
     Color backgroundColor;
     if (isSelected) {

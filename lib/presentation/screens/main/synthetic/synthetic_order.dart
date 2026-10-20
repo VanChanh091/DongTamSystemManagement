@@ -17,6 +17,7 @@ import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/picker_date_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -40,6 +41,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   late Future<Map<String, dynamic>> futureOrders;
   late List<GridColumn> columnsOrders;
   late List<GridColumn> columnsBoxes;
+  final formatter = DateFormat('dd/MM/yyyy');
 
   //controllers
   final dataGridController = DataGridController();
@@ -133,6 +135,15 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     final bool shouldSearch = (searchType != "Tất cả");
     final bool isDateSearch = searchType == "Ngày Nhận Đơn";
 
+    final String? effectiveKeyword =
+        shouldSearch
+            ? (isDateSearch
+                ? (startDate != null && endDate != null
+                    ? "${formatter.format(startDate!)} - ${formatter.format(endDate!)}"
+                    : "date")
+                : keyword)
+            : null;
+
     futureOrders = ensureMinLoading(
       SyntheticService().getAllSyntheticOrders(
         page: currentPage,
@@ -140,7 +151,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
         status: filterType,
         allOrders: filterType,
         field: shouldSearch ? selectedField : null,
-        keyword: shouldSearch ? keyword : null,
+        keyword: effectiveKeyword,
         startDate: (shouldSearch && isDateSearch) ? startDate : null,
         endDate: (shouldSearch && isDateSearch) ? endDate : null,
       ),
@@ -340,7 +351,6 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                           setState(() {
                             searchType = value;
                             isTextFieldEnabled = value != "Tất cả";
-
                             startDate = null;
                             endDate = null;
 
@@ -358,69 +368,16 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                         customInputBuilder: (inputWidth) {
                           if (searchType != "Ngày Nhận Đơn") return null;
 
-                          return SizedBox(
+                          return PickerDateHelper(
                             width: inputWidth,
-                            height: 50,
-                            child: InkWell(
-                              onTap: () async {
-                                final now = DateTime.now();
-                                final size = MediaQuery.of(context).size;
-
-                                final DateTimeRange? picked = await showDateRangePicker(
-                                  context: context,
-                                  firstDate: DateTime(2025),
-                                  lastDate: DateTime(2100),
-                                  initialDateRange:
-                                      (startDate != null && endDate != null)
-                                          ? DateTimeRange(start: startDate!, end: endDate!)
-                                          : DateTimeRange(
-                                            start: now.subtract(const Duration(days: 7)),
-                                            end: now,
-                                          ),
-                                  builder: (context, child) {
-                                    return Center(
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: size.width * 0.3,
-                                          maxHeight: size.height * 0.8,
-                                        ),
-                                        child: Material(
-                                          borderRadius: BorderRadius.circular(16),
-                                          clipBehavior: Clip.antiAlias,
-                                          child: child!,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-
-                                if (picked != null) {
-                                  final displayStart = DateFormat(
-                                    "dd/MM/yyyy",
-                                  ).format(picked.start);
-                                  final displayEnd = DateFormat("dd/MM/yyyy").format(picked.end);
-
-                                  setState(() {
-                                    startDate = picked.start;
-                                    endDate = picked.end;
-                                    searchController.text = "$displayStart - $displayEnd";
-                                  });
-                                }
-                              },
-                              child: IgnorePointer(
-                                child: TextField(
-                                  controller: searchController,
-                                  decoration: InputDecoration(
-                                    hintText: "Chọn khoảng thời gian...",
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    suffixIcon: const Icon(Icons.date_range),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            startDate: startDate,
+                            endDate: endDate,
+                            onDateRangeChanged: (range) {
+                              setState(() {
+                                startDate = range.start;
+                                endDate = range.end;
+                              });
+                            },
                           );
                         },
                       ),

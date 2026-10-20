@@ -1,8 +1,8 @@
-import 'package:dongtam/data/models/employee/employee_basic_info.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/employee/employee_basic_info.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class EmployeeDataSource extends DataGridSource {
   List<EmployeeBasicInfoModel> employee = [];
@@ -11,7 +11,7 @@ class EmployeeDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> employeeDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   EmployeeDataSource({
     required this.employee,
@@ -26,12 +26,12 @@ class EmployeeDataSource extends DataGridSource {
     final companyInfo = employee.companyInfo;
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "employeeCode", value: companyInfo?.employeeCode ?? ""),
       DataGridCell<String>(columnName: "fullName", value: employee.fullName),
       DataGridCell<String>(
         columnName: "joinDate",
-        value: companyInfo?.joinDate != null ? formatter.format(companyInfo!.joinDate!) : '',
+        value: companyInfo?.joinDate != null ? formatter.format(companyInfo!.joinDate!) : "",
       ),
       DataGridCell<String>(columnName: "department", value: companyInfo?.department ?? ""),
       DataGridCell<String>(columnName: "position", value: companyInfo?.position ?? ""),

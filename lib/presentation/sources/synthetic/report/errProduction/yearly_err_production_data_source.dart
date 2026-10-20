@@ -74,7 +74,7 @@ class YearlyErrProductionDataSource extends DataGridSource {
               final numVal = value.toDouble();
               displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
 
-              // if (colName != 'index' && numVal > 0) {
+              // if (colName != "index" && numVal > 0) {
               //   textStyle = const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold);
               // }
             } else {

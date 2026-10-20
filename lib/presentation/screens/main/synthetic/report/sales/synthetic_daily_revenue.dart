@@ -1,26 +1,26 @@
-import 'package:dongtam/presentation/components/dialog/date/dialog_picker_month.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/synthetic/reportRevenue/report_daily_revenue_model.dart';
-import 'package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_daily_revenue.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/synthetic/report/sales/daily_revenue_data_source.dart';
-import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/service/synthetic_service.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/presentation/components/dialog/date/dialog_picker_month.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/synthetic/reportRevenue/report_daily_revenue_model.dart";
+import "package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_daily_revenue.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/sources/synthetic/report/sales/daily_revenue_data_source.dart";
+import "package:dongtam/service/customer_service.dart";
+import "package:dongtam/service/synthetic_service.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticDailyRevenue extends StatefulWidget {
   final RevenueScope scope;
@@ -58,9 +58,9 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
   DailyRevenueDataSource? _cachedDatasource;
 
   // Filter
+  late bool isManager;
   late int selectedMonth;
   late int selectedYear;
-  late bool isManager;
 
   // Paging
   int currentPage = 1;
@@ -86,7 +86,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
     _loadDailyRevenue();
 
     columns = buildDailyRevenueColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'daily_revenue', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "daily_revenue", columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
     });
   }
@@ -137,8 +137,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
 
   void _fetchData() {
     final keyword = searchController.text.trim();
-    final bool isAll =
-        widget.scope == RevenueScope.synthetic || selectedUserId == null;
+    final bool isAll = widget.scope == RevenueScope.synthetic || selectedUserId == null;
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerDailyRevenueRow>(
@@ -424,13 +423,13 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
 
         final List<CustomerDailyRevenueRow> customers = rawList;
 
-        final int daysInMonth = toInt(responseMap['daysInMonth']);
-        final currentPg = toInt(responseMap['currentPage']);
-        final totalPgs = toInt(responseMap['totalPages']);
+        final int daysInMonth = toInt(responseMap["daysInMonth"]);
+        final currentPg = toInt(responseMap["currentPage"]);
+        final totalPgs = toInt(responseMap["totalPages"]);
 
         DailyRevenueSummary? summary;
-        if (responseMap['summary'] != null && responseMap['summary'] is Map<String, dynamic>) {
-          summary = DailyRevenueSummary.fromJson(responseMap['summary'] as Map<String, dynamic>);
+        if (responseMap["summary"] != null && responseMap["summary"] is Map<String, dynamic>) {
+          summary = DailyRevenueSummary.fromJson(responseMap["summary"] as Map<String, dynamic>);
         }
 
         // Rebuild columns nếu daysInMonth thay đổi
@@ -473,10 +472,10 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                         StackedHeaderRow(
                           cells: [
                             StackedHeaderCell(
-                              columnNames: List.generate(daysInMonth, (i) => 'd_${i + 1}'),
+                              columnNames: List.generate(daysInMonth, (i) => "d_${i + 1}"),
                               child: Obx(
                                 () => formatColumn(
-                                  label: 'Ngày Trong Tháng',
+                                  label: "Ngày Trong Tháng",
                                   themeController: themeController,
                                 ),
                               ),
@@ -526,7 +525,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'daily_revenue',
+                            tableKey: "daily_revenue",
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
@@ -537,7 +536,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                           final customerId =
                               selectedRow
                                   .getCells()
-                                  .firstWhere((cell) => cell.columnName == 'customerId')
+                                  .firstWhere((cell) => cell.columnName == "customerId")
                                   .value
                                   .toString();
                           _selectedCustomerIdNotifier.value = customerId;

@@ -1,15 +1,15 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ObDetailDataSource extends DataGridSource {
   List<OutboundDetailModel> detail = [];
 
   late List<DataGridRow> stagesDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
   ObDetailDataSource({required this.detail}) {
@@ -28,7 +28,7 @@ class ObDetailDataSource extends DataGridSource {
       // Hàm phụ để xử lý định dạng từng số (cm -> mm -> chuỗi 4 chữ số)
       String formatValue(num? val) {
         if (val == null) return "";
-        return (val * 10).round().toString().padLeft(4, '0');
+        return (val * 10).round().toString().padLeft(4, "0");
       }
 
       final lengthStr = formatValue(length);
@@ -47,7 +47,7 @@ class ObDetailDataSource extends DataGridSource {
         columnName: "flute",
         value:
             order.flute != "0"
-                ? '${order.flute ?? ""}-${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}'
+                ? "${order.flute ?? ""}-${formatDimensions(order.lengthPaperManufacture, order.paperSizeManufacture)}"
                 : "-",
       ),
       DataGridCell<String>(columnName: "dvt", value: order.dvt),

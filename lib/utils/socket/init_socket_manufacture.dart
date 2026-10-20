@@ -12,6 +12,8 @@ class InitSocketManufacture {
   final Function() onLoadData;
   final Function(String) onMachineChanged;
 
+  bool _isDialogOpen = false;
+
   InitSocketManufacture({
     required this.context,
     required this.socketService,
@@ -77,7 +79,13 @@ class InitSocketManufacture {
     _showUpdateDialog(data, isPlan: isPlan);
   }
 
-  void _showUpdateDialog(dynamic data, {required bool isPlan}) {
+  Future<void> _showUpdateDialog(dynamic data, {required bool isPlan}) async {
+    if (_isDialogOpen) {
+      return;
+    }
+
+    if (!context.mounted) return;
+
     final from = data["from"] ?? "";
     final machine = data["machine"] ?? "";
     final message = data["message"] ?? "";
@@ -90,103 +98,108 @@ class InitSocketManufacture {
       "updateDialog: machine=$machine, message=$message, isPlan=$isPlan, planningId=$planningId, planningBoxId=$planningBoxId",
     );
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder:
-          (ctx) => AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            contentPadding: const EdgeInsets.all(20),
-            titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-            actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
+    _isDialogOpen = true;
+    try {
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (ctx) => AlertDialog(
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              contentPadding: const EdgeInsets.all(20),
+              titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+              actionsPadding: const EdgeInsets.only(right: 20, bottom: 16),
 
-            title: Center(
-              child: Row(
-                children: [
-                  Icon(
-                    isPlan ? Icons.notifications_active : Icons.info_outline,
-                    color: isPlan ? Colors.green : Colors.blue,
-                    size: 28,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Thông báo từ: ${from.isNotEmpty ? from : (isPlan ? "Kế hoạch" : "Sản xuất")}",
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              title: Center(
+                child: Row(
+                  children: [
+                    Icon(
+                      isPlan ? Icons.notifications_active : Icons.info_outline,
+                      color: isPlan ? Colors.green : Colors.blue,
+                      size: 28,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Thông báo từ: ${from.isNotEmpty ? from : (isPlan ? "Kế hoạch" : "Sản xuất")}",
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            content: SizedBox(
-              width: 450,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "$message\nNhấn OK để cập nhật dữ liệu.",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 17),
-                  ),
-                ],
+              content: SizedBox(
+                width: 450,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "$message\nNhấn OK để cập nhật dữ liệu.",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 17),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            actions: [
-              if (planningId != null || planningBoxId != null)
-                ElevatedButton.icon(
+              actions: [
+                if (planningId != null || planningBoxId != null)
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      onLoadData();
+                      showDialog(
+                        context: context,
+                        builder:
+                            (_) => DialogInspectionCheck(
+                              isQC: false,
+                              isPaper: planningId != null,
+                              planningId: planningId,
+                              planningBoxId: planningBoxId,
+                              machine: machine.isNotEmpty ? machine : null,
+                              paperSize:
+                                  data["paperSize"] != null
+                                      ? double.tryParse(data["paperSize"].toString())
+                                      : null,
+                              paperLength:
+                                  data["paperLength"] != null
+                                      ? double.tryParse(data["paperLength"].toString())
+                                      : null,
+                              canLan: data["canLan"]?.toString(),
+                              onSubmit: onLoadData,
+                            ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xffEA4346),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                    icon: const Icon(Icons.visibility, size: 18),
+                    label: const Text(
+                      "Xem lỗi",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ElevatedButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     onLoadData();
-                    showDialog(
-                      context: context,
-                      builder:
-                          (_) => DialogInspectionCheck(
-                            isQC: false,
-                            isPaper: planningId != null,
-                            planningId: planningId,
-                            planningBoxId: planningBoxId,
-                            machine: machine.isNotEmpty ? machine : null,
-                            paperSize:
-                                data["paperSize"] != null
-                                    ? double.tryParse(data["paperSize"].toString())
-                                    : null,
-                            paperLength:
-                                data["paperLength"] != null
-                                    ? double.tryParse(data["paperLength"].toString())
-                                    : null,
-                            canLan: data["canLan"]?.toString(),
-                            onSubmit: onLoadData,
-                          ),
-                    );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xffEA4346),
+                    backgroundColor: isPlan ? Colors.green : Colors.blue,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                   ),
-                  icon: const Icon(Icons.visibility, size: 18),
-                  label: const Text(
-                    "Xem lỗi",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  child: const Text("OK", style: TextStyle(fontSize: 16)),
                 ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  onLoadData();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isPlan ? Colors.green : Colors.blue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                ),
-                child: const Text("OK", style: TextStyle(fontSize: 16)),
-              ),
-            ],
-          ),
-    );
+              ],
+            ),
+      );
+    } finally {
+      _isDialogOpen = false;
+    }
   }
 
   void stop(String lastMachineName) {
@@ -195,5 +208,6 @@ class InitSocketManufacture {
     for (final event in eventNames) {
       socketService.off(event);
     }
+    _isDialogOpen = false;
   }
 }

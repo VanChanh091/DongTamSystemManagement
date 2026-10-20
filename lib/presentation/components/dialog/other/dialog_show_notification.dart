@@ -341,6 +341,8 @@ Widget buildNotificationActionButtons({
             ),
       );
     }
+  }
+
   // Nếu là thông báo kiểm tra QC (Yêu cầu hoặc Nhắc nhở từ hệ thống): luôn có nút Xác nhận
   final bool isInspectionType =
       notif.type == "INSPECTION_REQUEST" || notif.type == "INSPECTION_REMIND";

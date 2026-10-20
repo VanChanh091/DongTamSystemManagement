@@ -9,6 +9,7 @@ import 'package:dongtam/presentation/sources/warehouse/report_inbound_data_sourc
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
+import 'package:dongtam/utils/helper/picker_date_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -30,6 +31,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   late Future<Map<String, dynamic>> futureReportInbound;
   late ReportInboundDataSource reportInboundDataSource;
   late List<GridColumn> columns;
+  final formatter = DateFormat('dd/MM/yyyy');
 
   //controller
   final userController = Get.find<UserController>();
@@ -87,12 +89,21 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     final bool shouldSearch = isSearching && searchType != "Tất cả";
     final bool isDateSearch = searchType == "Ngày Nhập Kho";
 
+    final String? effectiveKeyword =
+        shouldSearch
+            ? (isDateSearch
+                ? (startDate != null && endDate != null
+                    ? "${formatter.format(startDate!)} - ${formatter.format(endDate!)}"
+                    : "date")
+                : keyword)
+            : null;
+
     futureReportInbound = ensureMinLoading(
       WarehouseService().getAllInboundHistory(
         page: currentPage,
         pageSize: pageSize,
         field: shouldSearch ? selectedField : null,
-        keyword: shouldSearch ? keyword : null,
+        keyword: effectiveKeyword,
         startDate: (shouldSearch && isDateSearch) ? startDate : null,
         endDate: (shouldSearch && isDateSearch) ? endDate : null,
       ),
@@ -226,69 +237,16 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                         customInputBuilder: (inputWidth) {
                           if (searchType != "Ngày Nhập Kho") return null;
 
-                          return SizedBox(
+                          return PickerDateHelper(
                             width: inputWidth,
-                            height: 50,
-                            child: InkWell(
-                              onTap: () async {
-                                final now = DateTime.now();
-                                final size = MediaQuery.of(context).size;
-
-                                final DateTimeRange? picked = await showDateRangePicker(
-                                  context: context,
-                                  firstDate: DateTime(2025),
-                                  lastDate: DateTime(2100),
-                                  initialDateRange:
-                                      (startDate != null && endDate != null)
-                                          ? DateTimeRange(start: startDate!, end: endDate!)
-                                          : DateTimeRange(
-                                            start: now.subtract(const Duration(days: 7)),
-                                            end: now,
-                                          ),
-                                  builder: (context, child) {
-                                    return Center(
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          maxWidth: size.width * 0.3,
-                                          maxHeight: size.height * 0.8,
-                                        ),
-                                        child: Material(
-                                          borderRadius: BorderRadius.circular(16),
-                                          clipBehavior: Clip.antiAlias,
-                                          child: child!,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-
-                                if (picked != null) {
-                                  final displayStart = DateFormat(
-                                    'dd/MM/yyyy',
-                                  ).format(picked.start);
-                                  final displayEnd = DateFormat('dd/MM/yyyy').format(picked.end);
-
-                                  setState(() {
-                                    startDate = picked.start;
-                                    endDate = picked.end;
-                                    searchController.text = '$displayStart - $displayEnd';
-                                  });
-                                }
-                              },
-                              child: IgnorePointer(
-                                child: TextField(
-                                  controller: searchController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Chọn ngày...',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    suffixIcon: const Icon(Icons.calendar_today),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            startDate: startDate,
+                            endDate: endDate,
+                            onDateRangeChanged: (range) {
+                              setState(() {
+                                startDate = range.start;
+                                endDate = range.end;
+                              });
+                            },
                           );
                         },
                       ),

@@ -18,6 +18,7 @@ import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
 import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart";
+import "package:dongtam/presentation/screens/main/synthetic/report/production/synthetic_production_report.dart";
 import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
 import "package:dongtam/presentation/screens/main/synthetic/synthetic_planning.dart";
 import "package:dongtam/presentation/screens/main/delivery/delivery_estimate_time.dart";
@@ -443,6 +444,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.engineering,
               label: "Báo Cáo Lỗi Vận Hành",
               pageType: TopTabAdminErrProduction,
+            ),
+            LeafMenuConfig(
+              icon: Symbols.precision_manufacturing,
+              label: "Báo Cáo Sản Xuất",
+              pageType: SyntheticProductionReport,
+              requiredRoles: ["admin", "manager"],
             ),
           ],
         ),

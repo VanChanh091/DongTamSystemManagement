@@ -2,6 +2,7 @@ import "dart:io";
 
 import "package:dio/dio.dart";
 import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/synthetic/production/production_stage1_report_model.dart";
 import "package:dongtam/data/models/planning/planning_box_model.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/data/models/planning/planning_stages.dart";
@@ -236,6 +237,23 @@ class SyntheticService {
       queryParameters: queryParameters,
       fromJson: fromJson,
       dataKey: dataKey,
+    );
+  }
+
+  //========================= PRODUCTION REPORT =========================
+  Future<List<ProductionReportModel>> getProductionReport({
+    required String type, // "machine" | "worker"
+    required String startDate,
+    String? endDate,
+  }) async {
+    return HelperService().fetchingData<ProductionReportModel>(
+      endpoint: "synthetic/report-production",
+      queryParameters: {
+        "startDate": startDate,
+        if (endDate != null) "endDate": endDate,
+        "type": type,
+      },
+      fromJson: (json) => ProductionReportModel.fromJson(json),
     );
   }
 }

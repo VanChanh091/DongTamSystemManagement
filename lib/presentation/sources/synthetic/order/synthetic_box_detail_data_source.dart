@@ -1,10 +1,10 @@
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_box_model.dart';
-import 'package:dongtam/utils/helper/build_color_row.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_box_model.dart";
+import "package:dongtam/utils/helper/build_color_row.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticBoxDetail extends DataGridSource {
   List<PlanningBoxModel> boxes;
@@ -37,17 +37,17 @@ class SyntheticBoxDetail extends DataGridSource {
     }
 
     return [
-      DataGridCell<int>(columnName: 'qtyPrinted', value: getQtyProduced("Máy In")),
-      DataGridCell<int>(columnName: 'qtyCanLan', value: getQtyProduced("Máy Cắt Lăn")),
-      DataGridCell<int>(columnName: 'qtyCanMang', value: getQtyProduced("Máy Cắt Mang")),
-      DataGridCell<int>(columnName: 'qtyXa', value: getQtyProduced("Máy Xà")),
-      DataGridCell<int>(columnName: 'qtyCatKhe', value: getQtyProduced("Máy Cắt Khe")),
-      DataGridCell<int>(columnName: 'qtyBe', value: getQtyProduced("Máy Bé")),
-      DataGridCell<int>(columnName: 'qtyDan', value: getQtyProduced("Máy Dán")),
-      DataGridCell<int>(columnName: 'qtyDongGhim', value: getQtyProduced("Máy Đóng Ghim")),
+      DataGridCell<int>(columnName: "qtyPrinted", value: getQtyProduced("Máy In")),
+      DataGridCell<int>(columnName: "qtyCanLan", value: getQtyProduced("Máy Cắt Lăn")),
+      DataGridCell<int>(columnName: "qtyCanMang", value: getQtyProduced("Máy Cắt Mang")),
+      DataGridCell<int>(columnName: "qtyXa", value: getQtyProduced("Máy Xà")),
+      DataGridCell<int>(columnName: "qtyCatKhe", value: getQtyProduced("Máy Cắt Khe")),
+      DataGridCell<int>(columnName: "qtyBe", value: getQtyProduced("Máy Bé")),
+      DataGridCell<int>(columnName: "qtyDan", value: getQtyProduced("Máy Dán")),
+      DataGridCell<int>(columnName: "qtyDongGhim", value: getQtyProduced("Máy Đóng Ghim")),
 
       //hidden
-      DataGridCell<int>(columnName: 'planningBoxId', value: box.planningBoxId),
+      DataGridCell<int>(columnName: "planningBoxId", value: box.planningBoxId),
     ];
   }
 
@@ -60,11 +60,11 @@ class SyntheticBoxDetail extends DataGridSource {
     const boolColumns = ["isBox"];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   void buildDataCell() {
@@ -80,10 +80,10 @@ class SyntheticBoxDetail extends DataGridSource {
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
-    final planningBoxId = getCellValue<int>(row, 'planningBoxId', 0);
+    final planningBoxId = getCellValue<int>(row, "planningBoxId", 0);
 
     //get value cell
-    final statusCell = getCellValue<String>(row, 'status', "");
+    final statusCell = getCellValue<String>(row, "status", "");
     final status = statusCell.toString().toLowerCase();
 
     // Chọn màu nền theo status
@@ -92,10 +92,10 @@ class SyntheticBoxDetail extends DataGridSource {
       backgroundColor = Colors.blue.withValues(alpha: 0.3);
     } else {
       switch (status) {
-        case 'từ chối':
+        case "từ chối":
           backgroundColor = Colors.red.withValues(alpha: 0.4);
           break;
-        case 'đã lên kế hoạch':
+        case "đã lên kế hoạch":
           backgroundColor = Colors.white;
           break;
         default:
@@ -112,7 +112,7 @@ class SyntheticBoxDetail extends DataGridSource {
             Alignment alignment;
             if (dataCell.value is num) {
               alignment = Alignment.centerRight;
-            } else if (cellText == '✅') {
+            } else if (cellText == "✅") {
               alignment = Alignment.center;
             } else {
               alignment = Alignment.centerLeft;

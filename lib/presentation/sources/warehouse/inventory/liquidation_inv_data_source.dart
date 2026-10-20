@@ -1,8 +1,8 @@
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class LiquidationInvDataSource extends DataGridSource {
   List<LiquidationInventoryModel> liquidations = [];
@@ -25,13 +25,13 @@ class LiquidationInvDataSource extends DataGridSource {
   List<DataGridRow> get rows => liquidationDataGridRows;
 
   String formatStatus(String status) {
-    if (status == 'pending') {
-      return 'Chờ xử lý';
-    } else if (status == 'selling') {
+    if (status == "pending") {
+      return "Chờ xử lý";
+    } else if (status == "selling") {
       return "Thanh lý 1 phần";
-    } else if (status == 'completed') {
+    } else if (status == "completed") {
       return "Đã thanh lý";
-    } else if (status == 'cancelled') {
+    } else if (status == "cancelled") {
       return "Đã hủy";
     }
     return "Chờ xử lý";
@@ -41,28 +41,28 @@ class LiquidationInvDataSource extends DataGridSource {
     final order = liquidation.order;
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
-      DataGridCell<String>(columnName: 'orderId', value: liquidation.orderId),
-      DataGridCell<String>(columnName: 'customerName', value: order?.customer?.customerName ?? ""),
-      DataGridCell<String>(columnName: 'productName', value: order?.product?.productName ?? ""),
-      DataGridCell<String>(columnName: 'flute', value: order?.flute != "0" ? order?.flute : "-"),
-      DataGridCell<String>(columnName: 'structure', value: order?.formatterStructureOrder ?? ""),
+      DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(columnName: "orderId", value: liquidation.orderId),
+      DataGridCell<String>(columnName: "customerName", value: order?.customer?.customerName ?? ""),
+      DataGridCell<String>(columnName: "productName", value: order?.product?.productName ?? ""),
+      DataGridCell<String>(columnName: "flute", value: order?.flute != "0" ? order?.flute : "-"),
+      DataGridCell<String>(columnName: "structure", value: order?.formatterStructureOrder ?? ""),
 
-      DataGridCell<double>(columnName: 'size', value: order?.paperSizeCustomer ?? 0),
-      DataGridCell<double>(columnName: 'length', value: order?.lengthPaperCustomer ?? 0),
+      DataGridCell<double>(columnName: "size", value: order?.paperSizeCustomer ?? 0),
+      DataGridCell<double>(columnName: "length", value: order?.lengthPaperCustomer ?? 0),
 
-      DataGridCell<String>(columnName: 'dvt', value: order?.dvt ?? ""),
+      DataGridCell<String>(columnName: "dvt", value: order?.dvt ?? ""),
 
-      DataGridCell<int>(columnName: 'qtyTransferred', value: liquidation.qtyTransferred),
-      DataGridCell<int>(columnName: 'qtySold', value: liquidation.qtySold),
-      DataGridCell<int>(columnName: 'qtyRemaining', value: liquidation.qtyRemaining),
+      DataGridCell<int>(columnName: "qtyTransferred", value: liquidation.qtyTransferred),
+      DataGridCell<int>(columnName: "qtySold", value: liquidation.qtySold),
+      DataGridCell<int>(columnName: "qtyRemaining", value: liquidation.qtyRemaining),
 
-      DataGridCell<double>(columnName: 'liquidationValue', value: liquidation.liquidationValue),
-      DataGridCell<String>(columnName: 'reason', value: liquidation.reason),
-      DataGridCell<String>(columnName: 'status', value: formatStatus(liquidation.status)),
+      DataGridCell<double>(columnName: "liquidationValue", value: liquidation.liquidationValue),
+      DataGridCell<String>(columnName: "reason", value: liquidation.reason),
+      DataGridCell<String>(columnName: "status", value: formatStatus(liquidation.status)),
 
       //hidden
-      DataGridCell<int>(columnName: 'liquidationId', value: liquidation.liquidationId),
+      DataGridCell<int>(columnName: "liquidationId", value: liquidation.liquidationId),
     ];
   }
 

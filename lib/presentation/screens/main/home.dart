@@ -3,6 +3,7 @@ import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_pap
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
+import "package:dongtam/presentation/screens/main/synthetic/report/production/synthetic_production_report.dart";
 import "package:dongtam/service/quality_control_service.dart";
 import "package:get/get.dart";
 import "package:flutter/material.dart";
@@ -177,6 +178,7 @@ class _HomePageState extends State<HomePage> {
       //statistics
       _buildPage(roles: ["admin"], child: TopTabAdminRevenue()),
       _buildPage(roles: ["admin"], child: TopTabAdminErrProduction()),
+      _buildPage(roles: ["admin", "manager"], child: const SyntheticProductionReport()),
     ].whereType<Widget>().toList(); // lọc bỏ null
   }
 

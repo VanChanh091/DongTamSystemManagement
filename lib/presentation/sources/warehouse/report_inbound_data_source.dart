@@ -1,8 +1,8 @@
-import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportInboundDataSource extends DataGridSource {
   List<InboundHistoryModel> reportInbounds = [];
@@ -11,7 +11,7 @@ class ReportInboundDataSource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> reportDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   ReportInboundDataSource({
     required this.reportInbounds,
@@ -20,18 +20,18 @@ class ReportInboundDataSource extends DataGridSource {
     required this.pageSize,
   }) {
     buildDataGridRows();
-    addColumnGroup(ColumnGroup(name: 'dateInbound', sortGroupRows: false));
+    addColumnGroup(ColumnGroup(name: "dateInbound", sortGroupRows: false));
   }
 
   List<DataGridCell> buildReportInfoCells(InboundHistoryModel inbound, int index) {
     final orderCell = inbound.order;
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
-      DataGridCell<String>(columnName: 'dateInbound', value: formatter.format(inbound.dateInbound)),
-      DataGridCell<String>(columnName: 'orderId', value: inbound.orderId),
+      DataGridCell<int>(columnName: "index", value: index + 1),
+      DataGridCell<String>(columnName: "dateInbound", value: formatter.format(inbound.dateInbound)),
+      DataGridCell<String>(columnName: "orderId", value: inbound.orderId),
       DataGridCell<String>(
-        columnName: 'customerName',
+        columnName: "customerName",
         value: orderCell?.customer?.customerName ?? "",
       ),
       DataGridCell<String>(
@@ -45,23 +45,23 @@ class ReportInboundDataSource extends DataGridSource {
       ),
       DataGridCell<bool>(columnName: "isFSC", value: orderCell?.isFSC ?? false),
       DataGridCell<String?>(columnName: "QcBox", value: orderCell?.QC_box ?? ""),
-      DataGridCell<String>(columnName: 'flute', value: orderCell?.flute ?? ""),
+      DataGridCell<String>(columnName: "flute", value: orderCell?.flute ?? ""),
       DataGridCell<String>(
-        columnName: 'structure',
+        columnName: "structure",
         value: orderCell?.formatterStructureOrder ?? "",
       ),
-      DataGridCell<String>(columnName: 'size', value: '${orderCell?.paperSizeManufacture ?? 0} cm'),
+      DataGridCell<String>(columnName: "size", value: "${orderCell?.paperSizeManufacture ?? 0} cm"),
       DataGridCell<String>(
-        columnName: 'length',
-        value: '${orderCell?.lengthPaperManufacture ?? 0} cm',
+        columnName: "length",
+        value: "${orderCell?.lengthPaperManufacture ?? 0} cm",
       ),
-      DataGridCell<int>(columnName: 'quantityOrd', value: orderCell?.quantityManufacture ?? 0),
-      DataGridCell<int>(columnName: 'qtyPaper', value: inbound.qtyPaper),
-      DataGridCell<int>(columnName: 'qtyInbound', value: inbound.qtyInbound),
-      DataGridCell<String>(columnName: 'checkedBy', value: inbound.qcSession?.checkedBy ?? ""),
+      DataGridCell<int>(columnName: "quantityOrd", value: orderCell?.quantityManufacture ?? 0),
+      DataGridCell<int>(columnName: "qtyPaper", value: inbound.qtyPaper),
+      DataGridCell<int>(columnName: "qtyInbound", value: inbound.qtyInbound),
+      DataGridCell<String>(columnName: "checkedBy", value: inbound.qcSession?.checkedBy ?? ""),
 
       //hidden
-      DataGridCell<int>(columnName: 'inboundId', value: inbound.inboundId),
+      DataGridCell<int>(columnName: "inboundId", value: inbound.inboundId),
     ];
   }
 
@@ -90,27 +90,27 @@ class ReportInboundDataSource extends DataGridSource {
     const boolColumns = ["isFSC"];
 
     if (boolColumns.contains(dataCell.columnName)) {
-      if (value == null) return '';
-      return value == true ? '✅' : '';
+      if (value == null) return "";
+      return value == true ? "✅" : "";
     }
 
-    return value?.toString() ?? '';
+    return value?.toString() ?? "";
   }
 
   @override
   Widget? buildGroupCaptionCellWidget(RowColumnIndex rowColumnIndex, String summaryValue) {
     // Bắt ngày và số item, không phân biệt hoa thường
-    final regex = RegExp(r'^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$', caseSensitive: false);
+    final regex = RegExp(r"^.*?:\s*(.*?)\s*-\s*(\d+)\s*items?$", caseSensitive: false);
     final match = regex.firstMatch(summaryValue);
 
-    String displayDate = '';
-    String itemCount = '';
+    String displayDate = "";
+    String itemCount = "";
 
     if (match != null) {
-      final fullDate = match.group(1) ?? '';
-      displayDate = fullDate.split(' ').first; // chỉ lấy phần ngày
-      final count = match.group(2) ?? '0';
-      itemCount = '$count đơn hàng';
+      final fullDate = match.group(1) ?? "";
+      displayDate = fullDate.split(" ").first; // chỉ lấy phần ngày
+      final count = match.group(2) ?? "0";
+      itemCount = "$count đơn hàng";
     }
 
     return Container(
@@ -120,8 +120,8 @@ class ReportInboundDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty
-            ? '📅 Ngày báo cáo: $displayDate  $itemCount'
-            : '📅 Ngày báo cáo: Không xác định',
+            ? "📅 Ngày nhập kho: $displayDate  $itemCount"
+            : "📅 Ngày nhập kho: Không xác định",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
       ),
     );
@@ -129,7 +129,7 @@ class ReportInboundDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final inboundId = row.getCells().firstWhere((cell) => cell.columnName == 'inboundId').value;
+    final inboundId = row.getCells().firstWhere((cell) => cell.columnName == "inboundId").value;
     final isSelected = selectedInboundId?.contains(inboundId);
 
     Color backgroundColor;

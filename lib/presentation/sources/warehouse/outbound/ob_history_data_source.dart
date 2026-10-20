@@ -136,7 +136,7 @@ class ObHistoryDataSource extends DataGridSource {
 
   @override
   DataGridRowAdapter? buildRow(DataGridRow row) {
-    final outboundId = row.getCells().firstWhere((cell) => cell.columnName == 'outboundId').value;
+    final outboundId = row.getCells().firstWhere((cell) => cell.columnName == "outboundId").value;
 
     Color backgroundColor;
     if (selectedOutboundId == outboundId) {

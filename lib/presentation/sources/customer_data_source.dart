@@ -1,9 +1,9 @@
-import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/models/customer/customer_model.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class CustomerDatasource extends DataGridSource {
   List<CustomerModel> customer = [];
@@ -11,7 +11,7 @@ class CustomerDatasource extends DataGridSource {
   int pageSize;
 
   late List<DataGridRow> customerDataGridRows;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   CustomerDatasource({required this.customer, required this.currentPage, required this.pageSize}) {
     buildDataGridRows();
@@ -25,15 +25,15 @@ class CustomerDatasource extends DataGridSource {
     }
 
     return [
-      DataGridCell<int>(columnName: 'index', value: index + 1),
+      DataGridCell<int>(columnName: "index", value: index + 1),
       DataGridCell<String>(columnName: "customerId", value: customer.customerId),
       DataGridCell<String>(columnName: "maSoThue", value: customer.mst),
       DataGridCell<String>(columnName: "customerName", value: customer.customerName),
       DataGridCell<String>(columnName: "phone", value: customer.phone),
       DataGridCell<String>(columnName: "contactPerson", value: customer.contactPerson ?? ""),
 
-      buildCurrencyCell('debtLimit', payment?.debtLimit ?? 0),
-      buildCurrencyCell('debtCurrent', payment?.debtCurrent ?? 0),
+      buildCurrencyCell("debtLimit", payment?.debtLimit ?? 0),
+      buildCurrencyCell("debtCurrent", payment?.debtCurrent ?? 0),
       DataGridCell<String>(
         columnName: "paymentType",
         value: payment?.paymentType != null ? payment!.paymentType : "",
@@ -42,21 +42,21 @@ class CustomerDatasource extends DataGridSource {
         columnName: "closingDays",
         value:
             (payment?.closingDays != null && payment!.closingDays!.isNotEmpty)
-                ? payment.closingDays!.join(', ')
-                : '-',
+                ? payment.closingDays!.join(", ")
+                : "-",
       ),
       DataGridCell<String>(
         columnName: "paymentTermDays",
         value:
             payment?.paymentTermDays != null && payment!.paymentTermDays > 0
-                ? '${payment.paymentTermDays} Ngày'
+                ? "${payment.paymentTermDays} Ngày"
                 : "-",
       ),
 
       DataGridCell<String>(columnName: "companyName", value: customer.companyName),
       DataGridCell<String>(columnName: "companyAddress", value: customer.companyAddress),
       DataGridCell<String>(columnName: "shippingAddress", value: customer.shippingAddress),
-      buildCurrencyCell('distanceShip', customer.distance ?? 0),
+      buildCurrencyCell("distanceShip", customer.distance ?? 0),
 
       DataGridCell<String>(columnName: "CSKH", value: customer.cskh),
       DataGridCell<String>(columnName: "customerSource", value: customer.customerSource),
@@ -112,8 +112,8 @@ class CustomerDatasource extends DataGridSource {
     }
     // Trường hợp là String (ví dụ: "30" hoặc "[30]")
     else if (rawValue is String) {
-      final cleanStr = rawValue.replaceAll(RegExp(r'[\[\]\s]'), '');
-      days = cleanStr.split(',').map((e) => int.tryParse(e) ?? -1).where((e) => e != -1).toList();
+      final cleanStr = rawValue.replaceAll(RegExp(r"[\[\]\s]"), "");
+      days = cleanStr.split(",").map((e) => int.tryParse(e) ?? -1).where((e) => e != -1).toList();
     }
 
     if (days.isEmpty) return "-";
@@ -160,9 +160,9 @@ class CustomerDatasource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            if (dataCell.columnName == 'paymentType') {
+            if (dataCell.columnName == "paymentType") {
               displayValue = getStatusVi(displayValue);
-            } else if (dataCell.columnName == 'closingDays') {
+            } else if (dataCell.columnName == "closingDays") {
               displayValue = getClosingDaysVi(dataCell.value);
             }
 
