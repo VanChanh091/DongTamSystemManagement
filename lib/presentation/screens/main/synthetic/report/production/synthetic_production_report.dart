@@ -23,26 +23,28 @@ class SyntheticProductionReport extends StatefulWidget {
 }
 
 class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
-  late Future<List<ProductionReportModel>> futureReport;
-  late List<GridColumn> columns;
+  late Future<ProductionCombinedReportModel> futureReport;
+  late List<GridColumn> machineColumns;
+  late List<GridColumn> workerColumns;
   late bool isManager;
 
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final headerScrollController = ScrollController();
 
-  //notifiers
-  Map<String, double> columnWidths = {};
+  // Column widths
+  Map<String, double> machineColumnWidths = {};
+  Map<String, double> workerColumnWidths = {};
   final _zoomNotifier = ValueNotifier<double>(1.0);
 
   // Filters
   DateTime selectedStartDate = DateTime.now();
   DateTime selectedEndDate = DateTime.now();
-  String selectedType = "machine"; // "machine" | "worker"
 
-  // Datasource & Cache
-  List<ProductionReportModel>? _cachedProductionReport;
-  ProductionReportDataSource? _cachedDatasource;
+  // Datasources & Cache
+  ProductionCombinedReportModel? _cachedProductionReport;
+  ProductionReportDataSource? _cachedMachineDatasource;
+  ProductionReportDataSource? _cachedWorkerDatasource;
 
   @override
   void initState() {
@@ -54,15 +56,26 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
   }
 
   void _initColumns() {
-    columns = buildProductionReportColumns(
+    machineColumns = buildProductionReportColumns(
       themeController: themeController,
-      isMachine: selectedType == "machine",
+      isMachine: true,
     );
-    ColumnWidthTable.loadWidths(tableKey: "production_report_$selectedType", columns: columns).then(
-      (w) {
-        if (mounted) setState(() => columnWidths = w);
-      },
+    workerColumns = buildProductionReportColumns(
+      themeController: themeController,
+      isMachine: false,
     );
+
+    ColumnWidthTable.loadWidths(
+      tableKey: "production_report_machine",
+      columns: machineColumns,
+    ).then((w) {
+      if (mounted) setState(() => machineColumnWidths = w);
+    });
+    ColumnWidthTable.loadWidths(tableKey: "production_report_worker", columns: workerColumns).then((
+      w,
+    ) {
+      if (mounted) setState(() => workerColumnWidths = w);
+    });
   }
 
   void _loadReport() {
@@ -71,12 +84,9 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
 
     setState(() {
       _cachedProductionReport = null;
-      _cachedDatasource = null;
-      futureReport = SyntheticService().getProductionReport(
-        type: selectedType,
-        startDate: startStr,
-        endDate: endStr,
-      );
+      _cachedMachineDatasource = null;
+      _cachedWorkerDatasource = null;
+      futureReport = SyntheticService().getProductionReport(startDate: startStr, endDate: endStr);
     });
   }
 
@@ -131,16 +141,13 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // title & buttons
+                  // Header bar
                   Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  //table & pagination
+                  // Tables
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       child: _buildTableSection(),
                     ),
                   ),
@@ -153,7 +160,7 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  initialMargin: const Offset(73, 200),
+                  initialMargin: const Offset(75, 150),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -172,7 +179,7 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
   Widget _buildHeaderBar() {
     return Column(
       children: [
-        //title
+        // Title
         Text(
           "BÁO CÁO SẢN XUẤT GIẤY TẤM",
           style: TextStyle(
@@ -194,17 +201,8 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minWidth: constraints.maxWidth),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // Switch Loại Báo Cáo: Máy vs Thợ
-                      Row(
-                        children: [
-                          _buildTypeButton(title: "Theo Máy", type: "machine"),
-                          const SizedBox(width: 10),
-                          _buildTypeButton(title: "Theo Thợ", type: "worker"),
-                        ],
-                      ),
-
                       // Nút chọn ngày / khoảng ngày
                       PickerDateHelper(
                         width: 240,
@@ -260,18 +258,21 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
   }
 
   Widget _buildTableSection() {
-    return FutureBuilder<List<ProductionReportModel>>(
+    return FutureBuilder<ProductionCombinedReportModel>(
       future: futureReport,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return buildShimmerSkeletonTable(context: context, rowCount: 8);
+          return buildShimmerSkeletonTable(context: context, rowCount: 10);
         }
         if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
         }
 
-        final items = snapshot.data ?? [];
-        if (items.isEmpty) {
+        final reportData = snapshot.data;
+        final hasMachines = reportData != null && reportData.machines.isNotEmpty;
+        final hasWorkers = reportData != null && reportData.workers.isNotEmpty;
+
+        if (!hasMachines && !hasWorkers) {
           return Center(
             child: Text(
               "Không có dữ liệu trong khoảng thời gian đã chọn",
@@ -284,112 +285,195 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
           );
         }
 
-        if (_cachedProductionReport != items || _cachedDatasource == null) {
-          _cachedProductionReport = items;
-          _cachedDatasource = ProductionReportDataSource(
-            items: items,
-            isMachine: selectedType == "machine",
+        if (_cachedProductionReport != reportData ||
+            _cachedMachineDatasource == null ||
+            _cachedWorkerDatasource == null) {
+          _cachedProductionReport = reportData;
+          _cachedMachineDatasource = ProductionReportDataSource(
+            items: reportData.machines,
+            isMachine: true,
+          );
+          _cachedWorkerDatasource = ProductionReportDataSource(
+            items: reportData.workers,
+            isMachine: false,
           );
         }
 
-        return StatefulBuilder(
-          builder: (context, localSetState) {
-            return SfDataGridTheme(
-              data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-              child: SfDataGrid(
-                source: _cachedDatasource!,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.fill,
-                selectionMode: SelectionMode.single,
-                headerRowHeight: 37,
-                rowHeight: 40,
-                frozenColumnsCount: 2,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-
-                //table summary
-                tableSummaryRows: [
-                  GridTableSummaryRow(
-                    showSummaryInRow: false,
-                    title: "Tổng cộng",
-                    position: GridTableSummaryRowPosition.bottom,
-                    columns: [
-                      const GridSummaryColumn(
-                        name: "totalPaperTon",
-                        columnName: "totalPaperTon",
-                        summaryType: GridSummaryType.sum,
-                      ),
-                      const GridSummaryColumn(
-                        name: "totalLength",
-                        columnName: "totalLength",
-                        summaryType: GridSummaryType.sum,
-                      ),
-                      const GridSummaryColumn(
-                        name: "totalScrapKg",
-                        columnName: "totalScrapKg",
-                        summaryType: GridSummaryType.sum,
-                      ),
-                      const GridSummaryColumn(
-                        name: "totalRevenue",
-                        columnName: "totalRevenue",
-                        summaryType: GridSummaryType.sum,
-                      ),
-                      const GridSummaryColumn(
-                        name: "totalQcErrors",
-                        columnName: "totalQcErrors",
-                        summaryType: GridSummaryType.sum,
-                      ),
-                    ],
-                  ),
-                ],
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
+        return Column(
+          children: [
+            // table machine
+            Expanded(
+              child: _buildTableCard(
+                title: "BẢNG TỔNG HỢP THEO MÁY",
+                icon: Icons.precision_manufacturing_outlined,
+                columns: machineColumns,
+                columnWidths: machineColumnWidths,
+                datasource: _cachedMachineDatasource!,
+                tableKey: "production_report_machine",
+                onResizeUpdate:
+                    (details, localSetState) => GridResizeHelper.onResizeUpdate(
                       details: details,
-                      columns: columns,
+                      columns: machineColumns,
                       setState: localSetState,
                     ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: "production_report_$selectedType",
-                      columnWidths: columnWidths,
-                      setState: setState,
-                    ),
+                onResizeEnd: (details) {
+                  GridResizeHelper.onResizeEnd(
+                    details: details,
+                    tableKey: "production_report_machine",
+                    columnWidths: machineColumnWidths,
+                    setState: setState,
+                  );
+                },
               ),
-            );
-          },
+            ),
+            const SizedBox(height: 10),
+
+            //table worker
+            Expanded(
+              child: _buildTableCard(
+                title: "BẢNG TỔNG HỢP THEO THỢ",
+                icon: Icons.people_alt_outlined,
+                columns: workerColumns,
+                columnWidths: workerColumnWidths,
+                datasource: _cachedWorkerDatasource!,
+                tableKey: "production_report_worker",
+                onResizeUpdate:
+                    (details, localSetState) => GridResizeHelper.onResizeUpdate(
+                      details: details,
+                      columns: workerColumns,
+                      setState: localSetState,
+                    ),
+                onResizeEnd: (details) {
+                  GridResizeHelper.onResizeEnd(
+                    details: details,
+                    tableKey: "production_report_worker",
+                    columnWidths: workerColumnWidths,
+                    setState: setState,
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  //========================= WIDGETS =========================
-  Widget _buildTypeButton({required String title, required String type}) {
-    final isSelected = selectedType == type;
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? themeController.currentColor.value : Colors.white,
-        foregroundColor: isSelected ? Colors.white : Colors.black87,
-        elevation: isSelected ? 2 : 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-          side: BorderSide(
-            color: isSelected ? themeController.currentColor.value : Colors.grey.shade300,
+  Widget _buildTableCard({
+    required String title,
+    required IconData icon,
+    required List<GridColumn> columns,
+    required Map<String, double> columnWidths,
+    required ProductionReportDataSource datasource,
+    required String tableKey,
+    required bool Function(ColumnResizeUpdateDetails, StateSetter) onResizeUpdate,
+    required void Function(ColumnResizeEndDetails) onResizeEnd,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
       ),
-      onPressed: () {
-        if (!isSelected) {
-          setState(() {
-            selectedType = type;
-            _initColumns();
-            _loadReport();
-          });
-        }
-      },
-      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Table header title
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+              border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: themeController.currentColor.value),
+                const SizedBox(width: 8),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: themeController.currentColor.value,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // DataGrid
+          Expanded(
+            child: StatefulBuilder(
+              builder: (context, localSetState) {
+                return SfDataGridTheme(
+                  data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                  child: SfDataGrid(
+                    source: datasource,
+                    isScrollbarAlwaysShown: true,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    selectionMode: SelectionMode.single,
+                    headerRowHeight: 37,
+                    rowHeight: 38,
+                    frozenColumnsCount: 2,
+                    columns: ColumnWidthTable.applySavedWidths(
+                      columns: columns,
+                      widths: columnWidths,
+                    ),
+                    tableSummaryRows: [
+                      GridTableSummaryRow(
+                        showSummaryInRow: false,
+                        title: "Tổng cộng",
+                        position: GridTableSummaryRowPosition.bottom,
+                        columns: const [
+                          GridSummaryColumn(
+                            name: "totalPaperTon",
+                            columnName: "totalPaperTon",
+                            summaryType: GridSummaryType.sum,
+                          ),
+                          GridSummaryColumn(
+                            name: "totalLength",
+                            columnName: "totalLength",
+                            summaryType: GridSummaryType.sum,
+                          ),
+                          GridSummaryColumn(
+                            name: "totalScrapKg",
+                            columnName: "totalScrapKg",
+                            summaryType: GridSummaryType.sum,
+                          ),
+                          GridSummaryColumn(
+                            name: "totalRevenue",
+                            columnName: "totalRevenue",
+                            summaryType: GridSummaryType.sum,
+                          ),
+                          GridSummaryColumn(
+                            name: "totalQcErrors",
+                            columnName: "totalQcErrors",
+                            summaryType: GridSummaryType.sum,
+                          ),
+                        ],
+                      ),
+                    ],
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate: (details) => onResizeUpdate(details, localSetState),
+                    onColumnResizeEnd: onResizeEnd,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

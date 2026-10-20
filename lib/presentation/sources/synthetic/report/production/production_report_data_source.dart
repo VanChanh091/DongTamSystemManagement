@@ -109,6 +109,7 @@ class ProductionReportDataSource extends DataGridSource {
 
       case "fulfillmentRate":
       case "timeAdherenceRate":
+      case "qcErrorPerTon":
         return (value is num && value > 0) ? "${NumberFormat("0.##").format(value)}%" : "-";
 
       case "totalQcErrors":

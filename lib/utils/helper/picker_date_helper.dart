@@ -65,9 +65,10 @@ class _PickerDateHelpersState extends State<PickerDateHelper> {
   }
 
   void _updateText() {
-    final newText = (widget.startDate != null && widget.endDate != null)
-        ? '${DateFormat(widget.dateFormat).format(widget.startDate!)} - ${DateFormat(widget.dateFormat).format(widget.endDate!)}'
-        : '';
+    final newText =
+        (widget.startDate != null && widget.endDate != null)
+            ? '${DateFormat(widget.dateFormat).format(widget.startDate!)} - ${DateFormat(widget.dateFormat).format(widget.endDate!)}'
+            : '';
     if (_effectiveController.text != newText) {
       _effectiveController.text = newText;
     }
@@ -100,24 +101,34 @@ class _PickerDateHelpersState extends State<PickerDateHelper> {
         final isMobile = size.width < 600;
         final maxWidth = isMobile ? size.width * 0.9 : size.width * 0.35;
 
-        const primaryColor = Color.fromARGB(255, 80, 161, 59); // Xanh lá đậm
-        const rangeColor = Color.fromARGB(255, 225, 245, 227); // Xanh nhạt cho dải ở giữa
+        const primaryColor = Color.fromARGB(255, 201, 155, 120);
+        const rangeColor = Color.fromARGB(255, 231, 218, 210);
         const textColor = Color(0xFF1F2937);
 
         return Theme(
           data: Theme.of(context).copyWith(
+            scaffoldBackgroundColor: Colors.white,
+            dialogTheme: const DialogThemeData(
+              backgroundColor: Colors.white,
+              surfaceTintColor: Colors.transparent,
+            ),
             colorScheme: ColorScheme.light(
               primary: primaryColor,
               onPrimary: Colors.white,
               surface: Colors.white,
               onSurface: textColor,
+              surfaceTint: Colors.transparent,
+              surfaceContainer: Colors.white,
+              surfaceContainerHigh: Colors.white,
+              surfaceContainerHighest: Colors.white,
               primaryContainer: rangeColor,
-              onPrimaryContainer: const Color.fromARGB(255, 80, 161, 59),
+              onPrimaryContainer: const Color.fromARGB(255, 201, 155, 120),
             ),
             datePickerTheme: DatePickerThemeData(
               // Nền tổng thể
               backgroundColor: Colors.white,
-              elevation: 6,
+              surfaceTintColor: Colors.transparent,
+              elevation: 4,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
 
               // Phần tiêu đề
@@ -153,6 +164,7 @@ class _PickerDateHelpersState extends State<PickerDateHelper> {
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth * 0.8, maxHeight: size.height * 0.8),
               child: Material(
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 clipBehavior: Clip.antiAlias,
                 child: child!,

@@ -96,6 +96,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               label: "Báo Cáo Doanh Số",
               pageType: TopTabSyntheticRevenue,
             ),
+            LeafMenuConfig(
+              icon: Symbols.precision_manufacturing,
+              label: "Báo Cáo Sản Xuất",
+              pageType: SyntheticProductionReport,
+              requiredRoles: ["manager"],
+            ),
           ],
         ),
         GroupMenuConfig(

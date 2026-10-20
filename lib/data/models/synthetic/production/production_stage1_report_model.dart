@@ -44,3 +44,24 @@ class ProductionReportModel {
     );
   }
 }
+
+class ProductionCombinedReportModel {
+  final List<ProductionReportModel> machines;
+  final List<ProductionReportModel> workers;
+
+  ProductionCombinedReportModel({
+    required this.machines,
+    required this.workers,
+  });
+
+  factory ProductionCombinedReportModel.fromJson(Map<String, dynamic> json) {
+    return ProductionCombinedReportModel(
+      machines: (json['machines'] as List<dynamic>? ?? [])
+          .map((e) => ProductionReportModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      workers: (json['workers'] as List<dynamic>? ?? [])
+          .map((e) => ProductionReportModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}

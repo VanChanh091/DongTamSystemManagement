@@ -241,19 +241,18 @@ class SyntheticService {
   }
 
   //========================= PRODUCTION REPORT =========================
-  Future<List<ProductionReportModel>> getProductionReport({
-    required String type, // "machine" | "worker"
+  Future<ProductionCombinedReportModel> getProductionReport({
     required String startDate,
     String? endDate,
   }) async {
-    return HelperService().fetchingData<ProductionReportModel>(
+    final result = await HelperService().fetchingSingleListData<ProductionCombinedReportModel>(
       endpoint: "synthetic/report-production",
       queryParameters: {
         "startDate": startDate,
         if (endDate != null) "endDate": endDate,
-        "type": type,
       },
-      fromJson: (json) => ProductionReportModel.fromJson(json),
+      fromJson: (json) => ProductionCombinedReportModel.fromJson(json),
     );
+    return result ?? ProductionCombinedReportModel(machines: [], workers: []);
   }
 }
