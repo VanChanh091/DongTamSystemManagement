@@ -447,11 +447,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
         ),
       ),
       actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      actions: buildDialogActions(
-        context: context,
-        isLoading: _isLoading,
-        onConfirm: submit,
-      ),
+      actions: buildDialogActions(context: context, isLoading: _isLoading, onConfirm: submit),
     );
   }
 }

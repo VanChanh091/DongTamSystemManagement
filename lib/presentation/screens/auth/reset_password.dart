@@ -1,5 +1,5 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/presentation/components/step_items.dart';
+import 'package:dongtam/utils/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/change_to_login.dart';
 import 'package:dongtam/service/auth_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';

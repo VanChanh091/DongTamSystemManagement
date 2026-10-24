@@ -5,7 +5,7 @@ import "package:dongtam/data/models/synthetic/production/production_stage1_repor
 import "package:dongtam/presentation/components/headerTable/synthetic/report/production/header_table_production_report.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
-import "package:dongtam/presentation/sources/synthetic/report/production/production_report_data_source.dart";
+import "package:dongtam/presentation/components/sources/synthetic/report/production/production_report_data_source.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/picker_date_helper.dart";

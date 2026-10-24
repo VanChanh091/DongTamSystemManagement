@@ -1,9 +1,12 @@
 import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_code.dart";
 import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_paper_type.dart";
+import "package:dongtam/presentation/screens/main/debt/debt_deduction_request.dart";
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
+import "package:dongtam/presentation/screens/main/report/report_debt_deduction.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/production/synthetic_production_report.dart";
+import "package:dongtam/presentation/screens/main/warehouse/debt_deduction_approved.dart";
 import "package:dongtam/service/quality_control_service.dart";
 import "package:get/get.dart";
 import "package:flutter/material.dart";
@@ -141,9 +144,11 @@ class _HomePageState extends State<HomePage> {
       _buildPage(permissions: ["delivery", "accountant", "sale"], child: OutboundHistory()),
       Inventory(),
       LiquidationInventory(),
+      _buildPage(roles: ["admin", "manager"], child: DebtDeductionApproved()),
 
       //debt closing & payment
       _buildPage(permissions: ["accountant", "sale"], child: DebtCustomerSummary()),
+      _buildPage(permissions: ["sale"], child: DebtDeductionRequest()),
 
       //delivery
       _buildPage(permissions: ["plan", "sale"], child: DeliveryEstimateTime()),
@@ -155,6 +160,7 @@ class _HomePageState extends State<HomePage> {
       TopTabHistoryReport(),
       ReportInboundHistory(),
       TopTabInspectionReport(),
+      ReportDebtDeduction(),
 
       //synthetic
       SyntheticPlanning(),

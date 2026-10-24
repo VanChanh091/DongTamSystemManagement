@@ -131,106 +131,18 @@ class _ManageOrderState extends State<AdminOrder> {
   }
 
   void _showOtpApprovalDialog() {
-    final formKey = GlobalKey<FormState>();
-    otpController.clear();
-
-    showDialog(
+    showOtpDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          title: const Row(
-            children: [
-              Icon(Icons.security, color: Colors.indigo),
-              SizedBox(width: 8),
-              Text(
-                "Duyệt đơn qua mã OTP",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: 380,
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Mã đơn hàng: ${selectedOrder?.orderId}\nNhập mã OTP đã được gửi về Telegram để xác nhận duyệt:",
-                    style: const TextStyle(fontSize: 14, color: Colors.black87),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: otpController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    decoration: const InputDecoration(
-                      labelText: "Mã OTP",
-                      hintText: "Nhập mã OTP (VD: 1234)",
-                      prefixIcon: Icon(Icons.key),
-                      border: OutlineInputBorder(),
-                      counterText: "",
-                    ),
-                    validator: (val) {
-                      if (val == null || val.trim().isEmpty) {
-                        return "Vui lòng nhập mã OTP";
-                      }
-                      if (int.tryParse(val.trim()) == null) {
-                        return "Mã OTP phải là số";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton.icon(
-                      onPressed: _sendOtpCode,
-                      icon: const Icon(Icons.send_rounded, size: 16, color: Color(0xFF0088CC)),
-                      label: const Text(
-                        "Gửi mã OTP qua Telegram",
-                        style: TextStyle(color: Color(0xFF0088CC)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF475569),
-                side: const BorderSide(color: Color(0xFFCBD5E1)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-              ),
-              onPressed: () => Navigator.pop(context),
-              child: Text("Hủy", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigo.shade600,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  final otp = int.parse(otpController.text.trim());
-                  Navigator.pop(context);
-                  _processApproveOrder(confirmationOTP: otp);
-                }
-              },
-              child: const Text(
-                "Xác nhận duyệt",
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-          ],
-        );
+      title: "Duyệt đơn qua mã OTP",
+      primaryColor: Colors.indigo.shade600,
+      infoText:
+          "Mã đơn hàng: ${selectedOrder?.orderId}\n"
+          "Nhập mã OTP đã được gửi về Telegram để xác nhận duyệt:",
+      onSendOtp: () async {
+        _sendOtpCode();
+      },
+      onConfirm: (otp) {
+        _processApproveOrder(confirmationOTP: otp);
       },
     );
   }

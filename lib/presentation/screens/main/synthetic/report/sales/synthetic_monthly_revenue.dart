@@ -6,7 +6,7 @@ import 'package:dongtam/presentation/components/headerTable/synthetic/report/sal
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/synthetic/report/sales/monthly_revenue_data_source.dart';
+import 'package:dongtam/presentation/components/sources/synthetic/report/sales/monthly_revenue_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
@@ -128,8 +128,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
   }
 
   void _fetchData() {
-    final bool isAll =
-        widget.scope == RevenueScope.synthetic || selectedUserId == null;
+    final bool isAll = widget.scope == RevenueScope.synthetic || selectedUserId == null;
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<MonthlyRevenueReport>(

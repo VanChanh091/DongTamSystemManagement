@@ -1,5 +1,5 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/presentation/components/step_items.dart';
+import 'package:dongtam/utils/step_items.dart';
 import 'package:dongtam/presentation/screens/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,11 +38,7 @@ class _ChangeToLoginState extends State<ChangeToLogin> {
                         children: [
                           const SizedBox(height: 70),
                           const Center(
-                            child: Icon(
-                              Icons.check_circle,
-                              size: 50,
-                              color: Colors.green,
-                            ),
+                            child: Icon(Icons.check_circle, size: 50, color: Colors.green),
                           ),
                           const SizedBox(height: 15),
 

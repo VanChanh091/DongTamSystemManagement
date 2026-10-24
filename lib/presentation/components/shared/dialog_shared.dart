@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dongtam/utils/handleError/api_exception.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
@@ -120,21 +122,20 @@ Future<void> showDeleteConfirmHelper({
 
     onSuccess();
   } on ApiException catch (e) {
-    switch (e.errorCode) {
-      case "CUSTOMER_HAS_ORDERS":
-        showSnackBarError(context, e.message!);
-        break;
-      case "PRODUCT_HAS_ORDERS":
-        showSnackBarError(context, e.message!);
-        break;
-      case "OUTBOUND_ALREADY_PAID":
-        showSnackBarError(context, e.message!);
-        break;
-      default:
-        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại');
-    }
+    final errorText = switch (e.errorCode) {
+      "EMPTY_ORDER_LIST" => e.message!,
+      "CUSTOMER_MISMATCH" => e.message!,
+      "FEE_ORDER_NOT_INCLUDED" => e.message!,
+      "INVENTORY_NOT_FOUND" => e.message!,
+      "DELIVERY_ITEM_NOT_FOUND" => e.message!,
+      "OUTBOUND_ALREADY_PAID" => e.message!,
+      "CANNOT_DELETE_PROCESSED_REQUEST" => e.message!,
+      "CANNOT_DELETE_OTHERS_REQUEST" => e.message!,
+      _ => "Có lỗi xảy ra, vui lòng thử lại",
+    };
 
     Navigator.pop(context);
+    showSnackBarError(context, errorText);
   } catch (e, s) {
     Navigator.pop(context);
     AppLogger.e(errorMessage, error: e, stackTrace: s);
@@ -341,4 +342,131 @@ List<Widget> buildDialogActions({
     // Các nút nằm sau nút Xác nhận
     if (trailingActions != null) ...trailingActions,
   ];
+}
+
+Future<void> showOtpDialog({
+  required BuildContext context,
+  String title = "Duyệt qua mã OTP",
+  Color primaryColor = const Color(0xFF1E88E5),
+  String? infoText,
+  Widget? customInfoWidget,
+  int otpLength = 6,
+  String cancelText = "Hủy",
+  String confirmText = "Xác nhận duyệt",
+  Future<void> Function()? onSendOtp,
+  required FutureOr<void> Function(int otp) onConfirm,
+}) {
+  final formKey = GlobalKey<FormState>();
+  final otpController = TextEditingController();
+  bool isSendingOtp = false;
+
+  return showDialog<void>(
+    context: context,
+    builder: (dialogCtx) {
+      return StatefulBuilder(
+        builder: (sbContext, setDialogState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            title: Row(
+              children: [
+                Icon(Icons.security, color: primaryColor),
+                const SizedBox(width: 8),
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              ],
+            ),
+            content: SizedBox(
+              width: 380,
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (customInfoWidget != null)
+                      customInfoWidget
+                    else if (infoText != null)
+                      Text(infoText, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+                    const SizedBox(height: 16),
+
+                    TextFormField(
+                      controller: otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: otpLength,
+                      decoration: const InputDecoration(
+                        labelText: "Mã OTP",
+                        hintText: "Nhập mã OTP",
+                        prefixIcon: Icon(Icons.key),
+                        border: OutlineInputBorder(),
+                        counterText: "",
+                      ),
+                      validator: (val) {
+                        if (val == null || val.trim().isEmpty) {
+                          return "Vui lòng nhập mã OTP";
+                        }
+                        if (int.tryParse(val.trim()) == null) {
+                          return "Mã OTP phải là số";
+                        }
+                        return null;
+                      },
+                    ),
+
+                    if (onSendOtp != null) ...[
+                      const SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed:
+                              isSendingOtp
+                                  ? null
+                                  : () async {
+                                    setDialogState(() => isSendingOtp = true);
+                                    try {
+                                      await onSendOtp();
+                                    } finally {
+                                      if (dialogCtx.mounted) {
+                                        setDialogState(() => isSendingOtp = false);
+                                      }
+                                    }
+                                  },
+                          icon:
+                              isSendingOtp
+                                  ? const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                  : const Icon(
+                                    Icons.send_rounded,
+                                    size: 16,
+                                    color: Color(0xFF0088CC),
+                                  ),
+                          label: const Text(
+                            "Gửi mã OTP qua Telegram",
+                            style: TextStyle(color: Color(0xFF0088CC)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
+            actions: buildDialogActions(
+              context: context,
+              confirmColor: primaryColor,
+              onConfirm: () async {
+                if (formKey.currentState!.validate()) {
+                  final otp = int.parse(otpController.text.trim());
+                  Navigator.pop(dialogCtx);
+                  await onConfirm(otp);
+                }
+              },
+            ),
+          );
+        },
+      );
+    },
+  );
 }

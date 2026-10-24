@@ -8,7 +8,7 @@ import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
-import "package:dongtam/presentation/sources/synthetic/report/sales/yearly_revenue_data_source.dart";
+import "package:dongtam/presentation/components/sources/synthetic/report/sales/yearly_revenue_data_source.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
@@ -140,8 +140,7 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
 
   void _fetchData() {
     final keyword = searchController.text.trim();
-    final bool isAll =
-        widget.scope == RevenueScope.synthetic || selectedUserId == null;
+    final bool isAll = widget.scope == RevenueScope.synthetic || selectedUserId == null;
 
     futureSynthetic = ensureMinLoading(
       SyntheticService().getRevenueReport<CustomerYearRevenue>(

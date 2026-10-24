@@ -7,7 +7,7 @@ import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart';
-import 'package:dongtam/presentation/sources/synthetic/report/errProduction/yearly_err_production_data_source.dart';
+import 'package:dongtam/presentation/components/sources/synthetic/report/errProduction/yearly_err_production_data_source.dart';
 import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/helper/machine_helper.dart';

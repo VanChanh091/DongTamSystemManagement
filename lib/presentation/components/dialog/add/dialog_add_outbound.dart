@@ -260,10 +260,6 @@ class _OutBoundDialogState extends State<OutBoundDialog> {
       final int qtyOutbound = item.qtyOutbound;
       final int totalQtyOutbound = item.totalOutbound ?? 0;
 
-      // print(
-      //   "qtyCustomer=$qtyCustomer, qtyOutbound=$qtyOutbound, totalQtyOutbound=$totalQtyOutbound",
-      // );
-
       return (totalQtyOutbound + qtyOutbound) > qtyCustomer;
     });
 

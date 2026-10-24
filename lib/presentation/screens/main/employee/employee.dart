@@ -1,26 +1,26 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/employee/employee_basic_info.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_employee.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_employee.dart';
-import 'package:dongtam/presentation/components/headerTable/header_table_employee.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/employee_data_source.dart';
-import 'package:dongtam/service/employee_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/employee/employee_basic_info.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_employee.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_employee.dart";
+import "package:dongtam/presentation/components/headerTable/other/header_table_employee.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/sources/other/employee_data_source.dart";
+import "package:dongtam/service/employee_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class Employee extends StatefulWidget {
   const Employee({super.key});
@@ -77,7 +77,7 @@ class _EmployeeState extends State<Employee> {
     isHR = userController.hasPermission(permission: "HR");
 
     columns = buildEmployeeColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'employee', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "employee", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -252,7 +252,7 @@ class _EmployeeState extends State<Employee> {
                       LeftButtonSearch(
                         selectedType: searchType,
                         types: const [
-                          'Tất cả',
+                          "Tất cả",
                           "Tên Nhân Viên",
                           "Số Điện Thoại",
                           "Mã Nhân Viên",
@@ -261,7 +261,7 @@ class _EmployeeState extends State<Employee> {
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = value != 'Tất cả';
+                            isTextFieldEnabled = value != "Tất cả";
 
                             if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                               searchController.clear();
@@ -389,7 +389,7 @@ class _EmployeeState extends State<Employee> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['employees'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["employees"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -402,9 +402,9 @@ class _EmployeeState extends State<Employee> {
         }
 
         final data = snapshot.data!;
-        final employees = data['employees'] as List<EmployeeBasicInfoModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final employees = data["employees"] as List<EmployeeBasicInfoModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         if (_cachedEmployees == null || _cachedEmployees != employees) {
           _cachedEmployees = employees;
@@ -450,7 +450,7 @@ class _EmployeeState extends State<Employee> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'employee',
+                            tableKey: "employee",
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
@@ -461,7 +461,7 @@ class _EmployeeState extends State<Employee> {
                           final employeeId =
                               selectedRow
                                   .getCells()
-                                  .firstWhere((cell) => cell.columnName == 'employeeId')
+                                  .firstWhere((cell) => cell.columnName == "employeeId")
                                   .value;
 
                           _selectedEmployeeIdNotifier.value = employeeId;
@@ -510,7 +510,7 @@ class _EmployeeState extends State<Employee> {
     try {
       final employeeData = await futureEmployee;
       final List<EmployeeBasicInfoModel> employeeList =
-          (employeeData['employees'] as List? ?? []).cast<EmployeeBasicInfoModel>();
+          (employeeData["employees"] as List? ?? []).cast<EmployeeBasicInfoModel>();
       final selectedEmployees = employeeList.firstWhere(
         (employee) => employee.employeeId == employeeId,
         orElse: () => throw Exception("Không tìm thấy nhân viên"),
@@ -529,7 +529,7 @@ class _EmployeeState extends State<Employee> {
     } catch (e, s) {
       if (mounted) {
         AppLogger.e("Error in getEmployees: $e", stackTrace: s);
-        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại sau');
+        showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại sau");
       }
     }
   }

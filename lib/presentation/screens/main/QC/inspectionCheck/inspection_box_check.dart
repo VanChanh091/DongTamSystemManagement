@@ -7,7 +7,7 @@ import 'package:dongtam/presentation/components/shared/animation/animated_button
 import 'package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/planning/machine_box_data_source.dart';
+import 'package:dongtam/presentation/components/sources/planning/machine_box_data_source.dart';
 import 'package:dongtam/service/manufacture_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';

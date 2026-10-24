@@ -7,8 +7,8 @@ import "package:dongtam/presentation/components/headerTable/synthetic/header_tab
 import "package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
-import "package:dongtam/presentation/sources/synthetic/synthetic_planning_data_source.dart";
-import "package:dongtam/presentation/sources/planning/stages_data_source.dart";
+import "package:dongtam/presentation/components/sources/synthetic/synthetic_planning_data_source.dart";
+import "package:dongtam/presentation/components/sources/planning/stages_data_source.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";

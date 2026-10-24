@@ -14,6 +14,7 @@ class LeafMenuConfig extends SidebarItem {
   final RxInt? badge;
   final List<String>? requiredRoles;
   final List<String>? requiredPermissions;
+  final List<String>? requiresDepartment;
 
   LeafMenuConfig({
     required this.icon,
@@ -24,6 +25,7 @@ class LeafMenuConfig extends SidebarItem {
     this.badge,
     this.requiredRoles,
     this.requiredPermissions,
+    this.requiresDepartment,
   });
 
   int getIndex(Map<Type, int> pageTypeMap) {
@@ -38,8 +40,13 @@ class LeafMenuConfig extends SidebarItem {
 
   int getBadgeValue() => (showBadge && badge != null) ? badge!.value : 0;
 
-  // Kiểm tra hiển thị — kết hợp cả role/permission restriction lẫn page existence
-  bool isVisible(Map<Type, int> pageTypeMap, {String? userRole, List<String>? userPermissions}) {
+  // Kiểm tra hiển thị — kết hợp cả role/department/permission restriction lẫn page existence
+  bool isVisible(
+    Map<Type, int> pageTypeMap, {
+    String? userRole,
+    List<String>? userPermissions,
+    String? userDepartment,
+  }) {
     if (pageType == null) return true; // Các nút chức năng hệ thống luôn hiện
 
     // Kiểm tra role restriction (nếu có)
@@ -49,9 +56,17 @@ class LeafMenuConfig extends SidebarItem {
       }
     }
 
-    // Kiểm tra permission restriction (nếu có)
-    // admin và manager có toàn quyền truy cập, chỉ áp dụng requiredPermissions cho user có role khác
+    // admin và manager có toàn quyền truy cập, chỉ áp dụng requiresDepartment và requiredPermissions cho user có role khác
     final isAdminOrManager = userRole == "admin" || userRole == "manager";
+
+    // Kiểm tra department restriction (nếu có)
+    if (!isAdminOrManager && requiresDepartment != null && requiresDepartment!.isNotEmpty) {
+      if (userDepartment == null || !requiresDepartment!.contains(userDepartment)) {
+        return false;
+      }
+    }
+
+    // Kiểm tra permission restriction (nếu có)
     if (!isAdminOrManager && requiredPermissions != null && requiredPermissions!.isNotEmpty) {
       if (userPermissions == null || !userPermissions.any((p) => requiredPermissions!.contains(p))) {
         return false;
@@ -78,9 +93,19 @@ class GroupMenuConfig {
     return items.fold(0, (sum, leaf) => sum + leaf.getBadgeValue());
   }
 
-  bool isVisible(Map<Type, int> pageTypeMap, {String? userRole, List<String>? userPermissions}) {
+  bool isVisible(
+    Map<Type, int> pageTypeMap, {
+    String? userRole,
+    List<String>? userPermissions,
+    String? userDepartment,
+  }) {
     // Chỉ hiển thị Group nếu có ít nhất một chức năng con bên trong được phép truy cập
-    return items.any((leaf) => leaf.isVisible(pageTypeMap, userRole: userRole, userPermissions: userPermissions));
+    return items.any((leaf) => leaf.isVisible(
+          pageTypeMap,
+          userRole: userRole,
+          userPermissions: userPermissions,
+          userDepartment: userDepartment,
+        ));
   }
 }
 
@@ -110,11 +135,30 @@ class DepartmentMenuConfig extends SidebarItem {
     });
   }
 
-  bool isVisible(Map<Type, int> pageTypeMap, {String? userRole, List<String>? userPermissions}) {
+  bool isVisible(
+    Map<Type, int> pageTypeMap, {
+    String? userRole,
+    List<String>? userPermissions,
+    String? userDepartment,
+  }) {
     // Chỉ hiển thị Phòng Ban nếu có ít nhất một menu con bên trong khả dụng
     return children.any((child) {
-      if (child is GroupMenuConfig) return child.isVisible(pageTypeMap, userRole: userRole, userPermissions: userPermissions);
-      if (child is LeafMenuConfig) return child.isVisible(pageTypeMap, userRole: userRole, userPermissions: userPermissions);
+      if (child is GroupMenuConfig) {
+        return child.isVisible(
+          pageTypeMap,
+          userRole: userRole,
+          userPermissions: userPermissions,
+          userDepartment: userDepartment,
+        );
+      }
+      if (child is LeafMenuConfig) {
+        return child.isVisible(
+          pageTypeMap,
+          userRole: userRole,
+          userPermissions: userPermissions,
+          userDepartment: userDepartment,
+        );
+      }
       return false;
     });
   }

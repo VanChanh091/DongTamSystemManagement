@@ -8,7 +8,7 @@ import "package:dongtam/presentation/components/shared/pagination_controls.dart"
 import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
-import "package:dongtam/presentation/sources/report/inspection_paper_data_source.dart";
+import "package:dongtam/presentation/components/sources/report/inspection_paper_data_source.dart";
 import "package:dongtam/service/report_service.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";

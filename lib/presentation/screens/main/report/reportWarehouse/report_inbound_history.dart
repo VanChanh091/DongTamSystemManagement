@@ -5,7 +5,7 @@ import 'package:dongtam/presentation/components/dialog/export/dialog_export_inbo
 import 'package:dongtam/presentation/components/headerTable/warehouse/header_report_inbound.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/sources/warehouse/report_inbound_data_source.dart';
+import 'package:dongtam/presentation/components/sources/warehouse/report_inbound_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
 import 'package:dongtam/presentation/components/shared/pagination_controls.dart';

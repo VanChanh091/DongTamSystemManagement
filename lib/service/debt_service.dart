@@ -1,6 +1,7 @@
 import "dart:io";
 
 import "package:dio/dio.dart";
+import "package:dongtam/data/models/warehouse/debt_deduction_request_model.dart";
 import "package:dongtam/data/models/warehouse/payment/customer_debt_summary_model.dart";
 import "package:dongtam/utils/handleError/dio_client.dart";
 import "package:dongtam/utils/helper/helper_service.dart";
@@ -101,6 +102,81 @@ class DebtService {
     return await HelperService().updateItem(
       endpoint: "debts/payment",
       queryParameters: {"outboundSlipCode": outboundSlipCode},
+    );
+  }
+
+  // =================================DEBT DEDUCTION=======================================
+  Future<Map<String, dynamic>> getDebtDeductionRequests({
+    required int page,
+    required int pageSize,
+    required List<String> status,
+    String? customerId,
+    String? userId,
+  }) async {
+    return HelperService().fetchPaginatedData<DebtDeductionRequestModel>(
+      endpoint: "debts/deduction-requests",
+      queryParameters: {
+        "page": page,
+        "pageSize": pageSize,
+        "status": status,
+        if (customerId != null) "customerId": customerId,
+        if (userId != null) "userId": userId,
+      },
+      fromJson: (json) => DebtDeductionRequestModel.fromJson(json),
+      dataKey: "debtDeductions",
+    );
+  }
+
+  Future<bool> createDebtDeduction({
+    required String customerId,
+    required double amountRequested,
+    required String paymentMethod,
+  }) async {
+    return await HelperService().addItem(
+      endpoint: "debts/deduction-requests",
+      body: {
+        "customerId": customerId,
+        "amountRequested": amountRequested,
+        "paymentMethod": paymentMethod,
+      },
+    );
+  }
+
+  Future<bool> updateDebtDeduction({
+    required int requestId,
+    required double amountRequested,
+    required String paymentMethod,
+  }) async {
+    return await HelperService().updateItem(
+      endpoint: "debts/deduction-requests",
+      queryParameters: {"requestId": requestId},
+      body: {"amountRequested": amountRequested, "paymentMethod": paymentMethod},
+    );
+  }
+
+  Future<bool> deleteDebtDeduction({required int requestId}) async {
+    return await HelperService().deleteItem(
+      endpoint: "debts/deduction-requests",
+      queryParameters: {"requestId": requestId},
+    );
+  }
+
+  Future<bool> requestOrVerifyUrgentOtp({required int requestId, int? otp}) async {
+    return await HelperService().addItem(
+      endpoint: "debts/deduction-requests/otp",
+      queryParameters: {"requestId": requestId, if (otp != null) "otp": otp},
+    );
+  }
+
+  Future<bool> updateDebtDeductionStatus({
+    required int requestId,
+    required String status,
+    String? rejectReason,
+  }) async {
+    return await HelperService().updateItem(
+      endpoint: "debts/deduction-requests/status",
+      queryParameters: {"requestId": requestId},
+      body: {"status": status, if (rejectReason != null) "rejectReason": rejectReason},
     );
   }
 }

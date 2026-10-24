@@ -1,5 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class BaseValidateInput extends StatefulWidget {
@@ -12,8 +13,10 @@ class BaseValidateInput extends StatefulWidget {
   final String? errorText;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onChanged;
+  final Color? iconColor;
   final VoidCallback? onTap;
   final bool isCalculate; // Dành riêng cho logic tính toán của Order
+  final bool isNumberOnly; // Dành riêng cho logic chỉ nhập số
 
   const BaseValidateInput({
     super.key,
@@ -27,7 +30,9 @@ class BaseValidateInput extends StatefulWidget {
     this.validator,
     this.onChanged,
     this.onTap,
+    this.iconColor,
     this.isCalculate = false,
+    this.isNumberOnly = false,
   });
 
   @override
@@ -99,6 +104,11 @@ class _BaseValidateInputState extends State<BaseValidateInput> {
       controller: widget.controller,
       focusNode: _focusNode,
       readOnly: effectiveReadOnly,
+      keyboardType: widget.isNumberOnly ? TextInputType.number : TextInputType.text,
+      inputFormatters:
+          widget.isNumberOnly
+              ? [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()]
+              : null,
       onChanged: widget.onChanged,
       onTap: widget.onTap,
       validator: widget.validator,
@@ -107,7 +117,7 @@ class _BaseValidateInputState extends State<BaseValidateInput> {
         labelText: widget.label,
         labelStyle: const TextStyle(fontWeight: FontWeight.bold),
         prefixText: widget.prefixText,
-        prefixIcon: Icon(widget.icon),
+        prefixIcon: Icon(widget.icon, color: widget.iconColor ?? Colors.black),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -118,6 +128,37 @@ class _BaseValidateInputState extends State<BaseValidateInput> {
         filled: true,
         errorText: widget.errorText,
       ),
+    );
+  }
+}
+
+class ThousandsSeparatorInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    // Chỉ giữ lại chữ số
+    final cleanDigits = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanDigits.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    // Thêm dấu phẩy ngăn cách mỗi 3 chữ số từ phải sang trái
+    final chars = cleanDigits.split('').reversed.toList();
+    final buffer = StringBuffer();
+    for (int i = 0; i < chars.length; i++) {
+      if (i > 0 && i % 3 == 0) {
+        buffer.write(',');
+      }
+      buffer.write(chars[i]);
+    }
+    final formatted = buffer.toString().split('').reversed.join('');
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

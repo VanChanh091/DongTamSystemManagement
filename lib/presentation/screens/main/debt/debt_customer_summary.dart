@@ -5,13 +5,13 @@ import "package:dongtam/data/models/warehouse/payment/customer_debt_summary_mode
 import "package:dongtam/presentation/components/dialog/debt/dialog_closing_debt.dart";
 import "package:dongtam/presentation/components/dialog/debt/dialog_payment_debt.dart";
 import "package:dongtam/presentation/components/dialog/export/dialog_export_debt_customer.dart";
-import "package:dongtam/presentation/components/headerTable/header_table_debt.dart";
+import "package:dongtam/presentation/components/headerTable/debt/header_table_debt.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
-import "package:dongtam/presentation/sources/debt_customer_data_source.dart";
+import "package:dongtam/presentation/components/sources/debt/debt_customer_data_source.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/debt_service.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";

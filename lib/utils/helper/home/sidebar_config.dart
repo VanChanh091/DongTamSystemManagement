@@ -14,9 +14,11 @@ import "package:dongtam/presentation/screens/main/admin/toptab/top_tab_admin_pap
 import "package:dongtam/presentation/screens/main/customer/customer.dart";
 import "package:dongtam/presentation/screens/main/dashboard/dashboard.dart";
 import "package:dongtam/presentation/screens/main/debt/debt_customer_summary.dart";
+import "package:dongtam/presentation/screens/main/debt/debt_deduction_request.dart";
 import "package:dongtam/presentation/screens/main/manufacture/scrap_report_paper.dart";
 import "package:dongtam/presentation/screens/main/planning/requirement/paper_requirements.dart";
 import "package:dongtam/presentation/screens/main/report/reportInspection/top_tab_inspection_report.dart";
+import "package:dongtam/presentation/screens/main/report/report_debt_deduction.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/errorProduction/top_tab_err_production.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/production/synthetic_production_report.dart";
 import "package:dongtam/presentation/screens/main/synthetic/synthetic_order.dart";
@@ -40,6 +42,7 @@ import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
+import "package:dongtam/presentation/screens/main/warehouse/debt_deduction_approved.dart";
 import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
@@ -93,14 +96,14 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
             ),
             LeafMenuConfig(
               icon: Symbols.analytics,
-              label: "Báo Cáo Doanh Số",
+              label: "Thống Kê Doanh Số",
               pageType: TopTabSyntheticRevenue,
             ),
             LeafMenuConfig(
               icon: Symbols.precision_manufacturing,
-              label: "Báo Cáo Sản Xuất",
+              label: "Thống Kê Sản Xuất",
               pageType: SyntheticProductionReport,
-              requiredRoles: ["manager"],
+              requiredRoles: ["admin", "manager"],
             ),
           ],
         ),
@@ -122,6 +125,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Icons.engineering_outlined,
               label: "Tiến Trình Sản Xuất",
               pageType: TopTabInspectionReport,
+            ),
+            LeafMenuConfig(
+              icon: Icons.payment_outlined,
+              label: "Thanh Toán Công Nợ",
+              pageType: ReportDebtDeduction,
             ),
           ],
         ),
@@ -160,6 +168,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           pageType: DebtCustomerSummary,
           requiredPermissions: ["accountant"],
         ),
+        LeafMenuConfig(
+          icon: Symbols.account_balance_wallet,
+          label: "Duyệt Cấn Trừ Công Nợ",
+          pageType: DebtDeductionApproved,
+          requiredPermissions: ["accountant"],
+        ),
       ],
     ),
 
@@ -178,6 +192,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
         LeafMenuConfig(icon: Icons.assignment_turned_in, label: "Đơn Hàng", pageType: TopTabOrder),
         LeafMenuConfig(icon: Icons.person, label: "Khách Hàng", pageType: CustomerPage),
         LeafMenuConfig(icon: Icons.inventory_2, label: "Sản Phẩm", pageType: ProductPage),
+        LeafMenuConfig(
+          icon: Icons.payment_outlined,
+          label: "Thanh Toán Công Nợ",
+          pageType: DebtDeductionRequest,
+        ),
 
         GroupMenuConfig(
           icon: Icons.local_shipping,
@@ -299,6 +318,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Symbols.delete_sweep,
           label: "Báo Cáo Phế Liệu",
           pageType: ScrapReportPaper,
+        ),
+        LeafMenuConfig(
+          icon: Symbols.precision_manufacturing,
+          label: "Thống Kê Sản Xuất",
+          pageType: SyntheticProductionReport,
+          requiresDepartment: ["Production"],
         ),
       ],
     ),
@@ -442,18 +467,18 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           items: [
             LeafMenuConfig(
               icon: Symbols.analytics,
-              label: "Báo Cáo Doanh Số",
+              label: "Thống Kê Doanh Số",
               pageType: TopTabAdminRevenue,
               requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Symbols.engineering,
-              label: "Báo Cáo Lỗi Vận Hành",
+              label: "Thống Kê Lỗi Vận Hành",
               pageType: TopTabAdminErrProduction,
             ),
             LeafMenuConfig(
               icon: Symbols.precision_manufacturing,
-              label: "Báo Cáo Sản Xuất",
+              label: "Thống Kê Sản Xuất",
               pageType: SyntheticProductionReport,
               requiredRoles: ["admin", "manager"],
             ),

@@ -4,7 +4,7 @@ import 'package:dongtam/data/models/planning/planning_paper_model.dart';
 import 'package:dongtam/presentation/components/dialog/other/dialog_check_qc.dart';
 import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/waitingCheck/waiting_check_paper_data_source.dart';
+import 'package:dongtam/presentation/components/sources/waitingCheck/waiting_check_paper_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';

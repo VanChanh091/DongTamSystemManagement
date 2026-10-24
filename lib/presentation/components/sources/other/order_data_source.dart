@@ -135,14 +135,18 @@ class OrderDataSource extends DataGridSource {
   }
 
   String formatStatus(String status) {
-    if (status == "accept") {
-      return "Chấp nhận";
-    } else if (status == "reject") {
-      return "Từ chối";
-    } else if (status == "planning") {
-      return "Đã lên kế hoạch";
+    switch (status) {
+      case "pending":
+        return "Chờ Duyệt";
+      case "accept":
+        return "Chấp nhận";
+      case "reject":
+        return "Từ chối";
+      case "planning":
+        return "Đã lên kế hoạch";
+      default:
+        return status;
     }
-    return "Chờ Duyệt";
   }
 
   @override

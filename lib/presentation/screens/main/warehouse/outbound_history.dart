@@ -1,34 +1,34 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/order/order_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_outbound.dart';
-import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart';
-import 'package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/sources/warehouse/outbound/ob_detail_data_source.dart';
-import 'package:dongtam/presentation/sources/warehouse/outbound/ob_history_data_source.dart';
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
-import 'package:dongtam/utils/helper/picker_date_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_outbound.dart";
+import "package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart";
+import "package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/sources/warehouse/outbound/ob_detail_data_source.dart";
+import "package:dongtam/presentation/components/sources/warehouse/outbound/ob_history_data_source.dart";
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
+import "package:dongtam/utils/helper/picker_date_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class OutboundHistory extends StatefulWidget {
   const OutboundHistory({super.key});
@@ -41,7 +41,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   late Future<Map<String, dynamic>> futureOutbound;
   late List<GridColumn> columnsOutbound;
   late List<GridColumn> columnsObDetail;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   late Map<String, dynamic> totalPriceByDate;
   late Map<String, dynamic> grandTotal;
@@ -87,7 +87,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
 
   //flag
   late bool isAccountant;
-  bool selectedAll = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isTextFieldEnabled = false;
 
@@ -106,13 +105,13 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     columnsOutbound = buildOutboundHistoryColumn(themeController: themeController);
     columnsObDetail = buildOutboundDetailColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'outbound', columns: columnsOutbound).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "outbound", columns: columnsOutbound).then((w) {
       setState(() {
         columnWidthsOutbound = w;
       });
     });
 
-    ColumnWidthTable.loadWidths(tableKey: 'obDetail', columns: columnsObDetail).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "obDetail", columns: columnsObDetail).then((w) {
       setState(() {
         columnWidthsObDetail = w;
       });
@@ -183,7 +182,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   bool canExecuteAction({required int? outboundId, required OutboundHistoryModel selectOutbound}) {
     if (outboundId == null) return false;
 
-    if (userController.role.value == 'admin' || userController.role.value == 'manager') return true;
+    if (userController.role.value == "admin" || userController.role.value == "manager") return true;
 
     final dateOutbound = selectOutbound.dateOutbound;
 
@@ -323,11 +322,11 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                           //left button
                           LeftButtonSearch(
                             selectedType: searchType,
-                            types: const ['Tất cả', "Tên Khách Hàng", "Ngày Xuất Kho"],
+                            types: const ["Tất cả", "Tên Khách Hàng", "Ngày Xuất Kho"],
                             onTypeChanged: (value) {
                               setState(() {
                                 searchType = value;
-                                isTextFieldEnabled = searchType != 'Tất cả';
+                                isTextFieldEnabled = searchType != "Tất cả";
                                 startDate = null;
                                 endDate = null;
 
@@ -343,7 +342,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                             buttonColor: themeController.buttonColor,
                             onSearch: () => searchOutbound(),
                             customInputBuilder: (inputWidth) {
-                              if (searchType != 'Ngày Xuất Kho') return null;
+                              if (searchType != "Ngày Xuất Kho") return null;
 
                               return PickerDateHelper(
                                 width: inputWidth,
@@ -407,7 +406,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                                       try {
                                                         final data = await futureOutbound;
                                                         final orders =
-                                                            data['outbounds']
+                                                            data["outbounds"]
                                                                 as List<OutboundHistoryModel>;
                                                         final selectedOutbound = orders.firstWhere(
                                                           (order) =>
@@ -491,12 +490,12 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                           if (snapshot.hasData) {
                             final Map<String, dynamic> grandTotalData =
                                 snapshot.hasData
-                                    ? (snapshot.data!['grandTotal'] as Map<String, dynamic>? ?? {})
+                                    ? (snapshot.data!["grandTotal"] as Map<String, dynamic>? ?? {})
                                     : {};
 
-                            _lastPriceOrder = toDouble(grandTotalData['totalPriceOrder']);
-                            _lastPriceVAT = toDouble(grandTotalData['totalPriceVAT']);
-                            _lastPricePayment = toDouble(grandTotalData['totalPricePayment']);
+                            _lastPriceOrder = toDouble(grandTotalData["totalPriceOrder"]);
+                            _lastPriceVAT = toDouble(grandTotalData["totalPriceVAT"]);
+                            _lastPricePayment = toDouble(grandTotalData["totalPricePayment"]);
                           }
 
                           return AnimatedOpacity(
@@ -585,7 +584,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['outbounds'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["outbounds"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -598,12 +597,12 @@ class _OutboundHistoryState extends State<OutboundHistory> {
         }
 
         final data = snapshot.data!;
-        final outbounds = data['outbounds'] as List<OutboundHistoryModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final outbounds = data["outbounds"] as List<OutboundHistoryModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
-        totalPriceByDate = data['totalPriceByDate'] as Map<String, dynamic>;
-        grandTotal = data['grandTotal'] as Map<String, dynamic>;
+        totalPriceByDate = data["totalPriceByDate"] as Map<String, dynamic>;
+        grandTotal = data["grandTotal"] as Map<String, dynamic>;
 
         if (_cachedOutbound != outbounds || _cachedDatasource != null) {
           _cachedOutbound = outbounds;
@@ -652,7 +651,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                     ],
                                     child: Obx(
                                       () => formatColumn(
-                                        label: 'Tổng Tiền (VNĐ)',
+                                        label: "Tổng Tiền (VNĐ)",
                                         themeController: themeController,
                                       ),
                                     ),
@@ -675,7 +674,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                             onColumnResizeEnd:
                                 (details) => GridResizeHelper.onResizeEnd(
                                   details: details,
-                                  tableKey: 'outbound',
+                                  tableKey: "outbound",
                                   columnWidths: columnWidthsOutbound,
                                   setState: setState,
                                 ),
@@ -687,7 +686,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                 final outboundId =
                                     selectedRow
                                         .getCells()
-                                        .firstWhere((cell) => cell.columnName == 'outboundId')
+                                        .firstWhere((cell) => cell.columnName == "outboundId")
                                         .value;
 
                                 final matchingOutbound = outbounds.firstWhere(
@@ -760,7 +759,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                   onColumnResizeEnd:
                                       (details) => GridResizeHelper.onResizeEnd(
                                         details: details,
-                                        tableKey: 'obDetail',
+                                        tableKey: "obDetail",
                                         columnWidths: columnWidthsObDetail,
                                         setState: setState,
                                       ),
