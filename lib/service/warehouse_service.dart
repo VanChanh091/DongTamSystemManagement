@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import "dart:io";
+import "dart:typed_data";
 import "package:dio/dio.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/planning/planning_box_model.dart";
@@ -188,6 +189,52 @@ class WarehouseService {
       endpoint: "warehouse/outbound",
       queryParameters: {"outboundId": outboundId},
     );
+  }
+
+  /// Lấy dữ liệu bytes của PDF phiếu xuất kho từ server để xem preview trực tiếp
+  Future<Uint8List?> getOutboundPdfBytes({
+    required int outboundId,
+    required bool hasMoney,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.post(
+        "/api/warehouse/outbound/export",
+        data: {"outboundId": outboundId, "hasMoney": hasMoney},
+        options: Options(
+          headers: {"Authorization": "Bearer $token"},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return Uint8List.fromList(response.data as List<int>);
+      }
+      return null;
+    } catch (e, s) {
+      AppLogger.e("failed to get outbound pdf bytes", error: e, stackTrace: s);
+      return null;
+    }
+  }
+
+  /// Lưu dữ liệu byte PDF có sẵn trong RAM xuống ổ cứng máy tính (không gọi lại server)
+  Future<File?> savePdfBytesToFile({
+    required Uint8List bytes,
+    required String defaultFileName,
+  }) async {
+    try {
+      final dirPath = await FilePicker.platform.getDirectoryPath();
+      if (dirPath == null) return null;
+
+      final file = File("$dirPath/$defaultFileName");
+      await file.writeAsBytes(bytes, flush: true);
+      AppLogger.i("Đã lưu file PDF tại: ${file.path}");
+      return file;
+    } catch (e, s) {
+      AppLogger.e("Lỗi lưu file PDF", error: e, stackTrace: s);
+      return null;
+    }
   }
 
   Future<File?> exportFilePDFOutbound({required int outboundId, required bool hasMoney}) async {

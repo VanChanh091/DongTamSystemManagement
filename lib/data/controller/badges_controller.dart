@@ -28,6 +28,9 @@ class BadgesController extends GetxController {
   RxInt numberDeliveryRequest = 0.obs;
   RxInt numberPrepareGoods = 0.obs;
 
+  //debt deduction
+  RxInt numberDebtDeduction = 0.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -122,6 +125,13 @@ class BadgesController extends GetxController {
       numberPrepareGoods.value = 0;
     }
 
+    // badge cho cấn trừ công nợ (chỉ manager mới get badge này)
+    if (_userController.role.value == "manager") {
+      tasks.add(fetchDebtDeduction());
+    } else {
+      numberDebtDeduction.value = 0;
+    }
+
     if (tasks.isNotEmpty) {
       try {
         await Future.wait(tasks);
@@ -207,6 +217,14 @@ class BadgesController extends GetxController {
     );
   }
 
+  //hàm api để lấy số yêu cầu cấn trừ công nợ chờ duyệt
+  Future<void> fetchDebtDeduction() async {
+    await fetchBadgeCount(
+      badgeCount: numberDebtDeduction,
+      fetcher: () => BadgeService().countDebtDeduction(),
+    );
+  }
+
   void clearAllBadge() {
     numberPendingApproval.value = 0;
     numberOrderPendingPlanning.value = 0;
@@ -216,5 +234,6 @@ class BadgesController extends GetxController {
     numberDeliveryRequest.value = 0;
     numberPrepareGoods.value = 0;
     numberScrapWaiting.value = 0;
+    numberDebtDeduction.value = 0;
   }
 }

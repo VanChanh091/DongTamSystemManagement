@@ -1,3 +1,4 @@
+import "package:dongtam/constant/notification_type.dart";
 import "package:dongtam/constant/request_type.dart";
 import "package:dongtam/data/controller/notification_controller.dart";
 import "package:flutter/material.dart";
@@ -270,6 +271,81 @@ void showNotificationDialog(NotificationController controller) {
                           ),
                         ),
                       ],
+
+                      //content hiển thị chi tiết cho cấn trừ nợ
+                      if (payload["customerName"] != null ||
+                          payload["customerId"] != null ||
+                          payload["amountRequested"] != null ||
+                          payload["rejectReason"] != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Wrap(
+                                spacing: 16,
+                                runSpacing: 8,
+                                children: [
+                                  if (payload["customerName"] != null ||
+                                      payload["customerId"] != null)
+                                    _buildMiniBadge(
+                                      icon: Icons.person_outline,
+                                      text:
+                                          "Khách: ${payload["customerName"] ?? payload["customerId"]}",
+                                      textColor: Colors.cyanAccent.shade100,
+                                    ),
+                                  if (payload["amountRequested"] != null)
+                                    _buildMiniBadge(
+                                      icon: Icons.monetization_on_outlined,
+                                      text:
+                                          "Số tiền: ${NumberFormat("#,###", "vi_VN").format(payload["amountRequested"])} đ",
+                                      textColor: Colors.amberAccent.shade100,
+                                    ),
+                                ],
+                              ),
+                              if (payload["rejectReason"] != null &&
+                                  payload["rejectReason"].toString().trim().isNotEmpty) ...[
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  child: Divider(
+                                    color: Colors.white.withValues(alpha: 0.08),
+                                    height: 1,
+                                  ),
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Lý do từ chối: ",
+                                      style: TextStyle(
+                                        color: Colors.red.shade300,
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        "${payload["rejectReason"]}",
+                                        style: TextStyle(
+                                          color: Colors.red.shade200,
+                                          fontSize: 12.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 14),
 
                       //button
@@ -301,9 +377,74 @@ Widget buildNotificationActionButtons({
   required dynamic controller,
 }) {
   //parse enum from payload
+  final notifType = NotificationType.fromString(notif.type ?? "");
   final requestType = RequestType.fromString(notif.type ?? "");
   final status = RequestStatus.fromString(payload['status']?.toString());
   final bool isAction = payload['action']?.toString().toUpperCase() == 'RESPONSE';
+
+  // 1. Xử lý thông báo Cấn trừ công nợ
+  if (notifType.isDebtDeduction) {
+    if (notifType == NotificationType.debtDeductionApproved) {
+      return _buildStatusRow(
+        label: "Đã duyệt cấn trừ",
+        icon: Icons.check_circle_outline,
+        color: Colors.green,
+        btnColor: Colors.green.shade600,
+        onPressed:
+            () => controller.executeAction(
+              context: context,
+              notif: notif,
+              action: "CONFIRM",
+              type: "debt_deduction",
+            ),
+      );
+    }
+
+    if (notifType == NotificationType.debtDeductionRejected) {
+      return _buildStatusRow(
+        label: "Bị từ chối",
+        icon: Icons.cancel_outlined,
+        color: Colors.red,
+        btnColor: Colors.green.shade600,
+        onPressed:
+            () => controller.executeAction(
+              context: context,
+              notif: notif,
+              action: "CONFIRM",
+              type: "debt_deduction",
+            ),
+      );
+    }
+
+    // Thông báo yêu cầu mới hoặc gửi lại cho Manager
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xff78D761),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            minimumSize: const Size(0, 36),
+            visualDensity: VisualDensity.compact,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+            elevation: 0,
+          ),
+          onPressed:
+              () => controller.executeAction(
+                context: context,
+                notif: notif,
+                action: "CONFIRM",
+                type: "debt_deduction",
+              ),
+          child: const Text(
+            "Xác nhận",
+            style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
 
   // debugPrint("DEBUG: isAction: $isAction, type=$requestType, status=$status");
 

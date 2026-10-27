@@ -1,8 +1,10 @@
 import "dart:io";
 
 import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/service/debt_service.dart";
 import "package:dongtam/service/warehouse_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/helper/picker_date_helper.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:flutter/material.dart";
 
@@ -19,38 +21,9 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
   ValueNotifier<String?> selectedOption = ValueNotifier<String?>(null);
   DateTimeRange? selectedRange;
 
-  Future<void> pickDateRange(BuildContext context) async {
-    final size = MediaQuery.of(context).size;
-
-    final DateTimeRange? result = await showDateRangePicker(
-      context: context,
-      firstDate: DateTime(2025),
-      lastDate: DateTime(2100),
-      initialDateRange: selectedRange,
-      builder: (context, child) {
-        return Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: size.width * 0.3, maxHeight: size.height * 0.8),
-            child: Material(
-              borderRadius: BorderRadius.circular(16),
-              clipBehavior: Clip.antiAlias,
-              child: child!,
-            ),
-          ),
-        );
-      },
-    );
-
-    if (result != null) {
-      setState(() {
-        selectedRange = result;
-      });
-    }
-  }
-
   void submit() async {
     try {
-      if (selectedOption.value == "dateOutbound") {
+      if (selectedOption.value == "dateOutbound" || selectedOption.value == "paymentAllocation") {
         if (selectedRange == null) {
           showSnackBarError(context, "Vui lòng chọn khoảng thời gian");
           return;
@@ -59,10 +32,17 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
 
       File? file;
 
-      file = await WarehouseService().exportOutboundDetail(
-        fromDate: selectedRange?.start,
-        toDate: selectedRange?.end,
-      );
+      if (selectedOption.value == "dateOutbound") {
+        file = await WarehouseService().exportOutboundDetail(
+          fromDate: selectedRange?.start,
+          toDate: selectedRange?.end,
+        );
+      } else if (selectedOption.value == "paymentAllocation") {
+        file = await DebtService().exportExcelPaymentAllocations(
+          fromDate: selectedRange!.start,
+          toDate: selectedRange!.end,
+        );
+      }
 
       if (!mounted) return;
 
@@ -92,7 +72,7 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
     return AlertDialog(
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text("Xuất Chi Tiết PXK"),
+      title: const Text("Xuất Dữ Liệu Xuất Kho"),
       content: ValueListenableBuilder<String?>(
         valueListenable: selectedOption,
         builder: (context, value, _) {
@@ -104,39 +84,33 @@ class _DialogExportOutboundState extends State<DialogExportOutbound> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Option 2: Theo thời gian
+                // Option 1: Chi tiết PXK theo thời gian
                 RadioListTile<String>(
-                  title: const Text("Ngày Xuất Kho", style: TextStyle(fontSize: 16)),
+                  title: const Text("Chi Tiết PXK (Ngày Xuất)", style: TextStyle(fontSize: 16)),
                   value: "dateOutbound",
                 ),
 
+                // Option 2: Lịch sử cấn trừ công nợ
+                RadioListTile<String>(
+                  title: const Text("Lịch Sử Trừ Công Nợ", style: TextStyle(fontSize: 16)),
+                  value: "paymentAllocation",
+                ),
+
                 const SizedBox(height: 10),
-                if (value == "dateOutbound") ...[
+                if (value == "dateOutbound" || value == "paymentAllocation") ...[
                   Column(
                     children: [
-                      SizedBox(
-                        width: 250,
-                        height: 50,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                            side: BorderSide(color: Colors.blue.shade400, width: 1.5),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          ),
-                          onPressed: () => pickDateRange(context),
-                          icon: Icon(Icons.date_range, color: Colors.blue.shade400),
-                          label: Text(
-                            selectedRange == null
-                                ? "Chọn khoảng thời gian"
-                                : "${selectedRange!.start.day}/${selectedRange!.start.month}/${selectedRange!.start.year} - "
-                                    "${selectedRange!.end.day}/${selectedRange!.end.month}/${selectedRange!.end.year}",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                        ),
+                      PickerDateHelper(
+                        width: 260,
+                        height: 48,
+                        startDate: selectedRange?.start,
+                        endDate: selectedRange?.end,
+                        hintText: "Chọn khoảng thời gian",
+                        onDateRangeChanged: (range) {
+                          setState(() {
+                            selectedRange = range;
+                          });
+                        },
                       ),
                       const SizedBox(height: 5),
                       if (selectedRange == null)

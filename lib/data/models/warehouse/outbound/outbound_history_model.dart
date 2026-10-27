@@ -29,6 +29,12 @@ class OutboundHistoryModel {
   final String customerId;
   final CustomerModel? customer;
 
+  String get customerNameDisplay {
+    final cust =
+        customer ?? (detail != null && detail!.isNotEmpty ? detail!.first.order?.customer : null);
+    return cust?.customerName ?? cust?.companyName ?? customerId;
+  }
+
   OutboundHistoryModel({
     required this.outboundId,
     required this.dateOutbound,

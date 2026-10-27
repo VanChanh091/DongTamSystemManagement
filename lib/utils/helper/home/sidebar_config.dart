@@ -42,7 +42,6 @@ import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_paper.dart";
 import "package:dongtam/presentation/screens/main/QC/waitingCheck/waiting_check_scrap_report.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
-import "package:dongtam/presentation/screens/main/warehouse/debt_deduction_approved.dart";
 import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
@@ -169,9 +168,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           requiredPermissions: ["accountant"],
         ),
         LeafMenuConfig(
-          icon: Symbols.account_balance_wallet,
-          label: "Duyệt Cấn Trừ Công Nợ",
-          pageType: DebtDeductionApproved,
+          icon: Icons.payment_outlined,
+          label: "Thanh Toán Công Nợ",
+          pageType: DebtDeductionRequest,
+          showBadge: true,
+          badge: badges.numberDebtDeduction,
           requiredPermissions: ["accountant"],
         ),
       ],
@@ -196,6 +197,8 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Icons.payment_outlined,
           label: "Thanh Toán Công Nợ",
           pageType: DebtDeductionRequest,
+          showBadge: true,
+          badge: badges.numberDebtDeduction,
         ),
 
         GroupMenuConfig(
@@ -206,6 +209,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.pending_actions,
               label: "Đăng Ký Giao Hàng",
               pageType: DeliveryEstimateTime,
+              requiredPermissions: ["sale"],
             ),
             LeafMenuConfig(
               icon: Symbols.calendar_add_on,

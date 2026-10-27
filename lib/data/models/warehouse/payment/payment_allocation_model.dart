@@ -5,6 +5,7 @@ class PaymentAllocationModel {
   final int allocationId;
   final double amountAllocation;
   final String paymentMethod;
+  final DateTime? createdAt;
 
   //association
   final int outboundId;
@@ -14,6 +15,7 @@ class PaymentAllocationModel {
     required this.allocationId,
     required this.amountAllocation,
     required this.paymentMethod,
+    this.createdAt,
 
     //association
     required this.outboundId,
@@ -25,6 +27,7 @@ class PaymentAllocationModel {
       allocationId: json["allocationId"] ?? 0,
       amountAllocation: toDouble(json["amountAllocation"]),
       paymentMethod: json["paymentMethod"] ?? "",
+      createdAt: json["createdAt"] != null ? DateTime.tryParse(json["createdAt"].toString()) : null,
 
       //association
       outboundId: json["outboundId"] ?? 0,

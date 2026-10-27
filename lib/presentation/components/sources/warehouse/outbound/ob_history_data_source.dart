@@ -4,6 +4,7 @@ import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ObHistoryDataSource extends DataGridSource {
@@ -13,6 +14,8 @@ class ObHistoryDataSource extends DataGridSource {
 
   int currentPage;
   int pageSize;
+  final bool showAllocationHistory;
+  final void Function(OutboundHistoryModel outbound)? onOpenAllocationHistory;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
@@ -23,6 +26,8 @@ class ObHistoryDataSource extends DataGridSource {
     required this.totalPriceByDate,
     required this.currentPage,
     required this.pageSize,
+    this.showAllocationHistory = false,
+    this.onOpenAllocationHistory,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "dateOutbound", sortGroupRows: false));
@@ -64,6 +69,8 @@ class ObHistoryDataSource extends DataGridSource {
 
       DataGridCell<String>(columnName: "status", value: outbound.status),
       DataGridCell<String>(columnName: "outboundBy", value: outbound.outboundBy),
+      if (showAllocationHistory)
+        DataGridCell<OutboundHistoryModel>(columnName: "allocationHistory", value: outbound),
 
       //hidden
       DataGridCell<int>(columnName: "outboundId", value: outbound.outboundId),
@@ -178,6 +185,43 @@ class ObHistoryDataSource extends DataGridSource {
 
               if (dataCell.columnName == "status") {
                 displayValue = getStatusVi(displayValue);
+              }
+
+              if (dataCell.columnName == "allocationHistory") {
+                final outbound = dataCell.value as OutboundHistoryModel?;
+                return Center(
+                  child: InkWell(
+                    onTap: () {
+                      if (outbound != null) {
+                        onOpenAllocationHistory?.call(outbound);
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.blue.shade200),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Symbols.history, size: 16, color: Colors.blue.shade700),
+                          const SizedBox(width: 4),
+                          Text(
+                            "Chi tiết",
+                            style: TextStyle(
+                              color: Colors.blue.shade700,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
               }
             }
 

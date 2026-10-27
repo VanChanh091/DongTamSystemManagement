@@ -22,7 +22,7 @@ class AdminOrder extends StatefulWidget {
 }
 
 class _ManageOrderState extends State<AdminOrder> {
-  List<dynamic> orders = [];
+  List<OrderModel> orders = [];
   OrderModel? selectedOrder;
   bool isLoading = false;
 
@@ -58,19 +58,6 @@ class _ManageOrderState extends State<AdminOrder> {
       grouped[prefix]!.add(order);
     }
     return grouped;
-  }
-
-  Future<void> _sendOtpCode() async {
-    if (selectedOrder == null) return;
-
-    try {
-      await AdminService().requestOtpCode(orderId: selectedOrder!.orderId);
-      if (!mounted) return;
-      showSnackBarSuccess(context, "Đã gửi mã OTP về Telegram thành công");
-    } catch (e) {
-      if (!mounted) return;
-      showSnackBarError(context, "Không thể gửi OTP về Telegram");
-    }
   }
 
   Future<void> _processApproveOrder({bool? confirmOverLimit, int? confirmationOTP}) async {
@@ -139,7 +126,16 @@ class _ManageOrderState extends State<AdminOrder> {
           "Mã đơn hàng: ${selectedOrder?.orderId}\n"
           "Nhập mã OTP đã được gửi về Telegram để xác nhận duyệt:",
       onSendOtp: () async {
-        _sendOtpCode();
+        try {
+          if (selectedOrder == null) return;
+
+          await AdminService().requestOtpCode(orderId: selectedOrder!.orderId);
+          if (!mounted) return;
+          showSnackBarSuccess(context, "Đã gửi mã OTP về Telegram thành công");
+        } catch (e) {
+          if (!mounted) return;
+          showSnackBarError(context, "Không thể gửi OTP về Telegram");
+        }
       },
       onConfirm: (otp) {
         _processApproveOrder(confirmationOTP: otp);
@@ -148,6 +144,8 @@ class _ManageOrderState extends State<AdminOrder> {
   }
 
   void _showRejectDialog() {
+    if (selectedOrder == null) return;
+
     final formKey = GlobalKey<FormState>();
     reasonController.clear();
 
@@ -161,22 +159,35 @@ class _ManageOrderState extends State<AdminOrder> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           content: SizedBox(
-            width: 350,
-            height: 80,
+            width: 380,
             child: Form(
               key: formKey,
-              child: TextFormField(
-                controller: reasonController,
-                decoration: const InputDecoration(
-                  hintText: "Nhập lý do...",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Vui lòng nhập lý do từ chối";
-                  }
-                  return null;
-                },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Mã Đơn: #${selectedOrder?.orderId}\n"
+                    "Khách hàng: ${selectedOrder?.customer?.customerName}\n"
+                    "Vui lòng nhập lý do từ chối yêu cầu:",
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextFormField(
+                    controller: reasonController,
+                    decoration: const InputDecoration(
+                      hintText: "Nhập lý do...",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Vui lòng nhập lý do từ chối";
+                      }
+                      return null;
+                    },
+                  ),
+                ],
               ),
             ),
           ),

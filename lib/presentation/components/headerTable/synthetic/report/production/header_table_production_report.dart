@@ -17,7 +17,7 @@ List<GridColumn> buildProductionReportColumns({
     {"key": "averageSpeed", "title": "Tốc Độ Máy"},
     {"key": "totalRevenue", "title": "Tổng Doanh Số"},
     if (isMachine) {"key": "fulfillmentRate", "title": "% Đạt KH"},
-    {"key": "timeAdherenceRate", "title": "% Tuân Thủ TG/Tốc Độ"},
+    {"key": "timeAdherenceRate", "title": "Chỉ Số Định Mức"},
     {"key": "totalQcErrors", "title": "Số Lỗi"},
     {"key": "qcErrorPerTon", "title": "% Lỗi (Tấn Giấy)"},
   ];

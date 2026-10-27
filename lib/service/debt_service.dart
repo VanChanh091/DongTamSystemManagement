@@ -3,6 +3,7 @@ import "dart:io";
 import "package:dio/dio.dart";
 import "package:dongtam/data/models/warehouse/debt_deduction_request_model.dart";
 import "package:dongtam/data/models/warehouse/payment/customer_debt_summary_model.dart";
+import "package:dongtam/data/models/warehouse/payment/payment_allocation_model.dart";
 import "package:dongtam/utils/handleError/dio_client.dart";
 import "package:dongtam/utils/helper/helper_service.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -60,7 +61,7 @@ class DebtService {
         "/api/debts/closing-debt/export",
         queryParameters: {"targetDate": DateFormat("yyyy-MM-dd").format(targetDate)},
         options: Options(
-          headers: {'Authorization': 'Bearer $token', 'Content-Type': 'application/json'},
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
           responseType: ResponseType.bytes,
         ),
       );
@@ -178,5 +179,84 @@ class DebtService {
       queryParameters: {"requestId": requestId},
       body: {"status": status, if (rejectReason != null) "rejectReason": rejectReason},
     );
+  }
+
+  // Export debt customer
+  Future<File?> exportExcelReportDebt({
+    required DateTime fromDate,
+    required DateTime toDate,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.post(
+        "/api/debts/deduction-requests/export",
+        queryParameters: {
+          "fromDate": DateFormat("yyyy-MM-dd").format(fromDate),
+          "toDate": DateFormat("yyyy-MM-dd").format(toDate),
+        },
+        options: Options(
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "debt_deduction_report",
+        );
+      } else {
+        AppLogger.w("Export failed with statusCode: ${response.statusCode}");
+        return null;
+      }
+    } catch (e, s) {
+      AppLogger.e("Failed to export debt customer", error: e, stackTrace: s);
+      return null;
+    }
+  }
+
+  // Lấy chi tiết lịch sử cấn trừ của 1 PXK (Dùng HelperService)
+  Future<List<PaymentAllocationModel>> getPaymentAllocationHistory({
+    required int outboundId,
+  }) async {
+    return await HelperService().fetchingData<PaymentAllocationModel>(
+      endpoint: "debts/allocations/outbound",
+      queryParameters: {"outboundId": outboundId},
+      fromJson: (json) => PaymentAllocationModel.fromJson(json),
+    );
+  }
+
+  // Xuất Excel lịch sử cấn trừ công nợ
+  Future<File?> exportExcelPaymentAllocations({
+    required DateTime fromDate,
+    required DateTime toDate,
+  }) async {
+    try {
+      final token = await SecureStorageService().getToken();
+
+      final response = await dioService.post(
+        "/api/debts/allocations/export",
+        data: {
+          "fromDate": DateFormat("yyyy-MM-dd").format(fromDate),
+          "toDate": DateFormat("yyyy-MM-dd").format(toDate),
+        },
+        options: Options(
+          headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},
+          responseType: ResponseType.bytes,
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return await HelperService().saveExcelFile(
+          bytes: response.data as List<int>,
+          fileNamePrefix: "history_payment_allocation",
+        );
+      }
+      return null;
+    } catch (e, s) {
+      AppLogger.e("Lỗi xuất excel lịch sử cấn trừ công nợ", error: e, stackTrace: s);
+      return null;
+    }
   }
 }

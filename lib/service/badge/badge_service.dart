@@ -55,4 +55,9 @@ class BadgeService {
   Future<int> countPrepareGoods() async {
     return countForBadge("count-prepare-goods");
   }
+
+  //debt deduction
+  Future<int> countDebtDeduction() async {
+    return countForBadge("count-debt-deduction");
+  }
 }

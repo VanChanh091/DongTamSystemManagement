@@ -72,7 +72,7 @@ class NotificationController extends GetxController {
     try {
       bool isSuccess = false;
 
-      if (type == "order" || type == "inspection") {
+      if (type == "order" || type == "inspection" || type == "debt_deduction") {
         //confirm
         isSuccess = await NotificationService().confirmRequestChanging(
           notificationId: notif.notificationId,

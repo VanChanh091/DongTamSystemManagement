@@ -139,7 +139,10 @@ class _DialogDebtDeductionState extends State<DialogDebtDeduction> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       title: Row(
         children: [
-          Icon(isEdit ? Symbols.edit_document : Symbols.add_circle, color: const Color(0xff1E88E5)),
+          Icon(
+            isEdit ? Symbols.edit_document : Symbols.add_circle,
+            color: themeController.currentColor.value,
+          ),
           const SizedBox(width: 8),
           Text(
             isEdit ? "Sửa Yêu Cầu Cấn Trừ Nợ" : "Tạo Yêu Cầu Cấn Trừ Nợ",

@@ -4,7 +4,9 @@ import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_detail_model.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
+import "package:dongtam/presentation/components/dialog/debt/dialog_outbound_allocation.dart";
 import "package:dongtam/presentation/components/dialog/export/dialog_export_outbound.dart";
+import "package:dongtam/presentation/components/shared/warehouse/button_preview_outbound_pdf.dart";
 import "package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart";
 import "package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
@@ -95,6 +97,11 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   int pageSize = 35;
   int pageSizeSearch = 30;
 
+  bool get canViewAllocation =>
+      userController.role.value == "admin" ||
+      userController.role.value == "manager" ||
+      userController.hasAnyPermission(permission: ["accountant", "sale"]);
+
   @override
   void initState() {
     super.initState();
@@ -102,7 +109,10 @@ class _OutboundHistoryState extends State<OutboundHistory> {
 
     isAccountant = userController.hasPermission(permission: "accountant");
 
-    columnsOutbound = buildOutboundHistoryColumn(themeController: themeController);
+    columnsOutbound = buildOutboundHistoryColumn(
+      themeController: themeController,
+      showAllocationHistory: canViewAllocation,
+    );
     columnsObDetail = buildOutboundDetailColumn(themeController: themeController);
 
     ColumnWidthTable.loadWidths(tableKey: "outbound", columns: columnsOutbound).then((w) {
@@ -147,6 +157,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     );
 
     _selectedOutboundIdNotifier.value = null;
+    selectOutbound = null;
     selectedObDetail = [];
   }
 
@@ -374,8 +385,11 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  //export pdf
-                                  handleExportFile(),
+                                  //preview & export pdf
+                                  ButtonPreviewOutboundPdf(
+                                    selectedOutbound: selectOutbound,
+                                    selectedOutboundId: selectedOutboundId,
+                                  ),
                                   const SizedBox(width: 8),
 
                                   isAccountant
@@ -612,6 +626,13 @@ class _OutboundHistoryState extends State<OutboundHistory> {
             currentPage: currentPage,
             pageSize: pageSize,
             totalPriceByDate: totalPriceByDate,
+            showAllocationHistory: canViewAllocation,
+            onOpenAllocationHistory: (outbound) {
+              showDialog(
+                context: context,
+                builder: (_) => DialogOutboundAllocation(outbound: outbound),
+              );
+            },
           );
         }
 
@@ -800,111 +821,6 @@ class _OutboundHistoryState extends State<OutboundHistory> {
           ],
         );
       },
-    );
-  }
-
-  Widget handleExportFile() {
-    final bool canAction = userController.hasAnyPermission(permission: ["accountant", "sale"]);
-    bool isButtonDisabled = _selectedOutboundIdNotifier.value == null;
-
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        PopupMenuButton<String>(
-          color: Colors.white,
-          position: PopupMenuPosition.under,
-          enabled: !isButtonDisabled,
-          offset: const Offset(35, 5),
-          onSelected: (value) async {
-            bool hasMoney = (value == "hasMoney");
-
-            final confirm = await showConfirmDialog(
-              context: context,
-              title: "Lập phiếu xuất kho",
-              content: "Bạn muốn lập phiếu xuất kho cho đơn này?",
-              confirmText: "Xác Nhận",
-              confirmColor: const Color(0xffEA4346),
-            );
-
-            if (confirm == true && context.mounted) {
-              final file = await WarehouseService().exportFilePDFOutbound(
-                outboundId: _selectedOutboundIdNotifier.value!,
-                hasMoney: hasMoney,
-              );
-
-              // 4. Xử lý kết quả trả về
-              if (mounted) {
-                if (file != null) {
-                  showSnackBarSuccess(context, "Lập phiếu xuất kho thành công");
-                } else {
-                  showSnackBarError(context, "Lập phiếu xuất kho thất bại");
-                }
-              }
-            }
-          },
-          itemBuilder:
-              (context) => [
-                PopupMenuItem<String>(
-                  value: "hasMoney",
-                  enabled: canAction,
-                  child: ListTile(
-                    leading: Icon(Symbols.attach_money, color: Colors.green),
-                    title: Text(
-                      "Có Tiền",
-                      style: TextStyle(color: canAction ? Colors.black87 : Colors.grey),
-                    ),
-                    subtitle:
-                        !canAction
-                            ? const Text("Chỉ dành cho kế toán", style: TextStyle(fontSize: 10))
-                            : null,
-                  ),
-                ),
-                const PopupMenuItem<String>(
-                  value: "noMoney",
-                  child: ListTile(
-                    leading: Icon(Symbols.do_not_disturb, color: Colors.blue),
-                    title: Text("Không có tiền"),
-                  ),
-                ),
-              ],
-          child: ElevatedButton(
-            onPressed: null,
-            style: ButtonStyle(
-              elevation: WidgetStateProperty.all(0),
-              backgroundColor: WidgetStateProperty.resolveWith<Color>((states) {
-                if (isButtonDisabled) {
-                  return Colors.grey.shade300;
-                }
-                return themeController.buttonColor.value;
-              }),
-              foregroundColor: WidgetStateProperty.all<Color>(
-                isButtonDisabled ? Colors.white70 : Colors.white,
-              ),
-              padding: WidgetStateProperty.all<EdgeInsets>(
-                const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              ),
-              shape: WidgetStateProperty.all(
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.save),
-                const SizedBox(width: 4),
-                Text(
-                  "Xuất Phiếu",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isButtonDisabled ? Colors.grey.shade500 : Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 

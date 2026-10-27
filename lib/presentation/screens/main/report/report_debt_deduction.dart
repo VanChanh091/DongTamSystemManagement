@@ -1,10 +1,10 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/warehouse/debt_deduction_request_model.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_debt_deduction.dart";
 import "package:dongtam/presentation/components/headerTable/debt/header_table_debt_deduction.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/debt/debt_deduction_data_source.dart";
@@ -14,7 +14,7 @@ import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart"
 import "package:flutter/material.dart";
 import "package:get/get.dart";
 import "package:intl/intl.dart";
-import "package:material_symbols_icons/symbols.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
 import "package:syncfusion_flutter_core/theme.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
@@ -38,8 +38,6 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
 
   //field search & filter
   String searchType = "Tất cả";
-  String selectedStatus = "Đã duyệt";
-  final List<String> statusFilterOptions = ["Đã duyệt", "Tất cả", "Bị từ chối"];
 
   //notifiers
   final _zoomNotifier = ValueNotifier<double>(1.0);
@@ -63,7 +61,10 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
   void initState() {
     super.initState();
     loadReportDebtDeduction();
-    columnsDebtDeduction = buildDebtDeductionColumn(themeController: themeController);
+    columnsDebtDeduction = buildDebtDeductionColumn(
+      themeController: themeController,
+      isReport: true,
+    );
 
     ColumnWidthTable.loadWidths(
       tableKey: "report_debt_deduction",
@@ -77,28 +78,12 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
     });
   }
 
-  List<String> _resolveApiStatus() {
-    switch (selectedStatus) {
-      case "Đã duyệt":
-        return ["approved"];
-      case "Bị từ chối":
-        return ["rejected"];
-      case "Tất cả":
-      default:
-        return ["approved", "rejected", "pending"];
-    }
-  }
-
   void _fetchData() {
-    final String keyword = searchController.text.trim();
-    final bool shouldSearchCustomer = (searchType == "Mã Khách Hàng" && keyword.isNotEmpty);
-
     futureDebtDeduction = ensureMinLoading(
       DebtService().getDebtDeductionRequests(
         page: currentPage,
         pageSize: pageSize,
-        status: _resolveApiStatus(),
-        customerId: shouldSearchCustomer ? keyword : null,
+        status: ["approved"],
       ),
     );
     _selectedRequestIdNotifier.value = null;
@@ -126,11 +111,11 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
 
   @override
   void dispose() {
+    super.dispose();
     _zoomNotifier.dispose();
     searchController.dispose();
     _selectedRequestIdNotifier.dispose();
     headerScrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -138,11 +123,12 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value,
       body: Listener(
-        onPointerSignal: (pointerSignal) => handleScrollZoom(
-          pointerSignal: pointerSignal,
-          currentZoom: _zoomNotifier.value,
-          onZoomChanged: _updateZoom,
-        ),
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
+            ),
         child: Stack(
           children: [
             ValueListenableBuilder<double>(
@@ -211,7 +197,7 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
     return Column(
       children: [
         Text(
-          "LỊCH SỬ CẤN TRỪ CÔNG NỢ",
+          "LỊCH SỬ YÊU CẦU CẤN TRỪ CÔNG NỢ",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -219,6 +205,7 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
           ),
         ),
         const SizedBox(height: 8),
+
         LayoutBuilder(
           builder: (context, constraints) {
             return Scrollbar(
@@ -233,79 +220,29 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Cụm tìm kiếm + Lọc trạng thái
-                      LeftButtonSearch(
-                        selectedType: searchType,
-                        types: const ["Tất cả", "Mã Khách Hàng"],
-                        hintText: "Nhập mã khách hàng...",
-                        onTypeChanged: (value) {
-                          setState(() {
-                            searchType = value;
-                            isTextFieldEnabled = (searchType != "Tất cả");
-                            if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
-                              searchController.clear();
-                              currentPage = 1;
-                              _fetchData();
-                            }
-                          });
-                        },
-                        controller: searchController,
-                        textFieldEnabled: isTextFieldEnabled,
-                        buttonColor: themeController.buttonColor,
-                        onSearch: searchDebtDeduction,
-                        extraWidgets: [
-                          Container(
-                            height: 45,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.grey.shade400),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: selectedStatus,
-                                icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                                items: statusFilterOptions.map((status) {
-                                  return DropdownMenuItem<String>(
-                                    value: status,
-                                    child: Text(
-                                      status == "Tất cả" ? "Tất cả trạng thái" : status,
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  if (value != null && value != selectedStatus) {
-                                    setState(() {
-                                      selectedStatus = value;
-                                      currentPage = 1;
-                                      _fetchData();
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(),
                       const SizedBox(width: 20),
 
                       // Cụm nút hành động
                       ValueListenableBuilder(
                         valueListenable: _selectedRequestIdNotifier,
                         builder: (context, selectedRequestId, _) {
-                          final bool hasSelection = selectedRequestId != null && selectedDebtDeduction != null;
-
                           return Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
+                              //export excel
                               AnimatedButton(
-                                onPressed: hasSelection ? () => _showDetailDialog(selectedDebtDeduction!) : null,
-                                label: "Xem Chi Tiết",
-                                icon: Symbols.visibility,
+                                onPressed: () async {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => DialogExportDebtDeduction(),
+                                  );
+                                },
+                                label: "Xuất Excel",
+                                icon: Symbols.file_download,
                                 backgroundColor: themeController.buttonColor,
                               ),
-                              const SizedBox(width: 5),
+                              const SizedBox(width: 8),
                             ],
                           );
                         },
@@ -356,6 +293,7 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
           _cachedDebtDeduction = debtDeductions;
           _cachedDatasource = DebtDeductionDataSource(
             debtDeductions: debtDeductions,
+            isReport: true,
             currentPage: currentPage,
             pageSize: pageSize,
             selectedRequestId: _selectedRequestIdNotifier.value,
@@ -383,24 +321,28 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
                       allowColumnsResizing: true,
                       columnResizeMode: ColumnResizeMode.onResize,
                       onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate: (details) => GridResizeHelper.onResizeUpdate(
-                        details: details,
-                        columns: columnsDebtDeduction,
-                        setState: localSetState,
-                      ),
-                      onColumnResizeEnd: (details) => GridResizeHelper.onResizeEnd(
-                        details: details,
-                        tableKey: "report_debt_deduction",
-                        columnWidths: columnWidths,
-                        setState: setState,
-                      ),
+                      onColumnResizeUpdate:
+                          (details) => GridResizeHelper.onResizeUpdate(
+                            details: details,
+                            columns: columnsDebtDeduction,
+                            setState: localSetState,
+                          ),
+                      onColumnResizeEnd:
+                          (details) => GridResizeHelper.onResizeEnd(
+                            details: details,
+                            tableKey: "report_debt_deduction",
+                            columnWidths: columnWidths,
+                            setState: setState,
+                          ),
                       onSelectionChanged: (addedRows, removedRows) async {
                         if (addedRows.isNotEmpty) {
                           final selectedRow = addedRows.first;
-                          final requestId = selectedRow
-                              .getCells()
-                              .firstWhere((cell) => cell.columnName == "requestId")
-                              .value as int?;
+                          final requestId =
+                              selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == "requestId")
+                                      .value
+                                  as int?;
 
                           _selectedRequestIdNotifier.value = requestId;
                           try {
@@ -445,132 +387,6 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
           ],
         );
       },
-    );
-  }
-
-  void _showDetailDialog(DebtDeductionRequestModel req) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          title: Row(
-            children: [
-              const Icon(Symbols.receipt_long, color: Color(0xff1E88E5)),
-              const SizedBox(width: 8),
-              Text(
-                "Chi Tiết Yêu Cầu #${req.requestId}",
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-            ],
-          ),
-          content: SizedBox(
-            width: 450,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildInfoLine("Mã khách hàng:", req.customerId),
-                _buildInfoLine("Tên khách hàng:", req.Customer?.customerName ?? "-"),
-                _buildInfoLine("Tên công ty:", req.Customer?.companyName ?? "-"),
-                const Divider(height: 20),
-                _buildInfoLine(
-                  "Số tiền cấn trừ:",
-                  "${NumberFormat("#,###", "vi_VN").format(req.amountRequested)} đ",
-                  isBold: true,
-                  valueColor: const Color(0xFF2E7D32),
-                ),
-                _buildInfoLine("Kiểu thanh toán:", req.paymentMethod),
-                _buildInfoLine("Người yêu cầu:", req.requestedBy),
-                _buildInfoLine("Người duyệt:", req.approvedBy ?? "-"),
-                _buildInfoLine(
-                  "Ngày tạo:",
-                  req.createdAt != null ? formatter.format(req.createdAt!) : "-",
-                ),
-                _buildInfoLine(
-                  "Khẩn cấp:",
-                  req.isUrgent ? "Có (Duyệt qua OTP Telegram)" : "Không",
-                  valueColor: req.isUrgent ? Colors.red : null,
-                ),
-                _buildInfoLine(
-                  "Trạng thái:",
-                  req.status == "approved"
-                      ? "Đã duyệt"
-                      : req.status == "rejected"
-                          ? "Bị từ chối"
-                          : "Chờ duyệt",
-                  isBold: true,
-                  valueColor: req.status == "approved"
-                      ? const Color(0xFF2E7D32)
-                      : req.status == "rejected"
-                          ? Colors.red
-                          : Colors.orange,
-                ),
-                if (req.rejectReason != null && req.rejectReason!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Text(
-                      "Lý do từ chối: ${req.rejectReason}",
-                      style: TextStyle(color: Colors.red.shade800, fontSize: 13),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xff1E88E5),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text("Đóng", style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoLine(
-    String label,
-    String value, {
-    bool isBold = false,
-    Color? valueColor,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 130,
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-                color: valueColor ?? Colors.black87,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

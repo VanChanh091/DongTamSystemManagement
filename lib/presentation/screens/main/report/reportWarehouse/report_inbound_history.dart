@@ -1,24 +1,24 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/warehouse/inbound_history_model.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_inbound.dart';
-import 'package:dongtam/presentation/components/headerTable/warehouse/header_report_inbound.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/sources/warehouse/report_inbound_data_source.dart';
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/picker_date_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/warehouse/inbound_history_model.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_inbound.dart";
+import "package:dongtam/presentation/components/headerTable/warehouse/header_report_inbound.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/sources/warehouse/report_inbound_data_source.dart";
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/utils/helper/picker_date_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportInboundHistory extends StatefulWidget {
   const ReportInboundHistory({super.key});
@@ -31,7 +31,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   late Future<Map<String, dynamic>> futureReportInbound;
   late ReportInboundDataSource reportInboundDataSource;
   late List<GridColumn> columns;
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
 
   //controller
   final userController = Get.find<UserController>();
@@ -74,7 +74,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
     columns = buildReportInboundColumn(themeController: themeController);
 
-    ColumnWidthTable.loadWidths(tableKey: 'reportInbound', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "reportInbound", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -209,7 +209,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                       LeftButtonSearch(
                         selectedType: searchType,
                         types: const [
-                          'Tất cả',
+                          "Tất cả",
                           "Mã Đơn Hàng",
                           "Tên Khách Hàng",
                           "Ngày Nhập Kho",
@@ -218,7 +218,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = value != 'Tất cả';
+                            isTextFieldEnabled = value != "Tất cả";
 
                             startDate = null;
                             endDate = null;
@@ -298,7 +298,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['inbounds'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["inbounds"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -311,9 +311,9 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
         }
 
         final data = snapshot.data!;
-        final reportInbounds = data['inbounds'] as List<InboundHistoryModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final reportInbounds = data["inbounds"] as List<InboundHistoryModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
         reportInboundDataSource = ReportInboundDataSource(
           reportInbounds: reportInbounds,
@@ -342,9 +342,9 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                   StackedHeaderRow(
                     cells: [
                       StackedHeaderCell(
-                        columnNames: ['quantityOrd', 'qtyPaper', 'qtyInbound'],
+                        columnNames: ["quantityOrd", "qtyPaper", "qtyInbound"],
                         child: Obx(
-                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
+                          () => formatColumn(label: "Số Lượng", themeController: themeController),
                         ),
                       ),
                     ],
@@ -365,7 +365,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                 onColumnResizeEnd:
                     (details) => GridResizeHelper.onResizeEnd(
                       details: details,
-                      tableKey: 'reportInbound',
+                      tableKey: "reportInbound",
                       columnWidths: columnWidths,
                       setState: setState,
                     ),
@@ -380,9 +380,9 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
                         selectedRows
                             .map((row) {
                               final cell = row.getCells().firstWhere(
-                                (c) => c.columnName == 'inboundId',
+                                (c) => c.columnName == "inboundId",
                                 orElse:
-                                    () => const DataGridCell(columnName: 'inboundId', value: ''),
+                                    () => const DataGridCell(columnName: "inboundId", value: ""),
                               );
 
                               return int.tryParse(cell.value.toString());

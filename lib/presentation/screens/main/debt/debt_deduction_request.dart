@@ -1,5 +1,7 @@
+import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/data/models/warehouse/debt_deduction_request_model.dart";
 import "package:dongtam/presentation/components/dialog/debt/dialog_debt_deduction.dart";
 import "package:dongtam/presentation/components/headerTable/debt/header_table_debt_deduction.dart";
@@ -37,6 +39,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
   final searchController = TextEditingController();
+  final reasonController = TextEditingController();
 
   //field search & filter
   String searchType = "Tất cả";
@@ -68,7 +71,10 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
         userController.hasAnyRole(roles: ["admin", "manager"]);
 
     loadDebtDeduction();
-    columnsDebtDeduction = buildDebtDeductionColumn(themeController: themeController);
+    columnsDebtDeduction = buildDebtDeductionColumn(
+      themeController: themeController,
+      isReport: false,
+    );
 
     ColumnWidthTable.loadWidths(
       tableKey: "debt_deduction_request",
@@ -83,15 +89,15 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
   }
 
   void _fetchData() {
-    final String keyword = searchController.text.trim();
-    final bool shouldSearchCustomer = (searchType == "Mã Khách Hàng" && keyword.isNotEmpty);
+    // Manager chỉ xem đơn pending; Sale/Admin xem pending và rejected
+    final bool isManager = userController.role.value == "manager";
+    final List<String> statusFilter = isManager ? ["pending"] : ["pending", "rejected"];
 
     futureDebtDeduction = ensureMinLoading(
       DebtService().getDebtDeductionRequests(
         page: currentPage,
         pageSize: pageSize,
-        status: ["pending", "rejected"],
-        customerId: shouldSearchCustomer ? keyword : null,
+        status: statusFilter,
       ),
     );
     _selectedRequestIdNotifier.value = null;
@@ -111,6 +117,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
     super.dispose();
     _zoomNotifier.dispose();
     searchController.dispose();
+    reasonController.dispose();
     _selectedRequestIdNotifier.dispose();
     headerScrollController.dispose();
   }
@@ -221,7 +228,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                       const SizedBox(),
                       const SizedBox(width: 20),
 
-                      // Cụm nút hành động
+                      // Cụm nút hành động phân quyền: Sale / Manager / Admin trên cùng 1 hàng
                       ValueListenableBuilder(
                         valueListenable: _selectedRequestIdNotifier,
                         builder: (context, selectedRequestId, _) {
@@ -229,14 +236,37 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                               selectedRequestId != null && selectedDebtDeduction != null;
                           final bool canEditOrCancel =
                               hasSelection && selectedDebtDeduction!.status != "approved";
-                          final bool canVerifyOtp =
+                          final bool isPending =
                               hasSelection && selectedDebtDeduction!.status == "pending";
+
+                          final bool isAdmin = userController.role.value == "admin";
+                          final bool isManager = userController.role.value == "manager";
 
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              if (isSale) ...[
-                                // Thêm mới
+                              // Duyệt yêu cầu
+                              if (isAdmin || isManager) ...[
+                                AnimatedButton(
+                                  onPressed: isPending ? _processApprove : null,
+                                  label: "Duyệt Đơn",
+                                  icon: Icons.check,
+                                ),
+                                const SizedBox(width: 8),
+
+                                // 4. Từ chối (Manager & Admin)
+                                AnimatedButton(
+                                  onPressed: isPending ? _showRejectDialog : null,
+                                  label: "Từ chối",
+                                  icon: Icons.close,
+                                  backgroundColor: Colors.red.shade600,
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+
+                              // chức năng của sale
+                              if (isAdmin || isSale) ...[
+                                // add debt request
                                 AnimatedButton(
                                   onPressed: () => _showAddOrEditDialog(debtDeduction: null),
                                   label: "Thêm Mới",
@@ -245,7 +275,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                                 ),
                                 const SizedBox(width: 8),
 
-                                // Sửa phiếu
+                                //edit debt request
                                 AnimatedButton(
                                   onPressed:
                                       canEditOrCancel
@@ -253,16 +283,16 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                                             debtDeduction: selectedDebtDeduction,
                                           )
                                           : null,
-                                  label: "Sửa Phiếu",
+                                  label: "Sửa",
                                   icon: Symbols.construction,
                                   backgroundColor: themeController.buttonColor,
                                 ),
                                 const SizedBox(width: 8),
 
-                                // Duyệt OTP khẩn cấp
+                                // send request & verify OTP
                                 AnimatedButton(
                                   onPressed:
-                                      canVerifyOtp
+                                      isPending
                                           ? () => _showOtpDialog(selectedDebtDeduction!)
                                           : null,
                                   label: "Duyệt OTP",
@@ -271,17 +301,19 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                                 ),
                                 const SizedBox(width: 8),
 
-                                // Hủy phiếu
-                                AnimatedButton(
-                                  onPressed:
-                                      canEditOrCancel
-                                          ? () => _handleDelete(selectedRequestId)
-                                          : null,
-                                  label: "Hủy Phiếu",
-                                  icon: Icons.delete,
-                                  backgroundColor: const Color(0xffEA4346),
-                                ),
-                                const SizedBox(width: 5),
+                                // cancel debt request
+                                if (isAdmin || isSale) ...[
+                                  AnimatedButton(
+                                    onPressed:
+                                        canEditOrCancel
+                                            ? () => _handleDelete(selectedRequestId)
+                                            : null,
+                                    label: "Hủy",
+                                    icon: Icons.delete,
+                                    backgroundColor: const Color(0xffEA4346),
+                                  ),
+                                  const SizedBox(width: 5),
+                                ],
                               ],
                             ],
                           );
@@ -325,14 +357,26 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
         }
 
         final data = snapshot.data!;
-        final debtDeductions = (data["debtDeductions"] as List).cast<DebtDeductionRequestModel>();
+        final rawDebtDeductions =
+            (data["debtDeductions"] as List).cast<DebtDeductionRequestModel>();
         final currentPg = data["currentPage"] ?? 1;
         final totalPgs = data["totalPages"] ?? 1;
+
+        // Ưu tiên đưa các yêu cầu bị từ chối (rejected) lên trên đầu
+        final debtDeductions = List<DebtDeductionRequestModel>.from(rawDebtDeductions)
+          ..sort((a, b) {
+            if (a.status == "rejected" && b.status != "rejected") return -1;
+            if (a.status != "rejected" && b.status == "rejected") return 1;
+            final dateA = a.createdAt ?? DateTime(0);
+            final dateB = b.createdAt ?? DateTime(0);
+            return dateB.compareTo(dateA);
+          });
 
         if (_cachedDebtDeduction != debtDeductions || _cachedDatasource == null) {
           _cachedDebtDeduction = debtDeductions;
           _cachedDatasource = DebtDeductionDataSource(
             debtDeductions: debtDeductions,
+            isReport: false,
             currentPage: currentPage,
             pageSize: pageSize,
             selectedRequestId: _selectedRequestIdNotifier.value,
@@ -349,7 +393,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                     child: SfDataGrid(
                       source: _cachedDatasource!,
                       isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.fill,
+                      columnWidthMode: ColumnWidthMode.auto,
                       selectionMode: SelectionMode.single,
                       headerRowHeight: 30,
                       rowHeight: 40,
@@ -431,6 +475,148 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
 
   // ==================== ACTIONS ====================
 
+  Future<void> _processApprove() async {
+    if (selectedDebtDeduction == null) return;
+
+    final confirm = await showConfirmDialog(
+      context: context,
+      title: "Xác nhận phê duyệt",
+      content:
+          "Xác nhận phê duyệt yêu cầu cấn trừ công nợ "
+          "của khách hàng ${selectedDebtDeduction!.Customer?.customerName} "
+          "với số tiền ${OrderModel.formatCurrency(selectedDebtDeduction!.amountRequested)} đ?",
+      confirmText: "Phê Duyệt",
+    );
+
+    if (!confirm) return;
+
+    try {
+      final success = await DebtService().updateDebtDeductionStatus(
+        requestId: selectedDebtDeduction!.requestId,
+        status: "approved",
+      );
+      if (!mounted) return;
+      if (success) {
+        showSnackBarSuccess(context, "Phê duyệt yêu cầu cấn trừ nợ thành công");
+        _selectedRequestIdNotifier.value = null;
+        selectedDebtDeduction = null;
+        loadDebtDeduction();
+        if (Get.isRegistered<BadgesController>() && userController.role.value == "manager") {
+          Get.find<BadgesController>().fetchDebtDeduction();
+        }
+      } else {
+        showSnackBarError(context, "Phê duyệt không thành công");
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showSnackBarError(context, "Lỗi phê duyệt: $e");
+    }
+  }
+
+  void _showRejectDialog() {
+    if (selectedDebtDeduction == null) return;
+
+    final formKey = GlobalKey<FormState>();
+    reasonController.clear();
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          title: const Text(
+            "Nhập lý do từ chối",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: SizedBox(
+            width: 380,
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Yêu cầu: #${selectedDebtDeduction!.requestId} - Khách hàng: ${selectedDebtDeduction!.Customer?.customerName}\n"
+                    "Số tiền: ${NumberFormat("#,###", "vi_VN").format(selectedDebtDeduction!.amountRequested)} đ\n\n"
+                    "Vui lòng nhập lý do từ chối yêu cầu:",
+                    style: const TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
+                  const SizedBox(height: 12),
+
+                  TextFormField(
+                    controller: reasonController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      hintText: "Nhập lý do từ chối...",
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Vui lòng nhập lý do từ chối";
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF475569),
+                side: const BorderSide(color: Color(0xFFCBD5E1)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+              ),
+              onPressed: () => Navigator.pop(dialogCtx),
+              child: const Text("Hủy", style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red.shade600,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () async {
+                if (formKey.currentState!.validate()) {
+                  final reason = reasonController.text.trim();
+                  Navigator.pop(dialogCtx);
+                  try {
+                    final success = await DebtService().updateDebtDeductionStatus(
+                      requestId: selectedDebtDeduction!.requestId,
+                      status: "rejected",
+                      rejectReason: reason,
+                    );
+                    if (!mounted) return;
+                    if (success) {
+                      showSnackBarSuccess(context, "Từ chối phê duyệt thành công");
+                      _selectedRequestIdNotifier.value = null;
+                      selectedDebtDeduction = null;
+                      loadDebtDeduction();
+                      if (Get.isRegistered<BadgesController>() &&
+                          userController.role.value == "manager") {
+                        Get.find<BadgesController>().fetchDebtDeduction();
+                      }
+                    } else {
+                      showSnackBarError(context, "Từ chối phê duyệt thất bại");
+                    }
+                  } catch (e) {
+                    if (!mounted) return;
+                    showSnackBarError(context, "Lỗi từ chối: $e");
+                  }
+                }
+              },
+              child: const Text("Xác nhận", style: TextStyle(color: Colors.white, fontSize: 16)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showAddOrEditDialog({DebtDeductionRequestModel? debtDeduction}) {
     showDialog(
       context: context,
@@ -474,11 +660,10 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
           final success = await DebtService().requestOrVerifyUrgentOtp(
             requestId: request.requestId,
           );
-          if (!mounted) return;
-          if (success) {
-            showSnackBarSuccess(context, "Đã gửi mã OTP về Telegram của Quản lý!");
-          } else {
-            showSnackBarError(context, "Gửi mã OTP thất bại");
+          if (mounted) {
+            success
+                ? showSnackBarSuccess(context, "Đã gửi mã OTP về Telegram của Quản lý!")
+                : showSnackBarError(context, "Gửi mã OTP thất bại");
           }
         } catch (e) {
           if (!mounted) return;
@@ -491,12 +676,16 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
             requestId: request.requestId,
             otp: otp,
           );
-          if (!mounted) return;
-          if (success) {
-            showSnackBarSuccess(context, "Xác nhận duyệt yêu cầu thành công!");
-            loadDebtDeduction();
-          } else {
-            showSnackBarError(context, "Xác thực OTP không thành công hoặc sai mã");
+          if (mounted) {
+            if (success) {
+              showSnackBarSuccess(context, "Xác nhận duyệt yêu cầu thành công!");
+              loadDebtDeduction();
+              if (Get.isRegistered<BadgesController>() && userController.role.value == "manager") {
+                Get.find<BadgesController>().fetchDebtDeduction();
+              }
+            } else {
+              showSnackBarError(context, "Xác thực OTP không thành công hoặc sai mã");
+            }
           }
         } catch (e) {
           if (!mounted) return;

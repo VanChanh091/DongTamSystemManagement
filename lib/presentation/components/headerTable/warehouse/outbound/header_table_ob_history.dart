@@ -21,19 +21,25 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
 
   {"key": "status", "title": "Trạng Thái"},
   {"key": "outboundBy", "title": "Người Lập Phiếu"},
+  {"key": "allocationHistory", "title": "Lịch Sử Trừ Nợ"},
 
   //hidden
   {"key": "outboundId", "title": "", "visible": false},
   {"key": "dateOutbound", "title": "Ngày Xuất Kho", "visible": false},
 ];
 
-List<GridColumn> buildOutboundHistoryColumn({required ThemeController themeController}) {
+List<GridColumn> buildOutboundHistoryColumn({
+  required ThemeController themeController,
+  bool showAllocationHistory = false,
+}) {
   return [
     for (var item in _headerOutboundHistory)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+      if (item["key"] != "allocationHistory" || showAllocationHistory)
+        GridColumn(
+          columnName: item["key"]!,
+          width: item["key"] == "allocationHistory" ? 140 : double.nan,
+          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
+          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+        ),
   ];
 }
