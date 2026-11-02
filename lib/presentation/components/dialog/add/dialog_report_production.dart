@@ -5,7 +5,7 @@ import "package:dongtam/service/employee_service.dart";
 import "package:dongtam/service/manufacture_service.dart";
 import "package:dongtam/utils/extension/extension_helper.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/validation/validation_helper.dart";

@@ -22,7 +22,7 @@ class ButtonPreviewOutboundPdf extends StatelessWidget {
     final userController = Get.find<UserController>();
     final themeController = Get.find<ThemeController>();
 
-    final bool canAction = userController.hasAnyPermission(permission: ["accountant", "sale"]);
+    final bool canAction = userController.hasAnyPermission(permissions: ["accountant", "sale"]);
 
     // Chỉ sáng và cho phép click khi CẢ 2 điều kiện đều thỏa mãn: có ID và có data model
     final bool isEnabled = selectedOutboundId != null && selectedOutbound != null;

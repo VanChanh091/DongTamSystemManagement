@@ -6,10 +6,10 @@ import "package:dongtam/data/models/warehouse/debt_deduction_request_model.dart"
 import "package:dongtam/presentation/components/dialog/debt/dialog_debt_deduction.dart";
 import "package:dongtam/presentation/components/headerTable/debt/header_table_debt_deduction.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/debt/debt_deduction_data_source.dart";
 import "package:dongtam/service/debt_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
@@ -56,6 +56,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
 
   //flag
   late bool isSale;
+  late bool isAccountant;
   bool isSearching = false;
   bool isTextFieldEnabled = false;
 
@@ -66,11 +67,16 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
   @override
   void initState() {
     super.initState();
-    isSale =
-        userController.hasPermission(permission: "sale") ||
-        userController.hasAnyRole(roles: ["admin", "manager"]);
+
+    isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
+    isAccountant = userController.canAccess(
+      roles: ["manager"],
+      departments: ["Accountant"],
+      requireDept: true,
+    );
 
     loadDebtDeduction();
+
     columnsDebtDeduction = buildDebtDeductionColumn(
       themeController: themeController,
       isReport: false,
@@ -239,14 +245,11 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                           final bool isPending =
                               hasSelection && selectedDebtDeduction!.status == "pending";
 
-                          final bool isAdmin = userController.role.value == "admin";
-                          final bool isManager = userController.role.value == "manager";
-
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               // Duyệt yêu cầu
-                              if (isAdmin || isManager) ...[
+                              if (isAccountant) ...[
                                 AnimatedButton(
                                   onPressed: isPending ? _processApprove : null,
                                   label: "Duyệt Đơn",
@@ -254,7 +257,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                                 ),
                                 const SizedBox(width: 8),
 
-                                // 4. Từ chối (Manager & Admin)
+                                // Từ chối
                                 AnimatedButton(
                                   onPressed: isPending ? _showRejectDialog : null,
                                   label: "Từ chối",
@@ -265,7 +268,7 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                               ],
 
                               // chức năng của sale
-                              if (isAdmin || isSale) ...[
+                              if (isSale) ...[
                                 // add debt request
                                 AnimatedButton(
                                   onPressed: () => _showAddOrEditDialog(debtDeduction: null),
@@ -302,18 +305,16 @@ class _DebtDeductionRequestState extends State<DebtDeductionRequest> {
                                 const SizedBox(width: 8),
 
                                 // cancel debt request
-                                if (isAdmin || isSale) ...[
-                                  AnimatedButton(
-                                    onPressed:
-                                        canEditOrCancel
-                                            ? () => _handleDelete(selectedRequestId)
-                                            : null,
-                                    label: "Hủy",
-                                    icon: Icons.delete,
-                                    backgroundColor: const Color(0xffEA4346),
-                                  ),
-                                  const SizedBox(width: 5),
-                                ],
+                                AnimatedButton(
+                                  onPressed:
+                                      canEditOrCancel
+                                          ? () => _handleDelete(selectedRequestId)
+                                          : null,
+                                  label: "Hủy",
+                                  icon: Icons.delete,
+                                  backgroundColor: const Color(0xffEA4346),
+                                ),
+                                const SizedBox(width: 5),
                               ],
                             ],
                           );

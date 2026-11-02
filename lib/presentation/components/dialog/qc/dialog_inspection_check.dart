@@ -9,8 +9,8 @@ import "package:dongtam/data/models/admin/qcInspection/inspection_ui_model.dart"
 import "package:dongtam/data/models/qualityControl/qcInspection/inspection_request_model.dart";
 import "package:dongtam/presentation/components/shared/cardForm/building_card_form.dart";
 import "package:dongtam/presentation/components/shared/cardForm/format_key_value_card.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
-import "package:dongtam/presentation/components/shared/resizable_dialog.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/resizable_dialog.dart";
 import "package:dongtam/service/admin/admin_service.dart";
 import "package:dongtam/service/config/upload_cloudinary_service.dart";
 import "package:dongtam/service/manufacture_service.dart";
@@ -958,7 +958,7 @@ class _DialogInspectionCheckState extends State<DialogInspectionCheck> {
         customConfirmButton: isQC ? null : const SizedBox.shrink(),
         middleActions: [
           if ((!isQC || isAdmin) &&
-              userController.hasAnyPermission(permission: fixErrorPermissions))
+              userController.hasAnyPermission(permissions: fixErrorPermissions))
             ElevatedButton(
               onPressed: _handleFixError,
               style: ElevatedButton.styleFrom(

@@ -4,14 +4,14 @@ import 'package:dongtam/data/models/product/product_model.dart';
 import 'package:dongtam/presentation/components/dialog/add/dialog_add_product.dart';
 import 'package:dongtam/presentation/components/dialog/export/dialog_export_cus_or_prod.dart';
 import 'package:dongtam/presentation/components/headerTable/other/header_table_product.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
+import 'package:dongtam/presentation/components/shared/other/left_button_search.dart';
+import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
 import 'package:dongtam/presentation/components/sources/other/product_data_source.dart';
 import 'package:dongtam/service/product_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
+import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/other/pagination_controls.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
@@ -70,9 +70,9 @@ class _ProductPageState extends State<ProductPage> {
   @override
   void initState() {
     super.initState();
-    loadProduct();
 
-    isSale = userController.hasPermission(permission: "sale");
+    isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
+    loadProduct();
 
     columns = buildProductColumn(themeController: themeController);
     ColumnWidthTable.loadWidths(tableKey: 'product', columns: columns).then((w) {

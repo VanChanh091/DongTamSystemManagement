@@ -3,13 +3,14 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/synthetic/reportRevenue/report_monthly_revenue_model.dart';
 import 'package:dongtam/presentation/components/dialog/date/dialog_picker_month.dart';
 import 'package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_monthly_revenue.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
 import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
 import 'package:dongtam/presentation/components/sources/synthetic/report/sales/monthly_revenue_data_source.dart';
 import 'package:dongtam/service/customer_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
+import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart';
@@ -422,12 +423,29 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                       isScrollbarAlwaysShown: true,
                       columnWidthMode: ColumnWidthMode.fill,
                       selectionMode: SelectionMode.single,
-                      headerRowHeight: 35,
+                      headerRowHeight: 33,
                       rowHeight: 38,
                       columns: ColumnWidthTable.applySavedWidths(
                         columns: columns,
                         widths: columnWidths,
                       ),
+
+                      stackedHeaderRows: <StackedHeaderRow>[
+                        StackedHeaderRow(
+                          cells: [
+                            StackedHeaderCell(
+                              columnNames: ["totalBeforeVat", "totalVat", "salesAmount"],
+                              child: Obx(
+                                () => formatColumn(
+                                  label: "DS Bán Hàng",
+                                  themeController: themeController,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+
                       tableSummaryRows: [
                         GridTableSummaryRow(
                           showSummaryInRow: false,
@@ -445,6 +463,16 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                               summaryType: GridSummaryType.sum,
                             ),
                             GridSummaryColumn(
+                              name: 'sumTotalBeforeVat',
+                              columnName: 'totalBeforeVat',
+                              summaryType: GridSummaryType.sum,
+                            ),
+                            GridSummaryColumn(
+                              name: 'sumTotalVat',
+                              columnName: 'totalVat',
+                              summaryType: GridSummaryType.sum,
+                            ),
+                            GridSummaryColumn(
                               name: 'sumSales',
                               columnName: 'salesAmount',
                               summaryType: GridSummaryType.sum,
@@ -457,6 +485,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
                           ],
                         ),
                       ],
+
                       allowColumnsResizing: true,
                       columnResizeMode: ColumnResizeMode.onResize,
                       onColumnResizeStart: GridResizeHelper.onResizeStart,

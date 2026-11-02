@@ -7,16 +7,16 @@ import "package:dongtam/presentation/components/dialog/export/dialog_export_inve
 import "package:dongtam/presentation/components/dialog/other/dialog_transfer_qty.dart";
 import "package:dongtam/presentation/components/headerTable/warehouse/inventory/header_inventory.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/warehouse/inventory/inventory_data_source.dart";
 import "package:dongtam/service/warehouse_service.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -91,7 +91,10 @@ class _InventoryState extends State<Inventory> {
   @override
   void initState() {
     super.initState();
-    canEdit = userController.hasAnyPermission(permission: ["plan", "delivery", "accountant"]);
+    canEdit = userController.canAccess(
+      departments: ["Plan", "Delivery", "Accountant"],
+      requireDept: true,
+    );
 
     loadInventory();
 

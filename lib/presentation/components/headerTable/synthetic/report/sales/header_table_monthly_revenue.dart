@@ -8,7 +8,9 @@ const List<Map<String, dynamic>> _headerMonthlyRevenue = [
   {"key": "date", "title": "Ngày"},
   {"key": "orderApprovedAmount", "title": "DS Nhận Đơn"},
   {"key": "productionAmount", "title": "DS Sản Xuất"},
-  {"key": "salesAmount", "title": "DS Bán Hàng"},
+  {"key": "totalBeforeVat", "title": "Tổng Tiền (T)"},
+  {"key": "totalVat", "title": "Tổng VAT"},
+  {"key": "salesAmount", "title": "Tổng Tiền (S)"},
   {"key": "returnAmount", "title": "DS Trả Về"},
 ];
 

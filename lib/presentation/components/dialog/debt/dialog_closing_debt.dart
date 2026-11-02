@@ -1,9 +1,9 @@
 import "package:dongtam/data/models/customer/customer_model.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/debt_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/presentation/components/shared/auto_complete_field.dart";
+import "package:dongtam/presentation/components/shared/other/auto_complete_field.dart";
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 import "package:material_symbols_icons/symbols.dart";

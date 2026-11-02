@@ -51,6 +51,8 @@ class MonthlyRevenueDataSource extends DataGridSource {
       DataGridCell<String>(columnName: "date", value: displayDate),
       DataGridCell<int>(columnName: "orderApprovedAmount", value: item.orderApprovedAmount),
       DataGridCell<int>(columnName: "productionAmount", value: item.productionAmount),
+      DataGridCell<int>(columnName: "totalBeforeVat", value: item.totalBeforeVat),
+      DataGridCell<int>(columnName: "totalVat", value: item.totalVat),
       DataGridCell<int>(columnName: "salesAmount", value: item.salesAmount),
       DataGridCell<int>(columnName: "returnAmount", value: item.returnAmount),
     ];
@@ -99,6 +101,8 @@ class MonthlyRevenueDataSource extends DataGridSource {
       final val = switch (summaryColumn.columnName) {
         "orderApprovedAmount" => summary!.totalOrderApproved,
         "productionAmount" => summary!.totalProduction,
+        "totalBeforeVat" => summary!.totalBeforeVat,
+        "totalVat" => summary!.totalVat,
         "salesAmount" => summary!.totalSales,
         "returnAmount" => summary!.totalReturn,
         _ => 0,

@@ -2,7 +2,7 @@
 
 import "package:flutter/material.dart";
 import "package:diacritic/diacritic.dart";
-import "package:dongtam/presentation/components/shared/base_validate_input.dart";
+import "package:dongtam/presentation/components/shared/other/base_validate_input.dart";
 
 class ValidationHelper {
   //----------------------------HELPER INPUT-----------------------------------

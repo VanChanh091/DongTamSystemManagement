@@ -38,11 +38,6 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
       for (int i = 0; i < widget.pages.length; i++) widget.pages[i].runtimeType: i,
     };
 
-    // Lấy role và permissions để kiểm tra quyền hiển thị sidebar
-    final userRole = userController.role.value;
-    final userPermissions = userController.permissions.toList();
-    final userDepartment = userController.department.value;
-
     return Obx(() {
       final selectedIndex = sidebarController.selectedIndex.value;
       String activeKey = sidebarController.activeMenuKey.value;
@@ -83,19 +78,29 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
       if (!keyMatchesCurrentIndex) {
         String? fallbackKey;
         for (var item in widget.menuConfigs) {
-          if (item is LeafMenuConfig && item.getIndex(pageTypeToIndex) == selectedIndex) {
+          if (item is LeafMenuConfig &&
+              item.isVisible(pageTypeMap: pageTypeToIndex, userController: userController) &&
+              item.getIndex(pageTypeToIndex) == selectedIndex) {
             fallbackKey = item.label;
             break;
           }
-          if (item is DepartmentMenuConfig) {
+          if (item is DepartmentMenuConfig &&
+              item.isVisible(pageTypeMap: pageTypeToIndex, userController: userController)) {
             for (var child in item.children) {
-              if (child is LeafMenuConfig && child.getIndex(pageTypeToIndex) == selectedIndex) {
+              if (child is LeafMenuConfig &&
+                  child.isVisible(pageTypeMap: pageTypeToIndex, userController: userController) &&
+                  child.getIndex(pageTypeToIndex) == selectedIndex) {
                 fallbackKey = "${item.label} > ${child.label}";
                 break;
               }
-              if (child is GroupMenuConfig) {
+              if (child is GroupMenuConfig &&
+                  child.isVisible(pageTypeMap: pageTypeToIndex, userController: userController)) {
                 for (var leaf in child.items) {
-                  if (leaf.getIndex(pageTypeToIndex) == selectedIndex) {
+                  if (leaf.isVisible(
+                        pageTypeMap: pageTypeToIndex,
+                        userController: userController,
+                      ) &&
+                      leaf.getIndex(pageTypeToIndex) == selectedIndex) {
                     fallbackKey = "${item.label} > ${child.label} > ${leaf.label}";
                     break;
                   }
@@ -122,7 +127,8 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
           // Nếu là Menu độc lập cấp 1 (Dashboard, Đổi màu theme)
           if (item is LeafMenuConfig) {
-            if (item.onTap == null && !item.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions, userDepartment: userDepartment)) {
+            if (item.onTap == null &&
+                !item.isVisible(pageTypeMap: pageTypeToIndex, userController: userController)) {
               return const SizedBox.shrink();
             }
 
@@ -142,13 +148,18 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
           // Nếu là Menu Phòng ban cấp 1
           if (item is DepartmentMenuConfig) {
-            if (!item.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions, userDepartment: userDepartment)) return const SizedBox.shrink();
+            if (!item.isVisible(pageTypeMap: pageTypeToIndex, userController: userController)) {
+              return const SizedBox.shrink();
+            }
 
             final isDeptActive = activeKey.startsWith("${item.label} > ");
             final deptKey = "dept_${item.label}";
 
             final isDeptExpanded = sidebarController.isExpanded(deptKey);
-            final deptBadge = item.getBadgeValue();
+            final deptBadge = item.getBadgeValue(
+              pageTypeMap: pageTypeToIndex,
+              userController: userController,
+            );
 
             const double deptIconSize = 24.0;
             const double deptFontSize = 17.0;
@@ -223,7 +234,12 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                   if (widget.isSidebarOpen && isDeptExpanded)
                     ...item.children.map<Widget>((child) {
                       if (child is GroupMenuConfig) {
-                        if (!child.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions, userDepartment: userDepartment)) return const SizedBox.shrink();
+                        if (!child.isVisible(
+                          pageTypeMap: pageTypeToIndex,
+                          userController: userController,
+                        )) {
+                          return const SizedBox.shrink();
+                        }
 
                         final groupKey = "group_${item.label}_${child.label}";
                         final isGroupExpanded = sidebarController.isExpanded(groupKey);
@@ -231,7 +247,10 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                         final isGroupActive = activeKey.startsWith(
                           "${item.label} > ${child.label} > ",
                         );
-                        final groupBadge = child.getBadgeValue();
+                        final groupBadge = child.getBadgeValue(
+                          pageTypeMap: pageTypeToIndex,
+                          userController: userController,
+                        );
 
                         const double groupIconSize = 21.0;
                         const double groupFontSize = 16.0;
@@ -300,7 +319,10 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
                             ),
                             if (isGroupExpanded)
                               ...child.items.map<Widget>((leaf) {
-                                if (!leaf.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions, userDepartment: userDepartment)) {
+                                if (!leaf.isVisible(
+                                  pageTypeMap: pageTypeToIndex,
+                                  userController: userController,
+                                )) {
                                   return const SizedBox.shrink();
                                 }
 
@@ -324,7 +346,13 @@ class _SidebarThreeLevelState extends State<SidebarThreeLevel> {
 
                       // Xử lý Cấp 2 dạng Leaf trực thuộc Phòng ban
                       if (child is LeafMenuConfig) {
-                        if (!child.isVisible(pageTypeToIndex, userRole: userRole, userPermissions: userPermissions, userDepartment: userDepartment)) return const SizedBox.shrink();
+                        if (!child.isVisible(
+                          pageTypeMap: pageTypeToIndex,
+                          userController: userController,
+                        )) {
+                          return const SizedBox.shrink();
+                        }
+
                         final leafKey = "${item.label} > ${child.label}";
 
                         return _buildLeafNode(

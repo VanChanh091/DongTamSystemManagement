@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import "package:dongtam/data/controller/badges_controller.dart";
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
@@ -8,18 +6,18 @@ import "package:dongtam/data/models/planning/planning_stages.dart";
 import "package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_estimate.dart";
 import "package:dongtam/presentation/components/headerTable/planning/header_table_stages.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/delivery/delivery_estimate_data_source.dart";
 import "package:dongtam/presentation/components/sources/planning/stages_data_source.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/service/delivery_service.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";

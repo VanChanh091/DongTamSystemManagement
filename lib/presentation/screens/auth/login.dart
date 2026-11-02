@@ -4,6 +4,7 @@ import 'package:dongtam/presentation/screens/auth/forgot_password.dart';
 import 'package:dongtam/presentation/screens/auth/sign_up.dart';
 import 'package:dongtam/presentation/screens/main/home.dart';
 import 'package:dongtam/service/auth_service.dart';
+import 'package:dongtam/utils/extension/extension_helper.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/hint_user_name.dart';
 import 'package:dongtam/utils/validation/validators.dart';
@@ -54,8 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void login() async {
     bool success = await authService.login(
-      email: emailController.text,
-      password: passwordController.text,
+      email: emailController.trimmed,
+      password: passwordController.trimmed,
     );
 
     if (success) {

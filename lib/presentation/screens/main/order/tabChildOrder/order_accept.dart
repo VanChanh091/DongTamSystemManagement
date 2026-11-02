@@ -3,12 +3,12 @@ import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/presentation/components/dialog/notification/dialog_order_notification.dart";
 import "package:dongtam/presentation/components/headerTable/other/header_table_order.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/other/order_data_source.dart";
 import "package:dongtam/service/order_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -58,6 +58,7 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
 
   //flag
   late bool isManager;
+  late bool isSale;
   bool isTextFieldEnabled = false;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isSeenOrder = false;
@@ -65,9 +66,10 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   @override
   void initState() {
     super.initState();
-    loadOrders(ownOnly: isSeenOrder);
 
-    isManager = userController.hasAnyRole(roles: ["manager", "admin"]);
+    isManager = userController.canAccess(roles: ["manager", "admin"]);
+    isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
+    loadOrders(ownOnly: isSeenOrder);
 
     columns = buildOrderColumns(themeController: themeController, userController: userController);
     ColumnWidthTable.loadWidths(tableKey: "order", columns: columns).then((w) {
@@ -297,24 +299,27 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               //send request
-                              AnimatedButton(
-                                onPressed:
-                                    hasSelection
-                                        ? () {
-                                          showDialog(
-                                            context: context,
-                                            builder:
-                                                (_) => DialogOrderNotification(
-                                                  orderId: selectedOrderId,
-                                                  onLoading: () => loadOrders(ownOnly: isSeenOrder),
-                                                ),
-                                          );
-                                        }
-                                        : null,
-                                label: "Gửi Yêu Cầu",
-                                icon: Icons.send,
-                                backgroundColor: themeController.buttonColor,
-                              ),
+                              isSale
+                                  ? AnimatedButton(
+                                    onPressed:
+                                        hasSelection
+                                            ? () {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (_) => DialogOrderNotification(
+                                                      orderId: selectedOrderId,
+                                                      onLoading:
+                                                          () => loadOrders(ownOnly: isSeenOrder),
+                                                    ),
+                                              );
+                                            }
+                                            : null,
+                                    label: "Gửi Yêu Cầu",
+                                    icon: Icons.send,
+                                    backgroundColor: themeController.buttonColor,
+                                  )
+                                  : const SizedBox.shrink(),
                               const SizedBox(width: 4),
                             ],
                           );

@@ -1,6 +1,6 @@
 import "dart:io";
 
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/product_service.dart";
 import "package:dongtam/utils/logger/app_logger.dart";

@@ -46,6 +46,7 @@ import "package:dongtam/presentation/screens/main/warehouse/inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/liquidation_inventory.dart";
 import "package:dongtam/presentation/screens/main/warehouse/outbound_history.dart";
 import "package:dongtam/utils/helper/home/leaf_menu_config.dart";
+import "package:dongtam/utils/helper/home/page_rule.dart";
 import "package:flutter/material.dart";
 import "package:get/get.dart";
 import "package:material_symbols_icons/symbols.dart";
@@ -61,7 +62,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
       icon: Icons.notifications,
       label: "Thông Báo",
       pageType: Container,
-      showBadge: true,
       badge: notifController.unreadCount,
       onTap: () {
         notifController.fetchOldNotifications();
@@ -97,12 +97,13 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.analytics,
               label: "Thống Kê Doanh Số",
               pageType: TopTabSyntheticRevenue,
+              rule: const PageRule(roles: ["admin", "manager"]),
             ),
             LeafMenuConfig(
               icon: Symbols.precision_manufacturing,
               label: "Thống Kê Sản Xuất",
               pageType: SyntheticProductionReport,
-              requiredRoles: ["admin", "manager"],
+              rule: const PageRule(roles: ["admin", "manager"]),
             ),
           ],
         ),
@@ -146,48 +147,37 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
 
     // PHÒNG BAN: KẾ TOÁN
     DepartmentMenuConfig(
-      icon: Icons.account_balance_wallet,
       label: "Kế Toán",
+      icon: Icons.account_balance_wallet,
+      rule: const PageRule(departments: ["Accountant"], requireDept: true),
       children: [
-        LeafMenuConfig(
-          icon: Symbols.lab_profile,
-          label: "Xuất Kho",
-          pageType: OutboundHistory,
-          requiredPermissions: ["accountant"],
-        ),
-        LeafMenuConfig(
-          icon: Symbols.garage_home,
-          label: "Kho Thành Phẩm",
-          pageType: Inventory,
-          requiredPermissions: ["accountant"],
-        ),
+        LeafMenuConfig(icon: Symbols.lab_profile, label: "Xuất Kho", pageType: OutboundHistory),
+        LeafMenuConfig(icon: Symbols.garage_home, label: "Kho Thành Phẩm", pageType: Inventory),
         LeafMenuConfig(
           icon: Symbols.account_balance_wallet,
           label: "Công Nợ Khách Hàng",
           pageType: DebtCustomerSummary,
-          requiredPermissions: ["accountant"],
         ),
         LeafMenuConfig(
           icon: Icons.payment_outlined,
           label: "Thanh Toán Công Nợ",
           pageType: DebtDeductionRequest,
-          showBadge: true,
           badge: badges.numberDebtDeduction,
-          requiredPermissions: ["accountant"],
+          rule: const PageRule(roles: ["admin", "manager"]),
         ),
       ],
     ),
 
     // PHÒNG BAN: KINH DOANH
     DepartmentMenuConfig(
-      icon: Icons.business,
       label: "Kinh Doanh",
+      icon: Icons.business,
+      rule: const PageRule(departments: ["Sale"], requireDept: true),
       children: [
         LeafMenuConfig(
           icon: Icons.gavel,
           label: "Duyệt Đơn",
           pageType: AdminOrder,
-          showBadge: true,
           badge: badges.numberPendingApproval,
         ),
         LeafMenuConfig(icon: Icons.assignment_turned_in, label: "Đơn Hàng", pageType: TopTabOrder),
@@ -197,7 +187,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Icons.payment_outlined,
           label: "Thanh Toán Công Nợ",
           pageType: DebtDeductionRequest,
-          showBadge: true,
           badge: badges.numberDebtDeduction,
         ),
 
@@ -209,15 +198,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.pending_actions,
               label: "Đăng Ký Giao Hàng",
               pageType: DeliveryEstimateTime,
-              requiredPermissions: ["sale"],
             ),
             LeafMenuConfig(
               icon: Symbols.calendar_add_on,
               label: "Xếp Xe Giao Hàng",
               pageType: DeliveryPlanning,
-              showBadge: true,
               badge: badges.numberDeliveryRequest,
-              requiredPermissions: ["sale"],
             ),
           ],
         ),
@@ -230,13 +216,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.account_balance_wallet,
               label: "Công Nợ Khách Hàng",
               pageType: DebtCustomerSummary,
-              requiredPermissions: ["sale"],
             ),
             LeafMenuConfig(
               icon: Symbols.analytics,
               label: "Báo Cáo Doanh Số",
               pageType: TopTabBusinessRevenue,
-              requiredPermissions: ["sale"],
             ),
           ],
         ),
@@ -256,7 +240,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Icons.outbox_rounded,
               label: "Chờ Lên Kế Hoạch",
               pageType: WaitingForPlanning,
-              showBadge: true,
               badge: badges.numberOrderPendingPlanning,
             ),
             LeafMenuConfig(
@@ -273,15 +256,14 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.pending_actions,
               label: "Đăng Ký Giao Hàng",
               pageType: DeliveryEstimateTime,
-              requiredPermissions: ["plan"],
+              rule: const PageRule(departments: ["Operation"], requireDept: true),
             ),
             LeafMenuConfig(
               icon: Symbols.calendar_add_on,
               label: "Xếp Xe Giao Hàng",
               pageType: DeliveryPlanning,
-              showBadge: true,
               badge: badges.numberDeliveryRequest,
-              requiredPermissions: ["plan"],
+              rule: const PageRule(departments: ["Operation"], requireDept: true),
             ),
           ],
         ),
@@ -290,7 +272,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Icons.queue,
           label: "Hàng Chờ Xử Lý",
           pageType: PlanningStop,
-          showBadge: true,
           badge: badges.numberPlanningStop,
         ),
         LeafMenuConfig(
@@ -302,7 +283,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Icons.list_alt,
           label: "Tổng Hợp Đơn Hàng",
           pageType: SyntheticOrder,
-          requiredPermissions: ["plan"],
+          rule: const PageRule(departments: ["Operation"], requireDept: true),
         ),
       ],
     ),
@@ -327,7 +308,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Symbols.precision_manufacturing,
           label: "Thống Kê Sản Xuất",
           pageType: SyntheticProductionReport,
-          requiresDepartment: ["Production"],
+          rule: const PageRule(departments: ["Production"], requireDept: true),
         ),
       ],
     ),
@@ -345,21 +326,18 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Icons.article,
               label: "Giấy Tấm",
               pageType: WaitingCheckPaper,
-              showBadge: true,
               badge: badges.numberPaperWaiting,
             ),
             LeafMenuConfig(
               icon: Symbols.package_2,
               label: "Thùng và In Ấn",
               pageType: WaitingCheckBox,
-              showBadge: true,
               badge: badges.numberBoxWaiting,
             ),
             LeafMenuConfig(
               icon: Symbols.delete_sweep,
               label: "Phế Liệu",
               pageType: WaitingCheckScrapReport,
-              showBadge: true,
               badge: badges.numberScrapWaiting,
             ),
           ],
@@ -368,7 +346,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Symbols.engineering,
           label: "Tiến Trình Sản Xuất",
           pageType: TopTabInspectionCheck,
-          showBadge: true,
           badge: badges.numberScrapWaiting,
         ),
       ],
@@ -400,9 +377,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.calendar_add_on,
               label: "Xếp Xe Giao Hàng",
               pageType: DeliveryPlanning,
-              showBadge: true,
               badge: badges.numberDeliveryRequest,
-              requiredPermissions: ["delivery"],
             ),
             LeafMenuConfig(
               icon: Symbols.schedule,
@@ -413,7 +388,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.local_shipping,
               label: "Lệnh Xuất Hàng",
               pageType: DeliveryPrepareGoods,
-              showBadge: true,
               badge: badges.numberPrepareGoods,
             ),
           ],
@@ -435,31 +409,23 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Icons.gif_box,
               label: "Máy Sóng và Phế Liệu",
               pageType: TopTabAdminPaper,
-              requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Icons.gif_box,
               label: "In Ấn và Phế Liệu",
               pageType: TopTabAdminBox,
-              requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Symbols.directions_car,
               label: "Xe Giao Hàng",
               pageType: AdminVehicle,
-              requiredRoles: ["admin", "manager"],
             ),
-            LeafMenuConfig(
-              icon: Icons.people,
-              label: "Người Dùng",
-              pageType: AdminMangeUser,
-              requiredRoles: ["admin"],
-            ),
+            LeafMenuConfig(icon: Icons.people, label: "Người Dùng", pageType: AdminMangeUser),
             LeafMenuConfig(
               icon: Symbols.account_balance_wallet,
               label: "Công Nợ Khách Hàng",
               pageType: DebtCustomerSummary,
-              requiredRoles: ["admin"],
+              rule: const PageRule(roles: ["admin"]),
             ),
           ],
         ),
@@ -473,7 +439,6 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.analytics,
               label: "Thống Kê Doanh Số",
               pageType: TopTabAdminRevenue,
-              requiredRoles: ["admin"],
             ),
             LeafMenuConfig(
               icon: Symbols.engineering,
@@ -484,7 +449,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.precision_manufacturing,
               label: "Thống Kê Sản Xuất",
               pageType: SyntheticProductionReport,
-              requiredRoles: ["admin", "manager"],
+              rule: const PageRule(roles: ["admin"]),
             ),
           ],
         ),
@@ -498,13 +463,12 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
               icon: Symbols.category,
               label: "Phân Loại Giấy",
               pageType: TopTabAdminPaperType,
-              requiredRoles: ["admin"],
+              rule: const PageRule(roles: ["admin"]),
             ),
             LeafMenuConfig(
               icon: Symbols.category,
               label: "Phân Loại Mã Giấy",
               pageType: TopTabAdminPaperCode,
-              requiredRoles: ["admin"],
             ),
           ],
         ),
@@ -512,17 +476,11 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           icon: Icons.rule_folder,
           label: "Tiêu Chí Kiểm Tra",
           items: [
-            LeafMenuConfig(
-              icon: Icons.rule,
-              label: "Kiểm Tra Thành Phẩm",
-              pageType: AdminCriteria,
-              requiredRoles: ["admin"],
-            ),
+            LeafMenuConfig(icon: Icons.rule, label: "Kiểm Tra Thành Phẩm", pageType: AdminCriteria),
             LeafMenuConfig(
               icon: Icons.rule,
               label: "Tiến Trình Sản Xuất",
               pageType: TopTabCriteriaCheck,
-              requiredRoles: ["admin"],
             ),
           ],
         ),

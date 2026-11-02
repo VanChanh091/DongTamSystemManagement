@@ -7,6 +7,7 @@ import "package:dongtam/presentation/screens/main/synthetic/report/errorProducti
 import "package:dongtam/presentation/screens/main/synthetic/report/sales/top_tab_synthetic_revenue.dart";
 import "package:dongtam/presentation/screens/main/synthetic/report/production/synthetic_production_report.dart";
 import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/utils/helper/home/page_rule.dart";
 import "package:get/get.dart";
 import "package:flutter/material.dart";
 import "package:google_fonts/google_fonts.dart";
@@ -96,7 +97,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    isQC = userController.hasAnyPermission(permission: ["QC"]);
+    isQC = userController.hasPermission(permission: "QC");
 
     _pages = _initPages();
     _cachedMenuConfigs = getSidebarConfigs(badgesController, () => showThemeColorDialog(context));
@@ -106,102 +107,133 @@ class _HomePageState extends State<HomePage> {
   List<Widget> _initPages() {
     return [
       //dashboard
-      DashboardPage(),
+      const DashboardPage(),
 
-      _buildPage(permissions: ["sale"], child: TopTabBusinessRevenue()),
-      _buildPage(permissions: ["sale"], child: TopTabOrder()),
-      _buildPage(permissions: ["sale"], child: CustomerPage()),
-      _buildPage(permissions: ["sale"], child: ProductPage()),
+      //sale
+      ..._buildPage(
+        rule: PageRule.sale,
+        child: const [TopTabOrder(), CustomerPage(), ProductPage()],
+      ),
 
       //Employee
-      _buildPage(permissions: ["HR"], child: Employee()),
+      ..._buildPage(rule: PageRule.hr, child: const [Employee()]),
 
-      // planning
-      _buildPage(permissions: ["plan"], child: WaitingForPlanning()),
-      _buildPage(permissions: ["plan"], child: ProductionQueuePaper()),
-      _buildPage(permissions: ["plan"], child: ProductionQueueBox()),
-      _buildPage(permissions: ["plan"], child: PlanningStop()),
+      //Operation
+      ..._buildPage(rule: PageRule.plan, child: const [WaitingForPlanning(), PlanningStop()]),
+      ..._buildPage(
+        rule: const PageRule(departments: ["Operation"], managerDept: ["Sale"], requireDept: true),
+        child: const [ProductionQueuePaper(), ProductionQueueBox()],
+      ),
+      ..._buildPage(
+        rule: const PageRule(departments: ["Operation"], requireDept: true),
+        child: const [PaperRequirements()],
+      ),
 
-      //requirement
-      _buildPage(permissions: ["plan"], child: PaperRequirements()),
-
-      // manufacture
-      PaperProduction(),
-      BoxPrintingProduction(),
-      _buildPage(
-        permissions: ["machine1350", "machine1900", "machine2Layer", "MachineRollPaper"],
-        child: ScrapReportPaper(),
+      //Production
+      const PaperProduction(),
+      const BoxPrintingProduction(),
+      ..._buildPage(
+        rule: const PageRule(departments: ["Production"], requireDept: true),
+        child: const [ScrapReportPaper()],
       ),
 
       //waiting check
-      _buildPage(permissions: ["QC"], child: WaitingCheckPaper()),
-      _buildPage(permissions: ["QC"], child: WaitingCheckBox()),
-      _buildPage(permissions: ["QC"], child: WaitingCheckScrapReport()),
-      _buildPage(permissions: ["QC"], child: TopTabInspectionCheck()),
+      ..._buildPage(
+        rule: PageRule.qc,
+        child: const [
+          WaitingCheckPaper(),
+          WaitingCheckBox(),
+          WaitingCheckScrapReport(),
+          TopTabInspectionCheck(),
+        ],
+      ),
 
       //outbound
-      _buildPage(permissions: ["delivery", "accountant", "sale"], child: OutboundHistory()),
-      Inventory(),
-      LiquidationInventory(),
+      ..._buildPage(
+        rule: const PageRule(
+          departments: ["Accountant"],
+          permissions: ["delivery", "accountant", "sale", "plan"],
+          requireDept: false,
+        ),
+        child: const [OutboundHistory()],
+      ),
+      const Inventory(),
+      const LiquidationInventory(),
 
       //debt closing & payment
-      _buildPage(permissions: ["accountant", "sale"], child: DebtCustomerSummary()),
-      _buildPage(permissions: ["sale", "accountant"], child: DebtDeductionRequest()),
+      ..._buildPage(
+        rule: PageRule.mixedAccountantSale,
+        child: const [DebtCustomerSummary(), DebtDeductionRequest(), ReportDebtDeduction()],
+      ),
 
       //delivery
-      _buildPage(permissions: ["plan", "sale"], child: DeliveryEstimateTime()),
-      DeliveryPlanning(),
-      DeliverySchedule(),
-      _buildPage(permissions: ["delivery", "accountant"], child: DeliveryPrepareGoods()),
+      ..._buildPage(
+        rule: const PageRule(
+          departments: ["Operation", "Sale"],
+          permissions: ["plan", "sale"],
+          requireDept: true,
+        ),
+        child: const [DeliveryEstimateTime()],
+      ),
+      ..._buildPage(
+        rule: const PageRule(
+          departments: ["Operation", "Sale", "Delivery"],
+          permissions: ["plan", "sale", "delivery"],
+          requireDept: true,
+        ),
+        child: const [DeliveryPlanning()],
+      ),
+      const DeliverySchedule(),
+      ..._buildPage(
+        rule: const PageRule(departments: ["Delivery", "Accountant"], requireDept: true),
+        child: const [DeliveryPrepareGoods()],
+      ),
 
       //reporting hitstory
-      TopTabHistoryReport(),
-      ReportInboundHistory(),
-      TopTabInspectionReport(),
-      ReportDebtDeduction(),
+      const TopTabHistoryReport(),
+      const ReportInboundHistory(),
+      const TopTabInspectionReport(),
 
       //synthetic
-      SyntheticPlanning(),
-      TopTabAdminPaperType(),
-      _buildPage(permissions: ["sale", "accountant", "plan"], child: SyntheticOrder()),
-      TopTabSyntheticRevenue(),
+      const SyntheticPlanning(),
+      const TopTabAdminPaperType(),
+      const SyntheticOrder(),
+      const TopTabSyntheticRevenue(),
+      const SyntheticProductionReport(),
 
       // admin
-      _buildPage(roles: ["admin", "manager"], child: AdminOrder()),
-      _buildPage(roles: ["admin"], child: TopTabAdminPaper()),
-      _buildPage(roles: ["admin"], child: TopTabAdminBox()),
-      _buildPage(roles: ["admin", "manager"], child: AdminVehicle()),
-      _buildPage(roles: ["admin"], child: AdminCriteria()),
-      _buildPage(roles: ["admin"], child: TopTabCriteriaCheck()),
-      _buildPage(roles: ["admin"], child: AdminMangeUser()),
-
-      //paper code
-      _buildPage(roles: ["admin"], child: TopTabAdminPaperType()),
-      _buildPage(roles: ["admin"], child: TopTabAdminPaperCode()),
-
-      //statistics
-      _buildPage(roles: ["admin"], child: TopTabAdminRevenue()),
-      _buildPage(roles: ["admin"], child: TopTabAdminErrProduction()),
-      _buildPage(roles: ["admin", "manager"], child: const SyntheticProductionReport()),
+      ..._buildPage(
+        rule: const PageRule(departments: ["Sale"], roles: ["admin", "manager"], requireDept: true),
+        child: const [AdminOrder(), TopTabBusinessRevenue()],
+      ),
+      ..._buildPage(
+        rule: PageRule.admin,
+        child: const [
+          TopTabAdminPaper(),
+          TopTabAdminBox(),
+          AdminVehicle(),
+          AdminCriteria(),
+          TopTabCriteriaCheck(),
+          AdminMangeUser(),
+          TopTabAdminPaperType(),
+          TopTabAdminPaperCode(),
+          TopTabAdminRevenue(),
+          TopTabAdminErrProduction(),
+        ],
+      ),
     ].whereType<Widget>().toList(); // lọc bỏ null
   }
 
-  Widget? _buildPage({List<String>? permissions, List<String>? roles, Widget? child}) {
-    final role = userController.role.value;
+  List<Widget> _buildPage({required PageRule rule, required List<Widget> child}) {
+    final canAccess = userController.canAccess(
+      departments: rule.departments,
+      managerDept: rule.managerDept,
+      permissions: rule.permissions,
+      roles: rule.roles,
+      requireDept: rule.requireDept,
+    );
 
-    if (roles != null && roles.isNotEmpty && !roles.contains(role)) {
-      return null;
-    } else {
-      if (role == "admin" || role == "manager") return child;
-    }
-
-    if (permissions != null && permissions.isNotEmpty) {
-      if (!userController.hasAnyPermission(permission: permissions)) {
-        return null;
-      }
-    }
-
-    return child;
+    return canAccess ? child : const [];
   }
 
   //sidebar

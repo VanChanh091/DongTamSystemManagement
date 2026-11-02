@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 

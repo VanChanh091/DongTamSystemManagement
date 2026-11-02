@@ -7,15 +7,15 @@ import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
 import "package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_schedule.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/delivery/delivery_schedule_data_source.dart";
 import "package:dongtam/service/delivery_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/socket/socket_service.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/socket/init_socket_delivery_schedule.dart";
@@ -82,9 +82,9 @@ class _DeliveryScheduleState extends State<DeliverySchedule> {
 
     // check role and permission
     isAdmin = userController.hasAnyRole(roles: ["admin"]);
-    isPlan = userController.hasAnyPermission(permission: ["plan"]);
-    isDelivery = userController.hasAnyPermission(permission: ["delivery", "plan"]);
-    canOutbound = userController.hasAnyPermission(permission: ["plan", "delivery", "accountant"]);
+    isPlan = userController.hasAnyPermission(permissions: ["plan"]);
+    isDelivery = userController.hasAnyPermission(permissions: ["delivery", "plan"]);
+    canOutbound = userController.hasAnyPermission(permissions: ["plan", "delivery", "accountant"]);
 
     final now = DateTime.now();
     dayStartController.text =

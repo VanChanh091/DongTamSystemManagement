@@ -1,4 +1,4 @@
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";

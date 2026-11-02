@@ -1,6 +1,6 @@
 import "dart:io";
 
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/logger/app_logger.dart";

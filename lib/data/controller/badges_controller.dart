@@ -85,23 +85,29 @@ class BadgesController extends GetxController {
     final List<Future<void>> tasks = [];
 
     // badge cho duyệt đơn
-    if (_userController.hasAnyRole(roles: ["admin", "manager"])) {
+    if (_userController.canAccess(departments: ["Sale"], roles: ["manager"], requireDept: true)) {
       tasks.add(fetchPendingApprovals());
     } else {
       numberPendingApproval.value = 0;
     }
 
     // badge cho đơn dừng sản xuất và chờ lên kế hoạch
-    if (_userController.hasPermission(permission: "plan")) {
+    if (_userController.canAccess(
+      departments: ["Operation"],
+      permissions: ["plan"],
+      requireDept: true,
+    )) {
       tasks.add(fetchPlanningStop());
       tasks.add(fetchOrderPendingPlanning());
+      tasks.add(fetchDeliveryRequest());
     } else {
       numberPlanningStop.value = 0;
       numberOrderPendingPlanning.value = 0;
+      numberDeliveryRequest.value = 0;
     }
 
     // badge cho giấy tấm và thùng chờ kiểm
-    if (_userController.hasPermission(permission: "QC")) {
+    if (_userController.canAccess(departments: ["QC"], requireDept: true)) {
       tasks.add(fetchPaperWaitingCheck());
       tasks.add(fetchBoxWaitingCheck());
       tasks.add(fetchScrapReportWaitingCheck());
@@ -111,22 +117,23 @@ class BadgesController extends GetxController {
       numberScrapWaiting.value = 0;
     }
 
-    //badge cho đơn chờ giao hàng
-    if (_userController.hasPermission(permission: "plan")) {
-      tasks.add(fetchDeliveryRequest());
-    } else {
-      numberDeliveryRequest.value = 0;
-    }
-
     //badge cho chuẩn bị hàng
-    if (_userController.hasPermission(permission: "delivery")) {
+    if (_userController.canAccess(
+      departments: ["Delivery"],
+      permissions: ["delivery"],
+      requireDept: true,
+    )) {
       tasks.add(fetchPrepareGoods());
     } else {
       numberPrepareGoods.value = 0;
     }
 
-    // badge cho cấn trừ công nợ (chỉ manager mới get badge này)
-    if (_userController.role.value == "manager") {
+    // badge cho cấn trừ công nợ
+    if (_userController.canAccess(
+      departments: ["Accountant"],
+      roles: ["manager"],
+      requireDept: true,
+    )) {
       tasks.add(fetchDebtDeduction());
     } else {
       numberDebtDeduction.value = 0;

@@ -5,11 +5,11 @@ import "package:dongtam/presentation/components/dialog/add/dialog_report_product
 import "package:dongtam/presentation/components/dialog/add/dialog_add_scrap_report.dart";
 import "package:dongtam/presentation/components/dialog/qc/dialog_inspection_check.dart";
 import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/presentation/components/shared/planning/machine_paper_color_legend.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/service/quality_control_service.dart";
 import "package:dongtam/utils/socket/init_socket_manufacture.dart";
@@ -18,7 +18,7 @@ import "package:dongtam/service/manufacture_service.dart";
 import "package:dongtam/socket/socket_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/utils/handleError/api_exception.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -277,7 +277,7 @@ class _PaperProductionState extends State<PaperProduction> {
   @override
   Widget build(BuildContext context) {
     bool permissionCheck = userController.hasAnyPermission(
-      permission: [
+      permissions: [
         "machine1350",
         "machine1800",
         "machine1900",

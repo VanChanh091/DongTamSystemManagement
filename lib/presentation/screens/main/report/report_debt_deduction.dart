@@ -4,9 +4,9 @@ import "package:dongtam/data/models/warehouse/debt_deduction_request_model.dart"
 import "package:dongtam/presentation/components/dialog/export/dialog_export_debt_deduction.dart";
 import "package:dongtam/presentation/components/headerTable/debt/header_table_debt_deduction.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/debt/debt_deduction_data_source.dart";
 import "package:dongtam/service/debt_service.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";

@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
 import 'package:dongtam/service/notification/notification_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';

@@ -1,6 +1,6 @@
 import 'package:dongtam/data/models/qualityControl/qcInspection/qc_error_summary_model.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/resizable_dialog.dart';
+import 'package:dongtam/presentation/components/shared/other/resizable_dialog.dart';
 import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/reponsive/reponsive_dialog.dart';

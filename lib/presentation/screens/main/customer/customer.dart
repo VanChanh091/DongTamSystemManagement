@@ -1,28 +1,28 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart';
-import 'package:dongtam/presentation/components/dialog/export/dialog_export_cus_or_prod.dart';
-import 'package:dongtam/presentation/components/headerTable/other/header_table_customer.dart';
-import 'package:dongtam/presentation/components/shared/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/slider_zoom.dart';
-import 'package:dongtam/presentation/components/sources/other/customer_data_source.dart';
-import 'package:dongtam/service/customer_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:dongtam/data/models/customer/customer_model.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/presentation/components/dialog/add/dialog_add_customer.dart";
+import "package:dongtam/presentation/components/dialog/export/dialog_export_cus_or_prod.dart";
+import "package:dongtam/presentation/components/headerTable/other/header_table_customer.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
+import "package:dongtam/presentation/components/sources/other/customer_data_source.dart";
+import "package:dongtam/service/customer_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:dongtam/data/models/customer/customer_model.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class CustomerPage extends StatefulWidget {
   const CustomerPage({super.key});
@@ -75,11 +75,11 @@ class _CustomerPageState extends State<CustomerPage> {
   void initState() {
     super.initState();
 
-    isSale = userController.hasPermission(permission: "sale");
+    isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
     loadCustomer();
 
     columns = buildCustomerColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'customer', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "customer", columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
     });
   }
@@ -286,7 +286,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       LeftButtonSearch(
                         selectedType: searchType,
                         types: const [
-                          'Tất cả',
+                          "Tất cả",
                           "Mã Khách Hàng",
                           "Tên Khách Hàng",
                           "Theo CSKH",
@@ -296,7 +296,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = searchType != 'Tất cả';
+                            isTextFieldEnabled = searchType != "Tất cả";
                             startDate = null;
                             endDate = null;
 
@@ -312,7 +312,7 @@ class _CustomerPageState extends State<CustomerPage> {
                         buttonColor: themeController.buttonColor,
                         onSearch: searchCustomer,
                         customInputBuilder: (inputWidth) {
-                          if (searchType != 'Ngày Tạo') return null;
+                          if (searchType != "Ngày Tạo") return null;
                           return SizedBox(
                             width: inputWidth,
                             height: 45,
@@ -424,7 +424,7 @@ class _CustomerPageState extends State<CustomerPage> {
         if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
         }
-        if (!snapshot.hasData || (snapshot.data!['customers'] as List).isEmpty) {
+        if (!snapshot.hasData || (snapshot.data!["customers"] as List).isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -437,9 +437,9 @@ class _CustomerPageState extends State<CustomerPage> {
         }
 
         final data = snapshot.data!;
-        final customers = data['customers'] as List<CustomerModel>;
-        final currentPg = data['currentPage'] as int;
-        final totalPgs = data['totalPages'] as int;
+        final customers = data["customers"] as List<CustomerModel>;
+        final currentPg = data["currentPage"] as int;
+        final totalPgs = data["totalPages"] as int;
 
         if (_cachedCustomers != customers || _cachedDatasource == null) {
           _cachedCustomers = customers;
@@ -502,7 +502,7 @@ class _CustomerPageState extends State<CustomerPage> {
                       onColumnResizeEnd:
                           (details) => GridResizeHelper.onResizeEnd(
                             details: details,
-                            tableKey: 'customer',
+                            tableKey: "customer",
                             columnWidths: columnWidths,
                             setState: setState,
                           ),
@@ -512,7 +512,7 @@ class _CustomerPageState extends State<CustomerPage> {
                           final customerId =
                               selectedRow
                                   .getCells()
-                                  .firstWhere((cell) => cell.columnName == 'customerId')
+                                  .firstWhere((cell) => cell.columnName == "customerId")
                                   .value
                                   .toString();
                           _selectedCustomerIdNotifier.value = customerId;
@@ -557,7 +557,7 @@ class _CustomerPageState extends State<CustomerPage> {
   Future<void> _handleEditCustomer(String customerId) async {
     try {
       final customersData = await futureCustomer;
-      final customerList = (customersData['customers'] as List? ?? []).cast<CustomerModel>();
+      final customerList = (customersData["customers"] as List? ?? []).cast<CustomerModel>();
       final selectedCustomer = customerList.firstWhere(
         (c) => c.customerId == customerId,
         orElse: () => throw Exception("Không tìm thấy khách hàng"),
@@ -572,7 +572,7 @@ class _CustomerPageState extends State<CustomerPage> {
     } catch (e, s) {
       AppLogger.e("Error in _handleEditCustomer: $e", stackTrace: s);
       if (mounted) {
-        showSnackBarError(context, 'Có lỗi xảy ra, vui lòng thử lại sau');
+        showSnackBarError(context, "Có lỗi xảy ra, vui lòng thử lại sau");
       }
     }
   }

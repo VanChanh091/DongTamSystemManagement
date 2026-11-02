@@ -10,7 +10,7 @@ List<GridColumn> buildProductionReportColumns({
   final List<Map<String, dynamic>> headers = [
     {"key": "index", "title": "STT"},
     {"key": "dimensionKey", "title": isMachine ? "Máy Sản Xuất" : "Thợ Vận Hành"},
-    {"key": "totalPaperTon", "title": "Tấn Giấy SD"},
+    {"key": "totalPaperTon", "title": "Số Tấn Giấy SD"},
     {"key": "totalLength", "title": "Số Mét Chạy"},
     {"key": "totalScrapKg", "title": "Số Kg Phế"},
     {"key": "scrapRate", "title": "% Phế Liệu"},

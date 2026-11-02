@@ -6,19 +6,19 @@ import "package:dongtam/data/models/warehouse/outbound/outbound_history_model.da
 import "package:dongtam/presentation/components/dialog/add/dialog_add_outbound.dart";
 import "package:dongtam/presentation/components/dialog/debt/dialog_outbound_allocation.dart";
 import "package:dongtam/presentation/components/dialog/export/dialog_export_outbound.dart";
-import "package:dongtam/presentation/components/shared/warehouse/button_preview_outbound_pdf.dart";
+import "package:dongtam/presentation/components/shared/other/button_preview_outbound_pdf.dart";
 import "package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_detail.dart";
 import "package:dongtam/presentation/components/headerTable/warehouse/outbound/header_table_ob_history.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/warehouse/outbound/ob_detail_data_source.dart";
 import "package:dongtam/presentation/components/sources/warehouse/outbound/ob_history_data_source.dart";
 import "package:dongtam/service/warehouse_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:dongtam/utils/helper/picker_date_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
@@ -88,7 +88,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   DateTime? endDate;
 
   //flag
-  late bool isAccountant;
+  late bool canEdit;
   bool isSearching = false; //dùng để phân trang cho tìm kiếm
   bool isTextFieldEnabled = false;
 
@@ -100,14 +100,14 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   bool get canViewAllocation =>
       userController.role.value == "admin" ||
       userController.role.value == "manager" ||
-      userController.hasAnyPermission(permission: ["accountant", "sale"]);
+      userController.hasAnyPermission(permissions: ["accountant", "sale"]);
 
   @override
   void initState() {
     super.initState();
     loadOutbound();
 
-    isAccountant = userController.hasPermission(permission: "accountant");
+    canEdit = userController.canAccess(departments: ["Accountant", "Delivery"], requireDept: true);
 
     columnsOutbound = buildOutboundHistoryColumn(
       themeController: themeController,
@@ -190,10 +190,17 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
   }
 
+  //using to edit outbound
   bool canExecuteAction({required int? outboundId, required OutboundHistoryModel selectOutbound}) {
     if (outboundId == null) return false;
 
-    if (userController.role.value == "admin" || userController.role.value == "manager") return true;
+    if (userController.canAccess(
+      departments: ["Accountant"],
+      roles: ["manager"],
+      requireDept: true,
+    )) {
+      return true;
+    }
 
     final dateOutbound = selectOutbound.dateOutbound;
 
@@ -392,7 +399,7 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                                   ),
                                   const SizedBox(width: 8),
 
-                                  isAccountant
+                                  canEdit
                                       ? Row(
                                         children: [
                                           //export excel

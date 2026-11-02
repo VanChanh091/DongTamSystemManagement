@@ -2,10 +2,10 @@ import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/inventory/header_liquidation_inv.dart';
-import 'package:dongtam/presentation/components/shared/pagination_controls.dart';
+import 'package:dongtam/presentation/components/shared/other/pagination_controls.dart';
 import 'package:dongtam/presentation/components/sources/warehouse/inventory/liquidation_inv_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/presentation/components/shared/grid_resize_helper.dart';
+import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
@@ -27,20 +27,11 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
 
-  // String searchType = "Tất cả";
-  // final Map<String, String> searchFieldMap = {
-  //   "Theo Mã Đơn": "orderId",
-  //   "Theo Tên KH": "customerName",
-  // };
-
   List<int> selectedLiquidationId = [];
   Map<String, double> columnWidths = {};
 
   // TextEditingController searchController = TextEditingController();
   final headerScrollController = ScrollController();
-
-  // bool isTextFieldEnabled = false;
-  // bool isSearching = false; //dùng để phân trang cho tìm kiếm
 
   int currentPage = 1;
   int pageSize = 35;

@@ -4,13 +4,13 @@ import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/order/order_model.dart";
 import "package:dongtam/presentation/components/dialog/add/dialog_add_orders.dart";
 import "package:dongtam/presentation/components/headerTable/other/header_table_order.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/other/order_data_source.dart";
 import "package:dongtam/service/order_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
 import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
@@ -51,6 +51,7 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
 
   //flag
   late bool isManager;
+  late bool isSale;
   bool isSeenOrder = false;
 
   @override
@@ -58,7 +59,8 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
     super.initState();
     loadOrders(ownOnly: isSeenOrder);
 
-    isManager = userController.hasAnyRole(roles: ["manager", "admin"]);
+    isManager = userController.canAccess(roles: ["manager", "admin"]);
+    isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
 
     columns = buildOrderColumns(themeController: themeController, userController: userController);
     ColumnWidthTable.loadWidths(tableKey: "order", columns: columns).then((w) {
@@ -235,68 +237,82 @@ class _OrderRejectAndPendingState extends State<OrderRejectAndPending> {
                                   : const SizedBox.shrink(),
                               const SizedBox(width: 10),
 
-                              //add
-                              AnimatedButton(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder:
-                                        (_) => OrderDialog(
-                                          order: null,
-                                          onOrderAddOrUpdate: (String newOrderId) {
-                                            loadOrders(ownOnly: isSeenOrder);
-                                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                                              Future.delayed(const Duration(milliseconds: 300), () {
-                                                _scrollToOrder(newOrderId);
-                                              });
-                                            });
-                                          },
-                                        ),
-                                  );
-                                },
-                                label: "Thêm mới",
-                                icon: Icons.add,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
-
-                              //update
-                              AnimatedButton(
-                                onPressed:
-                                    hasSelection ? () => _handleEditOrder(selectedOrderId!) : null,
-                                label: "Sửa",
-                                icon: Symbols.construction,
-                                backgroundColor: themeController.buttonColor,
-                              ),
-                              const SizedBox(width: 10),
-
-                              //delete
-                              AnimatedButton(
-                                onPressed:
-                                    hasSelection
-                                        ? () async {
-                                          await showDeleteConfirmHelper(
+                              isSale
+                                  ? Row(
+                                    children: [
+                                      //add
+                                      AnimatedButton(
+                                        onPressed: () {
+                                          showDialog(
                                             context: context,
-                                            title: "⚠️ Xác nhận xoá",
-                                            content: "Bạn có chắc chắn muốn xoá đơn hàng này?",
-                                            onDelete: () async {
-                                              await OrderService().deleteOrder(
-                                                orderId: selectedOrderId!,
-                                              );
-                                            },
-                                            onSuccess: () {
-                                              setState(() => selectedOrderId = null);
-                                              badgesController.fetchPendingApprovals();
-                                              loadOrders(ownOnly: isSeenOrder);
-                                            },
+                                            barrierDismissible: false,
+                                            builder:
+                                                (_) => OrderDialog(
+                                                  order: null,
+                                                  onOrderAddOrUpdate: (String newOrderId) {
+                                                    loadOrders(ownOnly: isSeenOrder);
+                                                    WidgetsBinding.instance.addPostFrameCallback((
+                                                      _,
+                                                    ) {
+                                                      Future.delayed(
+                                                        const Duration(milliseconds: 300),
+                                                        () {
+                                                          _scrollToOrder(newOrderId);
+                                                        },
+                                                      );
+                                                    });
+                                                  },
+                                                ),
                                           );
-                                        }
-                                        : null,
-                                label: "Xóa",
-                                icon: Icons.delete,
-                                backgroundColor: const Color(0xffEA4346),
-                              ),
+                                        },
+                                        label: "Thêm mới",
+                                        icon: Icons.add,
+                                        backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //update
+                                      AnimatedButton(
+                                        onPressed:
+                                            hasSelection
+                                                ? () => _handleEditOrder(selectedOrderId!)
+                                                : null,
+                                        label: "Sửa",
+                                        icon: Symbols.construction,
+                                        backgroundColor: themeController.buttonColor,
+                                      ),
+                                      const SizedBox(width: 10),
+
+                                      //delete
+                                      AnimatedButton(
+                                        onPressed:
+                                            hasSelection
+                                                ? () async {
+                                                  await showDeleteConfirmHelper(
+                                                    context: context,
+                                                    title: "⚠️ Xác nhận xoá",
+                                                    content:
+                                                        "Bạn có chắc chắn muốn xoá đơn hàng này?",
+                                                    onDelete: () async {
+                                                      await OrderService().deleteOrder(
+                                                        orderId: selectedOrderId!,
+                                                      );
+                                                    },
+                                                    onSuccess: () {
+                                                      setState(() => selectedOrderId = null);
+                                                      badgesController.fetchPendingApprovals();
+                                                      loadOrders(ownOnly: isSeenOrder);
+                                                    },
+                                                  );
+                                                }
+                                                : null,
+                                        label: "Xóa",
+                                        icon: Icons.delete,
+                                        backgroundColor: const Color(0xffEA4346),
+                                      ),
+                                    ],
+                                  )
+                                  : const SizedBox.shrink(),
                             ],
                           );
                         },

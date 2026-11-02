@@ -3,11 +3,11 @@ import "package:dongtam/presentation/components/dialog/date/dialog_picker_year.d
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/synthetic/reportRevenue/report_yearly_revenue_model.dart";
 import "package:dongtam/presentation/components/headerTable/synthetic/report/sales/header_table_yearly_revenue.dart";
-import "package:dongtam/presentation/components/shared/left_button_search.dart";
-import "package:dongtam/presentation/components/shared/grid_resize_helper.dart";
-import "package:dongtam/presentation/components/shared/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
-import "package:dongtam/presentation/components/shared/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/synthetic/report/sales/yearly_revenue_data_source.dart";
 import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/synthetic_service.dart";

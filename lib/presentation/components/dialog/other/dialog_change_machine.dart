@@ -1,5 +1,5 @@
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/utils/helper/reponsive/reponsive_dialog.dart";

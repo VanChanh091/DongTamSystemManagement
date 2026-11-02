@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';

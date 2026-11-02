@@ -1,4 +1,4 @@
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
 import 'package:flutter/material.dart';
 
 class YearRangeResult {
@@ -325,10 +325,7 @@ class _DialogPickerYearRangeState extends State<DialogPickerYearRange> {
       actions: buildDialogActions(
         context: context,
         onConfirm:
-            () => Navigator.pop(
-              context,
-              YearRangeResult(fromYear: _startYear, toYear: _endYear),
-            ),
+            () => Navigator.pop(context, YearRangeResult(fromYear: _startYear, toYear: _endYear)),
       ),
     );
   }

@@ -1,8 +1,10 @@
+// ignore_for_file: file_names
+
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/paperCode/supplier_model.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/dialog_shared.dart';
+import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
 import 'package:dongtam/service/admin/admin_paper_code_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/utils/helper/style_table.dart';

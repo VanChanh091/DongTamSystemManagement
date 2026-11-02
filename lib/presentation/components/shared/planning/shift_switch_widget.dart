@@ -1,5 +1,5 @@
 import "package:dongtam/data/models/qualityControl/qc_shift.dart";
-import "package:dongtam/presentation/components/shared/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:flutter/material.dart";
 
