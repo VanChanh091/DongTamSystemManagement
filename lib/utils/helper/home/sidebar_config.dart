@@ -190,6 +190,7 @@ List<SidebarItem> getSidebarConfigs(BadgesController badges, VoidCallback onChan
           badge: badges.numberDebtDeduction,
         ),
 
+        //delivery
         GroupMenuConfig(
           icon: Icons.local_shipping,
           label: "Giao Hàng",

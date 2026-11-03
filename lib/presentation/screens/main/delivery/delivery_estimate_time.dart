@@ -97,7 +97,7 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   void initState() {
     super.initState();
 
-    isPlan = userController.hasPermission(permission: "plan");
+    isPlan = userController.canAccess(permissions: ["plan"]);
 
     columnsPaper = buildDeliveryEstimateColumn(themeController: themeController);
     columnsStages = buildStageColumn(themeController: themeController);

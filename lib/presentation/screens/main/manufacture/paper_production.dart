@@ -99,9 +99,30 @@ class _PaperProductionState extends State<PaperProduction> {
   TextEditingController searchController = TextEditingController();
   final headerScrollController = ScrollController();
 
+  //flag
+  late bool isManager;
+  late bool permissionCheck;
+  late bool isPlanningUser;
+
   @override
   void initState() {
     super.initState();
+
+    isManager = userController.canAccess(roles: ["manager"]);
+    permissionCheck = userController.canAccess(
+      permissions: [
+        "machine1350",
+        "machine1800",
+        "machine1900",
+        "machine2Layer",
+        "MachineRollPaper",
+      ],
+    );
+    isPlanningUser = userController.canAccess(
+      departments: ["Operation"],
+      permissions: ["plan"],
+      requireDept: true,
+    );
 
     _initSocket = InitSocketManufacture(
       context: context,
@@ -115,7 +136,6 @@ class _PaperProductionState extends State<PaperProduction> {
         });
       },
     );
-
     _initSocket.registerSocket(machine);
 
     _loadRawMachine();
@@ -214,10 +234,11 @@ class _PaperProductionState extends State<PaperProduction> {
     if ((selectedPlanning.qtyProduced ?? 0) >= selectedPlanning.runningPlan) return false;
 
     // ❌ đứng sai máy
-    if (!userHasPermissionForMachine(
-      userController: userController,
-      machine: selectedPlanning.chooseMachine,
-    )) {
+    if (!isPlanningUser &&
+        !userHasPermissionForMachine(
+          userController: userController,
+          machine: selectedPlanning.chooseMachine,
+        )) {
       return false;
     }
 
@@ -276,16 +297,6 @@ class _PaperProductionState extends State<PaperProduction> {
 
   @override
   Widget build(BuildContext context) {
-    bool permissionCheck = userController.hasAnyPermission(
-      permissions: [
-        "machine1350",
-        "machine1800",
-        "machine1900",
-        "machine2Layer",
-        "MachineRollPaper",
-      ],
-    );
-
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
       body: Listener(
@@ -326,10 +337,7 @@ class _PaperProductionState extends State<PaperProduction> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // title & buttons
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    child: _buildHeaderBar(permissionCheck),
-                  ),
+                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
                   //table & pagination
                   Expanded(
@@ -370,7 +378,7 @@ class _PaperProductionState extends State<PaperProduction> {
     );
   }
 
-  Widget _buildHeaderBar(bool permissionCheck) {
+  Widget _buildHeaderBar() {
     return Column(
       children: [
         SizedBox(
@@ -409,9 +417,7 @@ class _PaperProductionState extends State<PaperProduction> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       //left button
-                      if (userController.role.value == "admin" ||
-                          userController.role.value == "manager" ||
-                          !permissionCheck)
+                      if (isManager || !permissionCheck)
                         LeftButtonSearch(
                           selectedType: searchType,
                           types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng", "Khổ Cấp Giấy"],
@@ -437,8 +443,10 @@ class _PaperProductionState extends State<PaperProduction> {
                       ValueListenableBuilder(
                         valueListenable: _selectedPlanningIdsNotifier,
                         builder: (context, selectedPlanningIds, _) {
+                          final bool canReportPermission = permissionCheck || isPlanningUser;
+
                           final bool isProduction =
-                              permissionCheck &&
+                              canReportPermission &&
                               canExecuteAction(
                                 selectedPlanningIds:
                                     _selectedPlanningIdsNotifier.value.map(int.parse).toList(),
@@ -482,6 +490,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                                     (_) => DialogReportProduction(
                                                       planningId: selectedPlanning.planningId,
                                                       runningPlan: selectedPlanning.runningPlan,
+                                                      isPlanning: isPlanningUser,
                                                       onReport: () => loadPlanning(),
                                                     ),
                                               );
@@ -668,6 +677,7 @@ class _PaperProductionState extends State<PaperProduction> {
                                             (_) => DialogReportProduction(
                                               planningId: selectedPlanning.planningId,
                                               initialData: existingData,
+                                              isPlanning: isPlanningUser,
                                               onReport: () => loadPlanning(),
                                             ),
                                       );

@@ -62,7 +62,7 @@ class _SyntheticMonthlyRevenueState extends State<SyntheticMonthlyRevenue> {
   @override
   void initState() {
     super.initState();
-    isManager = userController.hasAnyRole(roles: ["admin", "manager"]);
+    isManager = userController.canAccess(roles: ["manager"]);
 
     final now = DateTime.now();
     selectedMonth = now.month;

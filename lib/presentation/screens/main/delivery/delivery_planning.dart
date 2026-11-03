@@ -1,24 +1,24 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/unsaved_change_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/admin_vehicle_model.dart';
-import 'package:dongtam/data/models/delivery/delivery_request_model.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/other/left_button_search.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/service/admin/admin_service.dart';
-import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:material_symbols_icons/symbols.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/unsaved_change_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/admin/admin_vehicle_model.dart";
+import "package:dongtam/data/models/delivery/delivery_request_model.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/service/admin/admin_service.dart";
+import "package:dongtam/service/delivery_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:intl/intl.dart";
+import "package:material_symbols_icons/symbols.dart";
 
 class DeliveryTrip {
   final String sequence;
@@ -73,12 +73,12 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   @override
   void initState() {
     super.initState();
-    isPlan = userController.hasPermission(permission: "plan");
+    isPlan = userController.canAccess(permissions: ["plan"]);
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
 
     _initializeData();
@@ -150,7 +150,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
   Future<void> loadPlannedOrders() async {
     try {
-      final date = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
+      final date = DateFormat("dd/MM/yyyy").parse(dayStartController.text);
       final plan = await ensureMinLoading(
         DeliveryService().getDeliveryPlanDetail(deliveryDate: date),
       );
@@ -190,7 +190,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
   }
 
   String buildVehicleKey(String tripSeq, int vehicleId) {
-    return '${tripSeq}_$vehicleId';
+    return "${tripSeq}_$vehicleId";
   }
 
   double _calculateTotalVolume(String vehicleKey) {
@@ -203,7 +203,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     final today = DateTime(now.year, now.month, now.day);
 
     try {
-      final selectedDate = DateFormat('dd/MM/yyyy').parse(dayStartController.text);
+      final selectedDate = DateFormat("dd/MM/yyyy").parse(dayStartController.text);
       // Cho phép sửa nếu selectedDate >= today
       return !selectedDate.isBefore(today);
     } catch (e) {
@@ -249,11 +249,11 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       flex: 1,
                       child: LeftButtonSearch(
                         selectedType: searchType,
-                        types: const ['Tất cả', "Mã Đơn Hàng", "Tên Khách Hàng"],
+                        types: const ["Tất cả", "Mã Đơn Hàng", "Tên Khách Hàng"],
                         onTypeChanged: (value) {
                           setState(() {
                             searchType = value;
-                            isTextFieldEnabled = value != 'Tất cả';
+                            isTextFieldEnabled = value != "Tất cả";
 
                             if (searchType == "Tất cả" && searchController.text.isNotEmpty) {
                               searchController.clear();
@@ -309,7 +309,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                 if (selected != null) {
                                   setState(() {
                                     dayStartController.text = DateFormat(
-                                      'dd/MM/yyyy',
+                                      "dd/MM/yyyy",
                                     ).format(selected);
                                     vehicleOrders.clear();
                                   });
@@ -327,7 +327,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                   children: [
                                     //save
                                     AnimatedButton(
-                                      label: _isSaving ? 'Đang lưu...' : 'Lưu',
+                                      label: _isSaving ? "Đang lưu..." : "Lưu",
                                       icon: _isSaving ? null : Symbols.save,
                                       backgroundColor:
                                           (!_isEditable || _isSaving)
@@ -386,7 +386,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
 
                                                   vehicleOrders.forEach((key, requests) {
                                                     // Key có định dạng: "tripSeq_vehicleId" (ví dụ: "1_3")
-                                                    final parts = key.split('_');
+                                                    final parts = key.split("_");
                                                     final seq = parts[0];
                                                     final int vehicleId = int.parse(parts[1]);
 
@@ -402,7 +402,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                   });
 
                                                   final dayStart = DateFormat(
-                                                    'dd/MM/yyyy',
+                                                    "dd/MM/yyyy",
                                                   ).parse(dayStartController.text);
 
                                                   bool success = await DeliveryService()
@@ -431,8 +431,8 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                   await Future.delayed(const Duration(seconds: 1));
                                                 } on ApiException catch (e) {
                                                   final errorText = switch (e.errorCode) {
-                                                    'HAS_DELIVERY_ITEM_OUTBOUND' => e.message!,
-                                                    _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                                    "HAS_DELIVERY_ITEM_OUTBOUND" => e.message!,
+                                                    _ => "Có lỗi xảy ra, vui lòng thử lại",
                                                   };
 
                                                   if (context.mounted) {
@@ -459,7 +459,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                     context: context,
                                                     title: "Xác Nhận Lịch Giao Hàng",
                                                     content:
-                                                        'Bạn có muốn triển khai lịch giao hàng này không?',
+                                                        "Bạn có muốn triển khai lịch giao hàng này không?",
                                                     confirmText: "Xác nhận",
                                                   );
 
@@ -467,7 +467,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                     await DeliveryService()
                                                         .confirmForDeliveryPlanning(
                                                           deliveryDate: DateFormat(
-                                                            'dd/MM/yyyy',
+                                                            "dd/MM/yyyy",
                                                           ).parse(dayStartController.text),
                                                         );
                                                     unsavedChangeController.resetUnsavedChanges();
@@ -483,7 +483,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                   showSnackBarError(context, "Lỗi không xác định");
                                                 }
                                               },
-                                      label: 'Triển Khai',
+                                      label: "Triển Khai",
                                       icon: Symbols.confirmation_number,
                                       backgroundColor: themeController.buttonColor,
                                     ),
@@ -500,7 +500,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                     context: context,
                                                     title: "Xác Nhận Hủy Yêu Cầu",
                                                     content:
-                                                        'Bạn có muốn hủy ${selectedPendingIds.length} yêu cầu giao hàng này không?',
+                                                        "Bạn có muốn hủy ${selectedPendingIds.length} yêu cầu giao hàng này không?",
                                                     confirmText: "Xác nhận",
                                                   );
 
@@ -529,7 +529,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                                                   showSnackBarError(context, "Lỗi không xác định");
                                                 }
                                               },
-                                      label: 'Hủy Yêu Cầu',
+                                      label: "Hủy Yêu Cầu",
                                       icon: Symbols.delete,
                                       backgroundColor: const Color(0xffEA4346),
                                     ),
@@ -680,10 +680,10 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
     bool isSelected = false,
     bool isSelectable = true,
   }) {
-    final formatter = DateFormat('dd/MM/yyyy');
+    final formatter = DateFormat("dd/MM/yyyy");
 
     final currentStatus = status ?? req.status;
-    final bool isCancelled = currentStatus == 'cancelled';
+    final bool isCancelled = currentStatus == "cancelled";
 
     //flag outbound
     final bool isOutbound = req.hasOutbound == true;
@@ -742,7 +742,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Khách Hàng: ${customer!.customerName}',
+                        "Khách Hàng: ${customer!.customerName}",
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
@@ -758,7 +758,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       const SizedBox(height: 4),
 
                       Text(
-                        'Thông tin: $information',
+                        "Thông tin: $information",
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -1045,7 +1045,7 @@ class _DeliveryPlanningState extends State<DeliveryPlanning> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${vehicle.licensePlate.isNotEmpty ? "Biển số: ${vehicle.licensePlate} - " : ""}Nhà Xe: ${vehicle.vehicleHouse}',
+                        "${vehicle.licensePlate.isNotEmpty ? "Biển số: ${vehicle.licensePlate} - " : ""}Nhà Xe: ${vehicle.vehicleHouse}",
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,

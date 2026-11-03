@@ -78,9 +78,30 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
   //text controller
   TextEditingController searchController = TextEditingController();
 
+  //flag
+  late bool isManager;
+  late bool permissionCheck;
+  late bool isPlanningUser;
+
   @override
   void initState() {
     super.initState();
+
+    isManager = userController.canAccess(roles: ["manager"]);
+    permissionCheck = userController.canAccess(
+      permissions: [
+        "machine1350",
+        "machine1800",
+        "machine1900",
+        "machine2Layer",
+        "MachineRollPaper",
+      ],
+    );
+    isPlanningUser = userController.canAccess(
+      departments: ["Operation"],
+      permissions: ["plan"],
+      requireDept: true,
+    );
 
     _initSocket = InitSocketManufacture(
       context: context,
@@ -94,7 +115,6 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
         });
       },
     );
-
     _initSocket.registerSocket(machine);
 
     loadPlanning();
@@ -379,7 +399,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                         valueListenable: _selectedPlanningBoxIdsNotifier,
                         builder: (context, selectedPlanningBoxIds, _) {
                           final bool isProduction =
-                              permissionCheck &&
+                              (permissionCheck || isPlanningUser) &&
                               canExecuteAction(
                                 selectedPlanningIds:
                                     _selectedPlanningBoxIdsNotifier.value.map(int.parse).toList(),
@@ -426,6 +446,7 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                       qtyPaper: selectedPlanning.qtyPaper,
                                                       onReport: () => loadPlanning(),
                                                       machine: machine,
+                                                      isPlanning: isPlanningUser,
                                                       isPaper: false,
                                                     ),
                                               );
@@ -481,12 +502,13 @@ class _BoxPrintingProductionState extends State<BoxPrintingProduction> {
                                                 context: context,
                                                 builder:
                                                     (_) => DialogReportProduction(
+                                                      isPaper: false,
                                                       planningId: selectedPlanning.planningBoxId,
                                                       initialData: existingData,
                                                       qtyPaper: selectedPlanning.qtyPaper,
-                                                      onReport: () => loadPlanning(),
                                                       machine: machine,
-                                                      isPaper: false,
+                                                      isPlanning: isPlanningUser,
+                                                      onReport: () => loadPlanning(),
                                                     ),
                                               );
                                             } catch (e, s) {

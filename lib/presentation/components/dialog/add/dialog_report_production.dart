@@ -1,5 +1,6 @@
 import "dart:async";
 import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/employee/employee_basic_info.dart";
 import "package:dongtam/service/employee_service.dart";
 import "package:dongtam/service/manufacture_service.dart";
@@ -17,6 +18,7 @@ class DialogReportProduction extends StatefulWidget {
   final int planningId;
   final int? qtyPaper, runningPlan;
   final bool isPaper;
+  final bool isPlanning;
   final String? machine;
   final VoidCallback onReport;
 
@@ -28,6 +30,7 @@ class DialogReportProduction extends StatefulWidget {
     required this.planningId,
     required this.onReport,
     this.isPaper = true,
+    required this.isPlanning,
     this.machine,
     this.qtyPaper,
     this.runningPlan,
@@ -44,8 +47,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   final formKey = GlobalKey<FormState>();
 
   final badgesController = Get.find<BadgesController>();
+  final userController = Get.find<UserController>();
 
   bool _isLoading = false;
+  bool _isPlanningReport = false;
 
   final qtyProducedController = TextEditingController();
   final qtyWasteNormController = TextEditingController();
@@ -62,6 +67,10 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
   @override
   void initState() {
     super.initState();
+    if (widget.isPlanning == true) {
+      _isPlanningReport = true;
+    }
+
     futureEmployee = EmployeeService().getEmployeeByPosition();
 
     if (widget.initialData != null) {
@@ -100,6 +109,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
     final Map<String, dynamic> reportData = {
       "shiftManagement": shiftManagement,
       "shiftProduction": shiftProduction,
+      "isPlanningReport": _isPlanningReport,
     };
 
     if (runningPlan > 0) {
@@ -133,12 +143,13 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
       bool success = false;
       bool isLastStage = false;
 
+      final String prefix = _isPlanningReport ? "ĐTVP-" : "ĐTSX-";
       if (widget.isPaper == true) {
         success = await ManufactureService().createOrUpdateReportPaper(
           planningId: widget.planningId,
           qtyProduced: qtyProduced,
           dayCompleted: completedDate,
-          reportedBy: "DTSX-${employeeCodeController.trimmed}",
+          reportedBy: "$prefix${employeeCodeController.trimmed}",
           reportData: reportData,
           isUpdate: widget.initialData != null ? true : false,
           action: "EDIT_REPORT",
@@ -170,7 +181,8 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
           qtyProduced: qtyProduced,
           rpWasteLoss: qtyWasteNorm,
           shiftManagement: shiftManagement,
-          reportedBy: "DTSX-${employeeCodeController.trimmed}",
+          reportedBy: "$prefix${employeeCodeController.trimmed}",
+          isPlanningReport: _isPlanningReport,
           isUpdate: widget.initialData != null ? true : false,
           action: "EDIT_REPORT",
         );
@@ -336,6 +348,7 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
 
                 FormField<String>(
                   validator: (_) {
+                    if (_isPlanningReport) return null;
                     if ((shiftManagementSelected ?? "").trim().isEmpty) {
                       return "Vui lòng chọn Trưởng Máy";
                     }
@@ -378,24 +391,30 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                               shiftManagementSelected = items.first;
                             }
 
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Trưởng Máy",
-                                  style: TextStyle(fontWeight: FontWeight.w500),
+                            return IgnorePointer(
+                              ignoring: _isPlanningReport,
+                              child: Opacity(
+                                opacity: _isPlanningReport ? 0.5 : 1.0,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Trưởng Máy",
+                                      style: TextStyle(fontWeight: FontWeight.w500),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    ValidationHelper.dropdownForTypes(
+                                      items: items,
+                                      type: shiftManagementSelected!,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          shiftManagementSelected = value;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 6),
-                                ValidationHelper.dropdownForTypes(
-                                  items: items,
-                                  type: shiftManagementSelected!,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      shiftManagementSelected = value;
-                                    });
-                                  },
-                                ),
-                              ],
+                              ),
                             );
                           },
                         ),
@@ -435,11 +454,62 @@ class _DialogReportProductionState extends State<DialogReportProduction> {
                 ],
                 const SizedBox(height: 10),
 
-                validateInput(
-                  "Mã nhân viên báo cáo",
-                  employeeCodeController,
-                  Symbols.code,
-                  prefix: "DTSX-",
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: validateInput(
+                        "Mã nhân viên báo cáo",
+                        employeeCodeController,
+                        Symbols.code,
+                        prefix: _isPlanningReport ? "ĐTVP-" : "ĐTSX-",
+                      ),
+                    ),
+                    if (widget.isPlanning) ...[
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 4,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _isPlanningReport = !_isPlanningReport;
+                            });
+                          },
+                          borderRadius: BorderRadius.circular(6),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Checkbox(
+                                  value: _isPlanningReport,
+                                  onChanged: (val) {
+                                    setState(() {
+                                      _isPlanningReport = val ?? false;
+                                    });
+                                  },
+                                  activeColor: Colors.blue,
+                                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                const SizedBox(width: 4),
+                                const Flexible(
+                                  child: Text(
+                                    "Kế hoạch",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ],
             ),

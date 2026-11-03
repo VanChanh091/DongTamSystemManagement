@@ -88,8 +88,8 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   void initState() {
     super.initState();
 
-    isManager = userController.hasAnyRole(roles: ["admin", "manager"]);
-    isAccountant = userController.hasPermission(permission: "accountant");
+    isManager = userController.canAccess(roles: ["manager"]);
+    isAccountant = userController.canAccess(departments: ["Accountant"], requireDept: true);
 
     final now = DateTime.now();
     dayStartController.text =
@@ -326,8 +326,8 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                               return Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  //closing debt
                                   if (isAccountant) ...[
+                                    //closing debt
                                     buildLabelAndUnderlineInput(
                                       label: "Ngày Chốt:",
                                       controller: dayStartController,

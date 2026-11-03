@@ -69,7 +69,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
   @override
   void initState() {
     super.initState();
-    isManager = userController.hasAnyRole(roles: ["admin", "manager"]);
+    isManager = userController.canAccess(roles: ["manager"]);
 
     final now = DateTime.now();
     selectedMonth = now.month;
@@ -308,6 +308,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
                           return Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // picker month-year
                               SizedBox(
                                 width: 180,
                                 child: InkWell(

@@ -114,6 +114,7 @@ class ManufactureService {
     required String shiftManagement,
     required String reportedBy,
     required String action,
+    bool isPlanningReport = false,
     bool isUpdate = false,
   }) async {
     final token = await SecureStorageService().getToken();
@@ -143,6 +144,7 @@ class ManufactureService {
           "rpWasteLoss": rpWasteLoss,
           "shiftManagement": shiftManagement,
           "reportedBy": reportedBy,
+          "isPlanningReport": isPlanningReport,
         },
         options: Options(
           headers: {"Authorization": "Bearer $token", "Content-Type": "application/json"},

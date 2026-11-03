@@ -112,17 +112,21 @@ class _HomePageState extends State<HomePage> {
       //sale
       ..._buildPage(
         rule: PageRule.sale,
-        child: const [TopTabOrder(), CustomerPage(), ProductPage()],
+        child: const [TopTabOrder(), CustomerPage(), ProductPage(), TopTabBusinessRevenue()],
       ),
 
       //Employee
       ..._buildPage(rule: PageRule.hr, child: const [Employee()]),
 
       //Operation
-      ..._buildPage(rule: PageRule.plan, child: const [WaitingForPlanning(), PlanningStop()]),
       ..._buildPage(
-        rule: const PageRule(departments: ["Operation"], managerDept: ["Sale"], requireDept: true),
-        child: const [ProductionQueuePaper(), ProductionQueueBox()],
+        rule: PageRule.plan,
+        child: const [
+          WaitingForPlanning(),
+          PlanningStop(),
+          ProductionQueuePaper(),
+          ProductionQueueBox(),
+        ],
       ),
       ..._buildPage(
         rule: const PageRule(departments: ["Operation"], requireDept: true),
@@ -204,7 +208,7 @@ class _HomePageState extends State<HomePage> {
       // admin
       ..._buildPage(
         rule: const PageRule(departments: ["Sale"], roles: ["admin", "manager"], requireDept: true),
-        child: const [AdminOrder(), TopTabBusinessRevenue()],
+        child: const [AdminOrder()],
       ),
       ..._buildPage(
         rule: PageRule.admin,
