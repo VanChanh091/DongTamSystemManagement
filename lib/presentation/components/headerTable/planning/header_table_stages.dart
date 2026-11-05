@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerStage = [
@@ -21,13 +21,89 @@ const List<Map<String, dynamic>> _headerStage = [
   {"key": "isRequest", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildStageColumn({required ThemeController themeController}) {
+List<GridColumn> buildStageColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerStage,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildDeliveryStageSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
   return [
-    for (var item in _headerStage)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["dayStart", "dayCompleted", "dayCompletedOvfl"],
+          label: "Ngày",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["size", "length"],
+          label: "Quy Cách (cm)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["timeRunning", "timeRunningOvfl"],
+          label: "Thời Gian",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["runningPlan", "qtyProduced"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["wasteBox", "rpWasteLoss"],
+          label: "Phế Liệu",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
+  ];
+}
+
+List<StackedHeaderRow> buildWaitingBoxStageSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["dayStart", "dayCompleted", "dayCompletedOvfl"],
+          label: "Ngày",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["timeRunning", "timeRunningOvfl"],
+          label: "Thời Gian",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["runningPlan", "qtyProduced"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["wasteBox", "rpWasteLoss"],
+          label: "Phế Liệu",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

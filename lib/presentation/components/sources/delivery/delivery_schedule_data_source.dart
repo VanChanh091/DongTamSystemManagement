@@ -11,6 +11,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
   List<int> selectedDeliveryId;
   bool showGroup;
   String page;
+  double zoom = 1.0;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
@@ -21,6 +22,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
     required this.selectedDeliveryId,
     required this.showGroup,
     required this.page,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
 
@@ -165,7 +167,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
       color: Colors.grey.shade200,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       alignment: Alignment.centerLeft,
-      child: Text(caption, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+      child: Text(caption, style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0))),
     );
   }
 
@@ -212,7 +214,7 @@ class DeliveryScheduleDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: cellText, alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

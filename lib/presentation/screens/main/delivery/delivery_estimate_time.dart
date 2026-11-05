@@ -19,7 +19,6 @@ import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -99,8 +98,11 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
 
     isPlan = userController.canAccess(permissions: ["plan"]);
 
-    columnsPaper = buildDeliveryEstimateColumn(themeController: themeController);
-    columnsStages = buildStageColumn(themeController: themeController);
+    columnsPaper = buildDeliveryEstimateColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
+    columnsStages = buildStageColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
 
     ColumnWidthTable.loadWidths(tableKey: "estimateTime", columns: columnsPaper).then((w) {
       setState(() {
@@ -200,7 +202,12 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -229,49 +236,23 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -518,291 +499,223 @@ class _DeliveryEstimateTimeState extends State<DeliveryEstimateTime> {
             selectedPaperIds: _selectedPaperIdsNotifier.value,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(
-                      selectionColor: Colors.blue.withValues(alpha: 0.3),
-                      currentCellStyle: const DataGridCurrentCellStyle(
-                        borderColor: Colors.transparent,
-                        borderWidth: 0,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: SfDataGrid(
-                            controller: dataGridController,
-                            source: _cachedDatasource!,
-                            isScrollbarAlwaysShown: true,
-                            columnWidthMode: ColumnWidthMode.auto,
-                            selectionMode: SelectionMode.multiple,
-                            headerRowHeight: 35,
-                            rowHeight: 38,
-                            columns: ColumnWidthTable.applySavedWidths(
-                              columns: columnsPaper,
-                              widths: columnWidthsPlanning,
-                            ),
-                            stackedHeaderRows: <StackedHeaderRow>[
-                              StackedHeaderRow(
-                                cells: [
-                                  StackedHeaderCell(
-                                    columnNames: ["size", "length"],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Quy Cách (cm)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "quantityOrd",
-                                      "qtyProduced",
-                                      "qtyOutbound",
-                                      "qtyInventory",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Số Lượng",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-
-                            //auto resize
-                            allowColumnsResizing: true,
-                            columnResizeMode: ColumnResizeMode.onResize,
-
-                            onColumnResizeStart: GridResizeHelper.onResizeStart,
-                            onColumnResizeUpdate:
-                                (details) => GridResizeHelper.onResizeUpdate(
-                                  details: details,
-                                  columns: columnsPaper,
-                                  setState: localSetState,
-                                ),
-                            onColumnResizeEnd:
-                                (details) => GridResizeHelper.onResizeEnd(
-                                  details: details,
-                                  tableKey: "estimateTime",
-                                  columnWidths: columnWidthsPlanning,
-                                  setState: setState,
-                                ),
-
-                            onSelectionChanging: (addedRows, removedRows) {
-                              if (_isSelectionChange) return true;
-
-                              // Kiểm tra trạng thái bấm phím từ bàn phím
-                              final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                              final isShiftPressed =
-                                  keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                  keys.contains(LogicalKeyboardKey.shiftRight);
-                              final isCtrlPressed =
-                                  keys.contains(LogicalKeyboardKey.controlLeft) ||
-                                  keys.contains(LogicalKeyboardKey.controlRight);
-
-                              // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
-                              if (!isShiftPressed && !isCtrlPressed) {
-                                if (addedRows.isNotEmpty) {
-                                  final latestRow = addedRows.last;
-
-                                  _isSelectionChange = true;
-                                  dataGridController.selectedRows = [latestRow];
-                                  _isSelectionChange = false;
-
-                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                                  return false;
-                                } else if (removedRows.isNotEmpty &&
-                                    dataGridController.selectedRows.length > 1) {
-                                  // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
-                                  final clickedRow = removedRows.first;
-
-                                  _isSelectionChange = true;
-                                  dataGridController.selectedRows = [clickedRow];
-                                  _isSelectionChange = false;
-
-                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                                  return false;
-                                }
-                              }
-
-                              // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
-                              if (isShiftPressed &&
-                                  dataGridController.selectedRows.isNotEmpty &&
-                                  addedRows.isNotEmpty) {
-                                final lastSelected = dataGridController.selectedRows.last;
-                                final newlyClicked = addedRows.last;
-
-                                final allRows = _cachedDatasource!.rows;
-                                final startIdx = allRows.indexOf(lastSelected);
-                                final endIdx = allRows.indexOf(newlyClicked);
-
-                                if (startIdx != -1 && endIdx != -1) {
-                                  final min = startIdx < endIdx ? startIdx : endIdx;
-                                  final max = startIdx > endIdx ? startIdx : endIdx;
-
-                                  final List<DataGridRow> rangeSelection = [];
-                                  for (int i = min; i <= max; i++) {
-                                    rangeSelection.add(allRows[i]);
-                                  }
-
-                                  _isSelectionChange = true;
-                                  dataGridController.selectedRows = List.from(rangeSelection);
-                                  _isSelectionChange = false;
-
-                                  _updateSelectedIdsFromRows(rangeSelection);
-                                  return false;
-                                }
-                              }
-
-                              // TH 3: Giữ phím Ctrl
-                              return true;
-                            },
-
-                            onSelectionChanged: (addedRows, removedRows) async {
-                              if (_isSelectionChange) return;
-                              _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                            },
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
+                          currentCellStyle: const DataGridCurrentCellStyle(
+                            borderColor: Colors.transparent,
+                            borderWidth: 0,
                           ),
                         ),
-
-                        selectedStages.isNotEmpty
-                            ? Expanded(
-                              flex: 1,
-                              child: AnimatedSize(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                child: SfDataGrid(
-                                  source: StagesDataSource(stages: selectedStages),
-                                  isScrollbarAlwaysShown: true,
-                                  headerRowHeight: 30,
-                                  rowHeight: 35,
-                                  columnWidthMode: ColumnWidthMode.fill,
-                                  selectionMode: SelectionMode.single,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columnsStages,
-                                    widths: columnWidthsStage,
-                                  ),
-                                  stackedHeaderRows: <StackedHeaderRow>[
-                                    StackedHeaderRow(
-                                      cells: [
-                                        StackedHeaderCell(
-                                          columnNames: [
-                                            "dayStart",
-                                            "dayCompleted",
-                                            "dayCompletedOvfl",
-                                          ],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Ngày",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["size", "length"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Quy Cách (cm)",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["timeRunning", "timeRunningOvfl"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Thời Gian",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["runningPlan", "qtyProduced"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Số Lượng",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["wasteBox", "rpWasteLoss"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Phế Liệu",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columnsStages,
-                                        setState: setState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: "stage",
-                                        columnWidths: columnWidthsStage,
-                                        setState: setState,
-                                      ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: SfDataGrid(
+                                controller: dataGridController,
+                                source: _cachedDatasource!,
+                                isScrollbarAlwaysShown: true,
+                                columnWidthMode: ColumnWidthMode.auto,
+                                selectionMode: SelectionMode.multiple,
+                                headerRowHeight: (35 * zoom).clamp(28.0, 55),
+                                rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                                columns: ColumnWidthTable.applySavedWidths(
+                                  columns: columnsPaper,
+                                  widths: columnWidthsPlanning,
+                                  zoom: zoom,
                                 ),
-                              ),
-                            )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
+                                stackedHeaderRows: buildDeliveryEstimateSHR(
+                                  themeController: themeController,
+                                  zoom: zoom,
+                                ),
 
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadPlanningEstimate();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadPlanningEstimate();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadPlanningEstimate();
-                });
-              },
-            ),
-          ],
+                                //auto resize
+                                allowColumnsResizing: true,
+                                columnResizeMode: ColumnResizeMode.onResize,
+
+                                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                onColumnResizeUpdate:
+                                    (details) => GridResizeHelper.onResizeUpdate(
+                                      details: details,
+                                      columns: columnsPaper,
+                                      setState: localSetState,
+                                    ),
+                                onColumnResizeEnd:
+                                    (details) => GridResizeHelper.onResizeEnd(
+                                      details: details,
+                                      tableKey: "estimateTime",
+                                      columnWidths: columnWidthsPlanning,
+                                      setState: setState,
+                                    ),
+
+                                onSelectionChanging: (addedRows, removedRows) {
+                                  if (_isSelectionChange) return true;
+
+                                  // Kiểm tra trạng thái bấm phím từ bàn phím
+                                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                                  final isShiftPressed =
+                                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                      keys.contains(LogicalKeyboardKey.shiftRight);
+                                  final isCtrlPressed =
+                                      keys.contains(LogicalKeyboardKey.controlLeft) ||
+                                      keys.contains(LogicalKeyboardKey.controlRight);
+
+                                  // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
+                                  if (!isShiftPressed && !isCtrlPressed) {
+                                    if (addedRows.isNotEmpty) {
+                                      final latestRow = addedRows.last;
+
+                                      _isSelectionChange = true;
+                                      dataGridController.selectedRows = [latestRow];
+                                      _isSelectionChange = false;
+
+                                      _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                      return false;
+                                    } else if (removedRows.isNotEmpty &&
+                                        dataGridController.selectedRows.length > 1) {
+                                      // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
+                                      final clickedRow = removedRows.first;
+
+                                      _isSelectionChange = true;
+                                      dataGridController.selectedRows = [clickedRow];
+                                      _isSelectionChange = false;
+
+                                      _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                      return false;
+                                    }
+                                  }
+
+                                  // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
+                                  if (isShiftPressed &&
+                                      dataGridController.selectedRows.isNotEmpty &&
+                                      addedRows.isNotEmpty) {
+                                    final lastSelected = dataGridController.selectedRows.last;
+                                    final newlyClicked = addedRows.last;
+
+                                    final allRows = _cachedDatasource!.rows;
+                                    final startIdx = allRows.indexOf(lastSelected);
+                                    final endIdx = allRows.indexOf(newlyClicked);
+
+                                    if (startIdx != -1 && endIdx != -1) {
+                                      final min = startIdx < endIdx ? startIdx : endIdx;
+                                      final max = startIdx > endIdx ? startIdx : endIdx;
+
+                                      final List<DataGridRow> rangeSelection = [];
+                                      for (int i = min; i <= max; i++) {
+                                        rangeSelection.add(allRows[i]);
+                                      }
+
+                                      _isSelectionChange = true;
+                                      dataGridController.selectedRows = List.from(rangeSelection);
+                                      _isSelectionChange = false;
+
+                                      _updateSelectedIdsFromRows(rangeSelection);
+                                      return false;
+                                    }
+                                  }
+
+                                  // TH 3: Giữ phím Ctrl
+                                  return true;
+                                },
+
+                                onSelectionChanged: (addedRows, removedRows) async {
+                                  if (_isSelectionChange) return;
+                                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                },
+                              ),
+                            ),
+
+                            selectedStages.isNotEmpty
+                                ? Expanded(
+                                  flex: 1,
+                                  child: AnimatedSize(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    child: SfDataGrid(
+                                      source: StagesDataSource(stages: selectedStages),
+                                      isScrollbarAlwaysShown: true,
+                                      headerRowHeight: 30,
+                                      rowHeight: 35,
+                                      columnWidthMode: ColumnWidthMode.fill,
+                                      selectionMode: SelectionMode.single,
+                                      columns: ColumnWidthTable.applySavedWidths(
+                                        columns: columnsStages,
+                                        widths: columnWidthsStage,
+                                        zoom: zoom,
+                                      ),
+                                      stackedHeaderRows: buildDeliveryStageSHR(
+                                        themeController: themeController,
+                                        zoom: zoom,
+                                      ),
+
+                                      //auto resize
+                                      allowColumnsResizing: true,
+                                      columnResizeMode: ColumnResizeMode.onResize,
+
+                                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                      onColumnResizeUpdate:
+                                          (details) => GridResizeHelper.onResizeUpdate(
+                                            details: details,
+                                            columns: columnsStages,
+                                            setState: setState,
+                                          ),
+                                      onColumnResizeEnd:
+                                          (details) => GridResizeHelper.onResizeEnd(
+                                            details: details,
+                                            tableKey: "stage",
+                                            columnWidths: columnWidthsStage,
+                                            setState: setState,
+                                          ),
+                                    ),
+                                  ),
+                                )
+                                : const SizedBox.shrink(),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadPlanningEstimate();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadPlanningEstimate();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadPlanningEstimate();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );

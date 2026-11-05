@@ -63,6 +63,7 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
     loadReportDebtDeduction();
     columnsDebtDeduction = buildDebtDeductionColumn(
       themeController: themeController,
+      zoomNotifier: _zoomNotifier,
       isReport: true,
     );
 
@@ -106,7 +107,12 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -131,45 +137,20 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             ValueListenableBuilder<double>(
               valueListenable: _zoomNotifier,
@@ -297,27 +278,32 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
             currentPage: currentPage,
             pageSize: pageSize,
             selectedRequestId: _selectedRequestIdNotifier.value,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 30,
-                      rowHeight: 40,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columnsDebtDeduction,
-                        widths: columnWidths,
-                      ),
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columnsDebtDeduction,
+                            widths: columnWidths,
+                            zoom: zoom,
+                          ),
                       allowColumnsResizing: true,
                       columnResizeMode: ColumnResizeMode.onResize,
                       onColumnResizeStart: GridResizeHelper.onResizeStart,
@@ -386,6 +372,8 @@ class _ReportDebtDeductionState extends State<ReportDebtDeduction> {
             ),
           ],
         );
+      },
+    );
       },
     );
   }

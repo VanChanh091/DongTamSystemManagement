@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _inspectionPaperColumns = [
@@ -58,13 +58,79 @@ final List<Map<String, dynamic>> _inspectionPaperColumns = [
   {"key": "timeInspecDate", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildInspectionPaperColumn({required ThemeController themeController}) {
+List<GridColumn> buildInspectionPaperColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _inspectionPaperColumns,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+
+List<StackedHeaderRow> buildInspectionPaperSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
   return [
-    for (var item in _inspectionPaperColumns)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "orderId",
+            "customerName",
+            "productName",
+            "structure",
+            "flute",
+            "sizePaper",
+            "lengthPaper",
+            "runningPlan",
+            "canLan",
+            "isFSC",
+          ],
+          label: "Thông Tin Đơn Hàng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "moisture",
+            "steamPressure",
+            "preheaterTemp",
+            "fctValue",
+            "patValue",
+          ],
+          label: "Thông Tin Kiểm Tra",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "blishter",
+            "wrongWidth",
+            "wrongLength",
+            "wrongScoringSpec",
+            "poorScoring",
+            "drityLiner",
+            "losseLiner",
+            "earDefect",
+            "skewedFlute",
+            "warppage",
+            "wrongStructure",
+            "waveHeight",
+            "poorTrim",
+            "misalignment",
+            "glueDripping",
+            "trimScrap",
+            "poorBundling",
+            "totalWidthErr",
+            "wrongProductInfo",
+          ],
+          label: "Lỗi",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

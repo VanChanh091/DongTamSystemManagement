@@ -40,6 +40,7 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
 
   SupplierPaperCodeModel? selectedSupplierPaper;
   PaperBasisWeightModel? selectedBasisWeight;
+  bool isActive = true;
 
   final TextEditingController burstRatioController = TextEditingController();
   final TextEditingController burstStrengthController = TextEditingController();
@@ -89,6 +90,7 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
                     burstStrength: e.burstStrength,
                     ringCrush: e.ringCrush,
                     pricePaper: e.pricePaper,
+                    isActive: e.isActive,
                     supplierPaperId: e.supplierPaperId,
                     basisWeightId: e.basisWeightId,
                     supplierPaper: e.supplierPaper,
@@ -136,6 +138,7 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
           item.burstStrength != null ? item.burstStrength.toString() : "";
       ringCrushController.text = item.ringCrush != null ? item.ringCrush.toString() : "";
       pricePaperController.text = item.pricePaper != null ? item.pricePaper.toString() : "";
+      isActive = item.isActive;
     });
   }
 
@@ -144,6 +147,7 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
     burstStrengthController.clear();
     ringCrushController.clear();
     pricePaperController.clear();
+    isActive = true;
   }
 
   void _addOrUpdateDraftRow() {
@@ -171,6 +175,7 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
       burstStrength: burstStrength,
       ringCrush: ringCrush,
       pricePaper: pricePaper,
+      isActive: isActive,
       supplierPaper: selectedSupplierPaper,
       basisWeight: selectedBasisWeight,
     );
@@ -299,6 +304,12 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
           icon: Icons.numbers,
           controller: pricePaperController,
         ),
+      },
+      {
+        "leftKey": "Trạng Thái",
+        "leftValue": _buildActiveCheckbox(),
+        "rightKey": " ",
+        "rightValue": const SizedBox(),
       },
     ];
 
@@ -478,6 +489,7 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
                                   "Độ Bục",
                                   "Độ Nén Vòng",
                                   "Giá Giấy",
+                                  "Trạng Thái",
                                   "Thao tác",
                                 ]),
                                 rows: List.generate(draftRows.length, (index) {
@@ -527,6 +539,35 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
                                             ? OrderModel.formatCurrency(item.pricePaper!)
                                             : "-",
                                       ]),
+                                      DataCell(
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 2,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: item.isActive
+                                                ? Colors.green.shade50
+                                                : Colors.red.shade50,
+                                            borderRadius: BorderRadius.circular(4),
+                                            border: Border.all(
+                                              color: item.isActive
+                                                  ? Colors.green.shade200
+                                                  : Colors.red.shade200,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item.isActive ? "Đang Sử Dụng" : "Ngưng Sử Dụng",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: item.isActive
+                                                  ? Colors.green.shade700
+                                                  : Colors.red.shade700,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                       DataCell(
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
@@ -580,5 +621,70 @@ class _PaperClassificationDialogState extends State<PaperClassificationDialog> {
         ),
       );
     }).toList();
+  }
+
+  Widget _buildActiveCheckbox() {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          isActive = !isActive;
+        });
+      },
+      borderRadius: BorderRadius.circular(6),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 24,
+              width: 24,
+              child: Checkbox(
+                value: isActive,
+                activeColor: Colors.green.shade600,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                onChanged: (val) {
+                  setState(() {
+                    isActive = val ?? false;
+                  });
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: isActive ? Colors.green.shade50 : Colors.red.shade50,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: isActive ? Colors.green.shade200 : Colors.red.shade200,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isActive ? Icons.check_circle_outline : Icons.cancel_outlined,
+                    size: 14,
+                    color: isActive ? Colors.green.shade700 : Colors.red.shade700,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    isActive ? "Đang Sử Dụng" : "Ngưng Sử Dụng",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: isActive ? Colors.green.shade700 : Colors.red.shade700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

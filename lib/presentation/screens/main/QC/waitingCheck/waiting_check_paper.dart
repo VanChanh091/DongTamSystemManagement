@@ -1,22 +1,21 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/planning/planning_paper_model.dart';
-import 'package:dongtam/presentation/components/dialog/other/dialog_check_qc.dart';
-import 'package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart';
-import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
-import 'package:dongtam/presentation/components/sources/waitingCheck/waiting_check_paper_data_source.dart';
-import 'package:dongtam/service/warehouse_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/planning/planning_paper_model.dart";
+import "package:dongtam/presentation/components/dialog/other/dialog_check_qc.dart";
+import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
+import "package:dongtam/presentation/components/sources/waitingCheck/waiting_check_paper_data_source.dart";
+import "package:dongtam/service/warehouse_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingCheckPaper extends StatefulWidget {
   const WaitingCheckPaper({super.key});
@@ -30,7 +29,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   late List<GridColumn> columns;
 
   //controllers
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -51,8 +50,12 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
     super.initState();
     loadPaperWaiting();
 
-    columns = buildMachinePaperColumns(themeController: themeController, page: "checking");
-    ColumnWidthTable.loadWidths(tableKey: 'queuePaper', columns: columns).then((w) {
+    columns = buildMachinePaperColumns(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+      page: "checking",
+    );
+    ColumnWidthTable.loadWidths(tableKey: "queuePaper", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -85,7 +88,12 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -108,49 +116,23 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -160,8 +142,8 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  // initialMargin: Offset(73, 125),
-                  initialMargin: Offset(73, 152),
+
+                  initialMargin: const Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -208,7 +190,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                 builder: (context, selectedPlanningIds, _) {
                   //QC Check
                   final bool qcCheck =
-                      userController.hasPermission(permission: 'QC') &&
+                      userController.hasPermission(permission: "QC") &&
                       canExecuteAction(
                         selectedPlanningIds:
                             _selectedPlanningIdNotifier.value.map(int.parse).toList(),
@@ -242,7 +224,7 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
                                         (_) => DialogCheckQC(
                                           planningId: selectedPlanning.planningId,
                                           onQcSessionAddOrUpdate: () => loadPaperWaiting(),
-                                          type: 'paper',
+                                          type: "paper",
                                           valueInbound: remainQty,
                                         ),
                                   );
@@ -299,93 +281,83 @@ class _WaitingCheckPaperState extends State<WaitingCheckPaper> {
             planning: data,
             selectedPlanningIds: _selectedPlanningIdNotifier.value,
             showGroup: showGroup,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return StatefulBuilder(
-          builder: (context, localSetState) {
-            return SfDataGridTheme(
-              data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: _cachedDatasource!,
-                allowExpandCollapseGroup: true, // Bật grouping
-                autoExpandGroups: true,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.auto,
-                selectionMode: SelectionMode.single,
-                headerRowHeight: 35,
-                rowHeight: 40,
-                frozenColumnsCount: 7,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: ['qtyProduced', "inboundQty"],
-                        child: formatColumn(label: 'Số Lượng', themeController: themeController),
-                      ),
-                      StackedHeaderCell(
-                        columnNames: [
-                          'bottom',
-                          'fluteE',
-                          'fluteE2',
-                          'fluteB',
-                          'fluteC',
-                          'knife',
-                          'totalLoss',
-                        ],
-                        child: formatColumn(
-                          label: 'Định Mức Phế Liệu',
-                          themeController: themeController,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return StatefulBuilder(
+              builder: (context, localSetState) {
+                return SfDataGridTheme(
+                  data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                  child: SfDataGrid(
+                    controller: dataGridController,
+                    source: _cachedDatasource!,
+                    allowExpandCollapseGroup: true, // Bật grouping
+                    autoExpandGroups: true,
+                    isScrollbarAlwaysShown: true,
+                    columnWidthMode: ColumnWidthMode.auto,
+                    selectionMode: SelectionMode.single,
+                    headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                    rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                    frozenColumnsCount: 7,
+                    columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
-                      setState: localSetState,
+                      widths: columnWidths,
+                      zoom: zoom,
                     ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: 'queuePaper',
-                      columnWidths: columnWidths,
-                      setState: setState,
+                    stackedHeaderRows: buildWaitingCheckPaperSHR(
+                      themeController: themeController,
+                      zoom: zoom,
                     ),
 
-                onSelectionChanged: (addedRows, removedRows) {
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
 
-                  final selectedRows = dataGridController.selectedRows;
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: localSetState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: "queuePaper",
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
 
-                  final newIds =
-                      selectedRows
-                          .map((row) {
-                            final cell = row.getCells().firstWhere(
-                              (c) => c.columnName == 'planningId',
-                              orElse: () => const DataGridCell(columnName: 'planningId', value: ''),
-                            );
-                            return cell.value.toString();
-                          })
-                          .where((id) => id.isNotEmpty)
-                          .toList();
+                    onSelectionChanged: (addedRows, removedRows) {
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
 
-                  // cập nhật cho datasource
-                  _selectedPlanningIdNotifier.value = newIds;
-                  _cachedDatasource?.selectedPlanningIds = newIds;
-                  localSetState(() {});
-                },
-              ),
+                      final selectedRows = dataGridController.selectedRows;
+
+                      final newIds =
+                          selectedRows
+                              .map((row) {
+                                final cell = row.getCells().firstWhere(
+                                  (c) => c.columnName == "planningId",
+                                  orElse:
+                                      () => const DataGridCell(columnName: "planningId", value: ""),
+                                );
+                                return cell.value.toString();
+                              })
+                              .where((id) => id.isNotEmpty)
+                              .toList();
+
+                      // cập nhật cho datasource
+                      _selectedPlanningIdNotifier.value = newIds;
+                      _cachedDatasource?.selectedPlanningIds = newIds;
+                      localSetState(() {});
+                    },
+                  ),
+                );
+              },
             );
           },
         );

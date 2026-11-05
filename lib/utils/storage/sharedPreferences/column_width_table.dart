@@ -56,12 +56,14 @@ class ColumnWidthTable {
   static List<GridColumn> applySavedWidths({
     required List<GridColumn> columns,
     required Map<String, double> widths,
+    required double zoom,
   }) {
     return columns.map((c) {
+      final savedW = widths[c.columnName] ?? c.width;
       return GridColumn(
         columnName: c.columnName,
         label: c.label,
-        width: widths[c.columnName] ?? c.width,
+        width: (!savedW.isNaN) ? savedW * zoom : double.nan,
         visible: c.visible,
       );
     }).toList();

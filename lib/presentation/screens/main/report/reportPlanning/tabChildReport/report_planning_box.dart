@@ -12,7 +12,6 @@ import 'package:dongtam/service/report_service.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/utils/helper/picker_date_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +77,7 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
     super.initState();
     loadReportBox();
 
-    columns = buildReportBoxColumn(themeController: themeController);
+    columns = buildReportBoxColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: 'reportBox', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -152,7 +151,12 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -422,55 +426,40 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
             machine: machine,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      allowExpandCollapseGroup: true, // Bật grouping
-                      autoExpandGroups: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 35,
-                      rowHeight: 40,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      frozenColumnsCount: 6,
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: [
-                                'qtyPrinted',
-                                'qtyCanLan',
-                                'qtyCanMang',
-                                'qtyXa',
-                                'qtyCatKhe',
-                                'qtyBe',
-                                'qtyDan',
-                                'qtyDongGhim',
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: 'Báo Cáo Số Lượng Các Công Đoạn',
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                            zoom: zoom,
+                          ),
+                          frozenColumnsCount: 6,
+                          stackedHeaderRows: buildReportBoxSHR(
+                            themeController: themeController,
+                            zoom: zoom,
+                          ),
 
                       //auto resize
                       allowColumnsResizing: true,
@@ -537,6 +526,8 @@ class _ReportPlanningBoxState extends State<ReportPlanningBox> {
             ),
           ],
         );
+      },
+    );
       },
     );
   }

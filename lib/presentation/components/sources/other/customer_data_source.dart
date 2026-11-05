@@ -9,11 +9,17 @@ class CustomerDatasource extends DataGridSource {
   List<CustomerModel> customer = [];
   int currentPage;
   int pageSize;
+  double zoom;
 
   late List<DataGridRow> customerDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
 
-  CustomerDatasource({required this.customer, required this.currentPage, required this.pageSize}) {
+  CustomerDatasource({
+    required this.customer,
+    required this.currentPage,
+    required this.pageSize,
+    this.zoom = 1.0,
+  }) {
     buildDataGridRows();
   }
 
@@ -166,7 +172,11 @@ class CustomerDatasource extends DataGridSource {
               displayValue = getClosingDaysVi(dataCell.value);
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

@@ -1,6 +1,6 @@
-import 'package:dongtam/data/models/admin/paperCode/paper_basis_weight_model.dart';
-import 'package:dongtam/data/models/admin/paperCode/supplier_paper_code_model.dart';
-import 'package:dongtam/utils/helper/helper_model.dart';
+import "package:dongtam/data/models/admin/paperCode/paper_basis_weight_model.dart";
+import "package:dongtam/data/models/admin/paperCode/supplier_paper_code_model.dart";
+import "package:dongtam/utils/helper/helper_model.dart";
 
 class PaperClassificationModel {
   int classificationId;
@@ -11,6 +11,7 @@ class PaperClassificationModel {
   double? burstStrength;
   double? ringCrush;
   double? pricePaper;
+  bool isActive;
 
   //FK
   int supplierPaperId;
@@ -29,6 +30,7 @@ class PaperClassificationModel {
     required this.burstStrength,
     required this.ringCrush,
     required this.pricePaper,
+    required this.isActive,
 
     //FK
     required this.supplierPaperId,
@@ -48,6 +50,7 @@ class PaperClassificationModel {
       burstStrength: toDouble(json["burstStrength"]),
       ringCrush: toDouble(json["ringCrush"]),
       pricePaper: toDouble(json["pricePaper"]),
+      isActive: json["isActive"] ?? true,
 
       //FK
       supplierPaperId: json["supplierPaperId"] ?? 0,
@@ -70,6 +73,7 @@ class PaperClassificationModel {
       "pricePaper": pricePaper,
       "supplierPaperId": supplierPaperId,
       "basisWeightId": basisWeightId,
+      "isActive": isActive,
     };
   }
 }

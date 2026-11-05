@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerSyntheticPaper = [
@@ -70,15 +70,113 @@ const List<Map<String, dynamic>> _headerSyntheticPaper = [
 
 List<GridColumn> buildSyntheticPaperColumn({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   required String page,
+}) => buildGridColumns(
+  headerConfig: _headerSyntheticPaper,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+  page: page,
+);
+
+List<StackedHeaderRow> buildSyntheticPlanningPaperSHR({
+  required ThemeController themeController,
+  double zoom = 1.0,
 }) {
   return [
-    for (var item in _headerSyntheticPaper)
-      if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
-        GridColumn(
-          columnName: item["key"]!,
-          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "dayReceive",
+            "dateShipping",
+            "dayStartProduction",
+            "dayCompletedProd",
+            "dayCompletedOvfl",
+          ],
+          label: "Ngày",
+          themeController: themeController,
+          zoom: zoom,
         ),
+        buildStackedHeaderCell(
+          columnNames: ["size", "length"],
+          label: "Quy Cách (cm)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "quantityOrd",
+            "qtyProduced",
+            "runningPlanProd",
+            "totalOutbound",
+            "qtyInventory",
+          ],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["timeRunningProd", "timeRunningOvfl"],
+          label: "Thời Gian",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "bottom",
+            "fluteE",
+            "fluteE2",
+            "fluteB",
+            "fluteC",
+            "knife",
+            "totalLoss",
+          ],
+          label: "Định Mức Phế Liệu (Kg)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
+  ];
+}
+
+List<StackedHeaderRow> buildSyntheticPlanningStageSHR({
+  required ThemeController themeController,
+  double zoom = 1.0,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "dayStart",
+            "dayCompleted",
+            "dayCompletedOvfl",
+          ],
+          label: "Ngày",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["timeRunning", "timeRunningOvfl"],
+          label: "Thời Gian",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["runningPlan", "qtyProduced"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["wasteBox", "rpWasteLoss"],
+          label: "Phế Liệu",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

@@ -57,10 +57,12 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
 
   void _initColumns() {
     machineColumns = buildProductionReportColumns(
+      zoomNotifier: _zoomNotifier,
       themeController: themeController,
       isMachine: true,
     );
     workerColumns = buildProductionReportColumns(
+      zoomNotifier: _zoomNotifier,
       themeController: themeController,
       isMachine: false,
     );
@@ -91,7 +93,16 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedMachineDatasource != null) {
+      _cachedMachineDatasource!.zoom = clamped;
+      _cachedMachineDatasource!.notifyListeners();
+    }
+    if (_cachedWorkerDatasource != null) {
+      _cachedWorkerDatasource!.zoom = clamped;
+      _cachedWorkerDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -114,45 +125,20 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header bar
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header bar
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  // Tables
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      child: _buildTableSection(),
-                    ),
+                // Tables
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
             ValueListenableBuilder<double>(
               valueListenable: _zoomNotifier,
@@ -292,74 +278,84 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
           _cachedMachineDatasource = ProductionReportDataSource(
             items: reportData.machines,
             isMachine: true,
+            zoom: _zoomNotifier.value,
           );
           _cachedWorkerDatasource = ProductionReportDataSource(
             items: reportData.workers,
             isMachine: false,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            // table machine
-            Expanded(
-              child: _buildTableCard(
-                title: "BẢNG TỔNG HỢP THEO MÁY",
-                icon: Icons.precision_manufacturing_outlined,
-                columns: machineColumns,
-                columnWidths: machineColumnWidths,
-                datasource: _cachedMachineDatasource!,
-                tableKey: "production_report_machine",
-                onResizeUpdate:
-                    (details, localSetState) => GridResizeHelper.onResizeUpdate(
-                      details: details,
-                      columns: machineColumns,
-                      setState: localSetState,
-                    ),
-                onResizeEnd: (details) {
-                  GridResizeHelper.onResizeEnd(
-                    details: details,
-                    tableKey: "production_report_machine",
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                // table machine
+                Expanded(
+                  child: _buildTableCard(
+                    zoom: zoom,
+                    title: "BẢNG TỔNG HỢP THEO MÁY",
+                    icon: Icons.precision_manufacturing_outlined,
+                    columns: machineColumns,
                     columnWidths: machineColumnWidths,
-                    setState: setState,
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 10),
+                    datasource: _cachedMachineDatasource!,
+                    tableKey: "production_report_machine",
+                    onResizeUpdate:
+                        (details, localSetState) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: machineColumns,
+                          setState: localSetState,
+                        ),
+                    onResizeEnd: (details) {
+                      GridResizeHelper.onResizeEnd(
+                        details: details,
+                        tableKey: "production_report_machine",
+                        columnWidths: machineColumnWidths,
+                        setState: setState,
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
 
-            //table worker
-            Expanded(
-              child: _buildTableCard(
-                title: "BẢNG TỔNG HỢP THEO THỢ",
-                icon: Icons.people_alt_outlined,
-                columns: workerColumns,
-                columnWidths: workerColumnWidths,
-                datasource: _cachedWorkerDatasource!,
-                tableKey: "production_report_worker",
-                onResizeUpdate:
-                    (details, localSetState) => GridResizeHelper.onResizeUpdate(
-                      details: details,
-                      columns: workerColumns,
-                      setState: localSetState,
-                    ),
-                onResizeEnd: (details) {
-                  GridResizeHelper.onResizeEnd(
-                    details: details,
-                    tableKey: "production_report_worker",
+                //table worker
+                Expanded(
+                  child: _buildTableCard(
+                    zoom: zoom,
+                    title: "BẢNG TỔNG HỢP THEO THỢ",
+                    icon: Icons.people_alt_outlined,
+                    columns: workerColumns,
                     columnWidths: workerColumnWidths,
-                    setState: setState,
-                  );
-                },
-              ),
-            ),
-          ],
+                    datasource: _cachedWorkerDatasource!,
+                    tableKey: "production_report_worker",
+                    onResizeUpdate:
+                        (details, localSetState) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: workerColumns,
+                          setState: localSetState,
+                        ),
+                    onResizeEnd: (details) {
+                      GridResizeHelper.onResizeEnd(
+                        details: details,
+                        tableKey: "production_report_worker",
+                        columnWidths: workerColumnWidths,
+                        setState: setState,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
 
   Widget _buildTableCard({
+    double zoom = 1.0,
     required String title,
     required IconData icon,
     required List<GridColumn> columns,
@@ -421,12 +417,13 @@ class _SyntheticProductionReportState extends State<SyntheticProductionReport> {
                     isScrollbarAlwaysShown: true,
                     columnWidthMode: ColumnWidthMode.fill,
                     selectionMode: SelectionMode.single,
-                    headerRowHeight: 37,
-                    rowHeight: 38,
+                    headerRowHeight: (37 * zoom).clamp(24.0, 60.0),
+                    rowHeight: (38 * zoom).clamp(24.0, 60.0),
                     frozenColumnsCount: 2,
                     columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
                       widths: columnWidths,
+                      zoom: zoom,
                     ),
                     tableSummaryRows: [
                       GridTableSummaryRow(

@@ -3,11 +3,11 @@ import 'package:dongtam/data/models/order/order_model.dart';
 import 'package:dongtam/data/models/warehouse/inventory/liquidation_inventory_model.dart';
 import 'package:dongtam/presentation/components/headerTable/warehouse/inventory/header_liquidation_inv.dart';
 import 'package:dongtam/presentation/components/shared/other/pagination_controls.dart';
+import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
 import 'package:dongtam/presentation/components/sources/warehouse/inventory/liquidation_inv_data_source.dart';
 import 'package:dongtam/service/warehouse_service.dart';
 import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -22,7 +22,7 @@ class LiquidationInventory extends StatefulWidget {
 
 class _LiquidationInventoryState extends State<LiquidationInventory> {
   late Future<Map<String, dynamic>> futureLiquidation;
-  late LiquidationInvDataSource liquidationDataSource;
+  late LiquidationInvDataSource? liquidationDataSource;
   late List<GridColumn> columns;
   final dataGridController = DataGridController();
   final themeController = Get.find<ThemeController>();
@@ -30,7 +30,7 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
   List<int> selectedLiquidationId = [];
   Map<String, double> columnWidths = {};
 
-  // TextEditingController searchController = TextEditingController();
+  final _zoomNotifier = ValueNotifier<double>(1.0);
   final headerScrollController = ScrollController();
 
   int currentPage = 1;
@@ -42,7 +42,7 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
     super.initState();
     loadInventory();
 
-    columns = buildLiquidationColumn(themeController: themeController);
+    columns = buildLiquidationColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
 
     ColumnWidthTable.loadWidths(tableKey: 'liquidation', columns: columns).then((w) {
       setState(() {
@@ -61,10 +61,19 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
     selectedLiquidationId.clear();
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (liquidationDataSource != null) {
+      liquidationDataSource!.zoom = clamped;
+      liquidationDataSource!.notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
-    // searchController.dispose();
+    _zoomNotifier.dispose();
     headerScrollController.dispose();
   }
 
@@ -72,23 +81,49 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-          //table & pagination
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-          ),
-        ],
+
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
+            ),
+
+            // Zoom Control Floating
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(73, 200),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadInventory(),
@@ -211,107 +246,113 @@ class _LiquidationInventoryState extends State<LiquidationInventory> {
           selectedLiquidationId: selectedLiquidationId,
           currentPage: currentPage,
           pageSize: pageSize,
+          zoom: _zoomNotifier.value,
         );
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: liquidationDataSource,
-                isScrollbarAlwaysShown: true,
-                allowExpandCollapseGroup: true, // Bật grouping
-                autoExpandGroups: true,
-                columnWidthMode: ColumnWidthMode.fill,
-                navigationMode: GridNavigationMode.row,
-                selectionMode: SelectionMode.multiple,
-                headerRowHeight: 30,
-                rowHeight: 40,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: ["qtyTransferred", "qtySold", "qtyRemaining"],
-                        child: formatColumn(label: 'Số Lượng', themeController: themeController),
-                      ),
-                    ],
-                  ),
-                ],
-
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: SfDataGrid(
+                    controller: dataGridController,
+                    source: liquidationDataSource!,
+                    isScrollbarAlwaysShown: true,
+                    allowExpandCollapseGroup: true, // Bật grouping
+                    autoExpandGroups: true,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    navigationMode: GridNavigationMode.row,
+                    selectionMode: SelectionMode.multiple,
+                    headerRowHeight: (30 * zoom).clamp(28.0, 50.0),
+                    rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                    columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
-                      setState: setState,
+                      widths: columnWidths,
+                      zoom: zoom,
                     ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: 'liquidation',
-                      columnWidths: columnWidths,
-                      setState: setState,
+                    stackedHeaderRows: buildLiquidationSHR(
+                      themeController: themeController,
+                      zoom: zoom,
                     ),
 
-                onSelectionChanged: (addedRows, removedRows) {
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
 
-                  setState(() {
-                    final selectedRows = dataGridController.selectedRows;
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: setState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: 'liquidation',
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
 
-                    selectedLiquidationId =
-                        selectedRows
-                            .map((row) {
-                              final cell = row.getCells().firstWhere(
-                                (c) => c.columnName == 'liquidationId',
-                                orElse:
-                                    () =>
-                                        const DataGridCell(columnName: 'liquidationId', value: ''),
-                              );
+                    onSelectionChanged: (addedRows, removedRows) {
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
 
-                              return int.tryParse(cell.value.toString());
-                            })
-                            .where((id) => id != null)
-                            .cast<int>()
-                            .toList();
+                      setState(() {
+                        final selectedRows = dataGridController.selectedRows;
 
-                    liquidationDataSource.selectedLiquidationId = selectedLiquidationId;
-                    liquidationDataSource.notifyListeners();
-                  });
-                },
-              ),
-            ),
+                        selectedLiquidationId =
+                            selectedRows
+                                .map((row) {
+                                  final cell = row.getCells().firstWhere(
+                                    (c) => c.columnName == 'liquidationId',
+                                    orElse:
+                                        () => const DataGridCell(
+                                          columnName: 'liquidationId',
+                                          value: '',
+                                        ),
+                                  );
 
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadInventory();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadInventory();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadInventory();
-                });
-              },
-            ),
-          ],
+                                  return int.tryParse(cell.value.toString());
+                                })
+                                .where((id) => id != null)
+                                .cast<int>()
+                                .toList();
+
+                        liquidationDataSource!.selectedLiquidationId = selectedLiquidationId;
+                        liquidationDataSource!.notifyListeners();
+                      });
+                    },
+                  ),
+                ),
+
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadInventory();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadInventory();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadInventory();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );

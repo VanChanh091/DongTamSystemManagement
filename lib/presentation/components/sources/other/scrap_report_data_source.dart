@@ -7,6 +7,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ScrapReportDataSource extends DataGridSource {
+  double zoom = 1.0;
   List<ScrapReportModel> scrapReports = [];
   List<int> selectedScrapIds = [];
   int currentPage;
@@ -21,6 +22,7 @@ class ScrapReportDataSource extends DataGridSource {
     required this.selectedScrapIds,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
 
@@ -102,7 +104,7 @@ class ScrapReportDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày báo cáo: $displayDate – $itemCount"
             : "📅 Ngày báo cáo: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -169,7 +171,7 @@ class ScrapReportDataSource extends DataGridSource {
               displayValue = getStatusVi(displayValue);
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

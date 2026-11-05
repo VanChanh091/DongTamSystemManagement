@@ -8,6 +8,7 @@ class PaperClassificationDataSource extends DataGridSource {
   List<PaperClassificationModel> classifications = [];
   int currentPage;
   int pageSize;
+  double zoom;
 
   late List<DataGridRow> paperClassificationsDataGridRows;
 
@@ -15,6 +16,7 @@ class PaperClassificationDataSource extends DataGridSource {
     required this.classifications,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "supplierName", sortGroupRows: false));
@@ -45,6 +47,10 @@ class PaperClassificationDataSource extends DataGridSource {
         columnName: "pricePaper",
         value: OrderModel.formatCurrency(classification.pricePaper ?? 0),
       ),
+      DataGridCell<String>(
+        columnName: "isActive",
+        value: classification.isActive == true ? "Đang Sử Dụng" : "Ngưng Sử Dụng",
+      ),
 
       // hidden field
       DataGridCell<int>(columnName: "classificationId", value: classification.classificationId),
@@ -65,14 +71,14 @@ class PaperClassificationDataSource extends DataGridSource {
     final value = dataCell.value;
 
     return switch (dataCell.columnName) {
-      'grade' => switch (value) {
-        1 => 'Tốt',
-        2 => 'Khá',
-        3 => 'Trung bình',
-        4 => 'Kém',
-        _ => '',
+      "grade" => switch (value) {
+        1 => "Tốt",
+        2 => "Khá",
+        3 => "Trung bình",
+        4 => "Kém",
+        _ => "",
       },
-      _ => value?.toString() ?? '',
+      _ => value?.toString() ?? "",
     };
   }
 
@@ -97,7 +103,7 @@ class PaperClassificationDataSource extends DataGridSource {
         displaySupplierName.isNotEmpty
             ? "📅 Nhà cung cấp: $displaySupplierName"
             : "📅 Nhà cung cấp: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -112,6 +118,7 @@ class PaperClassificationDataSource extends DataGridSource {
             return formatDataTable(
               label: _formatCellValueBool(dataCell),
               alignment: Alignment.centerLeft,
+              zoom: zoom,
             );
           }).toList(),
     );

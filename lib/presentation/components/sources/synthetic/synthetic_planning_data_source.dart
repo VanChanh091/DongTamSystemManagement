@@ -6,6 +6,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DashboardPaperDataSource extends DataGridSource {
+  double zoom = 1.0;
   List<PlanningPaperModel> dbPlanning = [];
   int? selectedDbPaperId;
   String page;
@@ -16,12 +17,12 @@ class DashboardPaperDataSource extends DataGridSource {
   final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  DashboardPaperDataSource({
-    required this.dbPlanning,
+  DashboardPaperDataSource({required this.dbPlanning,
     this.selectedDbPaperId,
     required this.page,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -171,7 +172,7 @@ class DashboardPaperDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

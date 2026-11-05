@@ -4,6 +4,8 @@ import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/data/models/planning/planning_paper_model.dart";
 import "package:dongtam/presentation/components/headerTable/planning/header_table_machine_paper.dart";
 import "package:dongtam/presentation/components/sources/planning/machine_paper_data_source.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
+import "package:syncfusion_flutter_core/theme.dart";
 import "package:dongtam/service/planning_service.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
@@ -11,7 +13,6 @@ import "package:dongtam/presentation/components/shared/other/dialog_shared.dart"
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -29,7 +30,9 @@ class PlanningStop extends StatefulWidget {
 
 class _PlanningStopState extends State<PlanningStop> {
   late Future<Map<String, dynamic>> futurePlanning;
-  late MachinePaperDatasource machinePaperDatasource;
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  MachinePaperDatasource? _cachedDatasource;
+  List<PlanningPaperModel>? _cachedPlannings;
   late List<GridColumn> columns;
   final DataGridController dataGridController = DataGridController();
   final badgesController = Get.find<BadgesController>();
@@ -53,7 +56,11 @@ class _PlanningStopState extends State<PlanningStop> {
     super.initState();
     loadPlanning();
 
-    columns = buildMachinePaperColumns(themeController: themeController, page: "planning");
+    columns = buildMachinePaperColumns(
+      themeController: themeController,
+      page: "planning",
+      zoomNotifier: _zoomNotifier,
+    );
 
     ColumnWidthTable.loadWidths(tableKey: "planningStop", columns: columns).then((w) {
       setState(() {
@@ -73,10 +80,20 @@ class _PlanningStopState extends State<PlanningStop> {
     });
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
     searchController.dispose();
+    _zoomNotifier.dispose();
   }
 
   @override
@@ -85,23 +102,48 @@ class _PlanningStopState extends State<PlanningStop> {
 
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isPlan)),
-
-          //table & pagination
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-          ),
-        ],
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isPlan)),
+
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
+            ),
+
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: const Offset(73, 152),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadPlanning(),
@@ -192,153 +234,133 @@ class _PlanningStopState extends State<PlanningStop> {
         final currentPg = data["currentPage"];
         final totalPgs = data["totalPages"];
 
-        machinePaperDatasource = MachinePaperDatasource(
-          planning: plannings,
-          selectedPlanningIds: selectedPlanningIds,
-          showGroup: true,
-          page: "planning",
-        );
+        if (_cachedPlannings == null || _cachedPlannings != plannings) {
+          _cachedPlannings = plannings;
+          _cachedDatasource = MachinePaperDatasource(
+            planning: plannings,
+            selectedPlanningIds: selectedPlanningIds,
+            showGroup: true,
+            page: "planning",
+            zoom: _zoomNotifier.value,
+          );
+        }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: machinePaperDatasource,
-                allowExpandCollapseGroup: true, // Bật grouping
-                autoExpandGroups: true,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.auto,
-                navigationMode: GridNavigationMode.row,
-                selectionMode: SelectionMode.multiple,
-                headerRowHeight: 35,
-                rowHeight: 40,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                frozenColumnsCount: 8,
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
-                        child: Obx(
-                          () => formatColumn(label: "Số Lượng", themeController: themeController),
-                        ),
-                      ),
-                      StackedHeaderCell(
-                        columnNames: [
-                          "bottom",
-                          "fluteE",
-                          "fluteE2",
-                          "fluteB",
-                          "fluteC",
-                          "knife",
-                          "totalLoss",
-                        ],
-                        child: Obx(
-                          () => formatColumn(
-                            label: "Định Mức Phế Liệu",
-                            themeController: themeController,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return StatefulBuilder(
+              builder: (context, localSetState) {
+                return Column(
+                  children: [
+                    //table
+                    Expanded(
+                      child: SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
+                          currentCellStyle: const DataGridCurrentCellStyle(
+                            borderColor: Colors.transparent,
+                            borderWidth: 0,
                           ),
                         ),
-                      ),
-                      StackedHeaderCell(
-                        columnNames: [
-                          "inMatTruoc",
-                          "inMatSau",
-                          "canLanBox",
-                          "canMang",
-                          "xa",
-                          "catKhe",
-                          "be",
-                          "dan_1_Manh",
-                          "dan_2_Manh",
-                          "dongGhimMotManh",
-                          "dongGhimHaiManh",
-                          "chongTham",
-                          "dongGoi",
-                          "maKhuon",
-                        ],
-                        child: Obx(
-                          () =>
-                              formatColumn(label: "Công Đoạn 2", themeController: themeController),
+                        child: SfDataGrid(
+                          controller: dataGridController,
+                          source: _cachedDatasource!,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          navigationMode: GridNavigationMode.row,
+                          selectionMode: SelectionMode.multiple,
+                          headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                            zoom: zoom,
+                          ),
+                          frozenColumnsCount: 8,
+                          stackedHeaderRows: buildPlanningStopSHR(
+                            themeController: themeController,
+                            zoom: zoom,
+                          ),
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "planningStop",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
+                          onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                            setState(() {
+                              final selectedRows = dataGridController.selectedRows;
+
+                              selectedPlanningIds =
+                                  selectedRows
+                                      .map((row) {
+                                        final cell = row.getCells().firstWhere(
+                                          (c) => c.columnName == "planningId",
+                                          orElse:
+                                              () => const DataGridCell(
+                                                columnName: "planningId",
+                                                value: "",
+                                              ),
+                                        );
+                                        return cell.value.toString();
+                                      })
+                                      .where((id) => id.isNotEmpty)
+                                      .toList();
+
+                              _cachedDatasource!.selectedPlanningIds = selectedPlanningIds;
+                              _cachedDatasource!.notifyListeners();
+                            });
+                          },
                         ),
                       ),
-                    ],
-                  ),
-                ],
-
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
-                      columns: columns,
-                      setState: setState,
-                    ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: "planningStop",
-                      columnWidths: columnWidths,
-                      setState: setState,
                     ),
 
-                onSelectionChanged: (addedRows, removedRows) {
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                  setState(() {
-                    // Lấy selection thật sự từ controller
-                    final selectedRows = dataGridController.selectedRows;
-
-                    selectedPlanningIds =
-                        selectedRows
-                            .map((row) {
-                              final cell = row.getCells().firstWhere(
-                                (c) => c.columnName == "planningId",
-                                orElse:
-                                    () => const DataGridCell(columnName: "planningId", value: ""),
-                              );
-                              return cell.value.toString();
-                            })
-                            .where((id) => id.isNotEmpty)
-                            .toList();
-
-                    // cập nhật cho datasource
-                    machinePaperDatasource.selectedPlanningIds = selectedPlanningIds;
-                    machinePaperDatasource.notifyListeners();
-                  });
-                },
-              ),
-            ),
-
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadPlanning();
-                });
+                    // Nút chuyển trang
+                    PaginationControls(
+                      currentPage: currentPg,
+                      totalPages: totalPgs,
+                      onPrevious: () {
+                        setState(() {
+                          currentPage--;
+                          loadPlanning();
+                        });
+                      },
+                      onNext: () {
+                        setState(() {
+                          currentPage++;
+                          loadPlanning();
+                        });
+                      },
+                      onJumpToPage: (page) {
+                        setState(() {
+                          currentPage = page;
+                          loadPlanning();
+                        });
+                      },
+                    ),
+                  ],
+                );
               },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadPlanning();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadPlanning();
-                });
-              },
-            ),
-          ],
+            );
+          },
         );
       },
     );

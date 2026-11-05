@@ -5,16 +5,17 @@ import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MonthlyErrProductionDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<MonthlyErrorReportRow> rowsData;
   final MonthlyErrorReportSummary? summary;
   final int daysInMonth;
 
   List<DataGridRow> _monthlyErrProductionRows = [];
 
-  MonthlyErrProductionDataSource({
-    required this.rowsData,
+  MonthlyErrProductionDataSource({required this.rowsData,
     this.summary,
     required this.daysInMonth,
+    this.zoom = 1.0,
   }) {
     _buildRows();
   }
@@ -63,14 +64,14 @@ class MonthlyErrProductionDataSource extends DataGridSource {
               displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
 
               if (colName != "index" && numVal > 0) {
-                textStyle = const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold);
+                textStyle = TextStyle(fontSize: (13.5 * zoom).clamp(10.0, 18.0), fontWeight: FontWeight.bold);
               }
             } else {
               alignment = Alignment.centerLeft;
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle);
+            return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle, zoom: zoom);
           }).toList(),
     );
   }
@@ -86,7 +87,8 @@ class MonthlyErrProductionDataSource extends DataGridSource {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng" : summaryValue,
         alignment: Alignment.center,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
@@ -98,11 +100,12 @@ class MonthlyErrProductionDataSource extends DataGridSource {
       return formatDataTable(
         label: displayValue,
         alignment: Alignment.centerRight,
-        textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
-    return formatDataTable(label: "", alignment: Alignment.center);
+    return formatDataTable(label: "", alignment: Alignment.center, zoom: zoom);
   }
 
   int _getSummaryValue(String columnName) {

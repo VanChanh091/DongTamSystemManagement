@@ -5,12 +5,15 @@ import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class YearlyErrProductionDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<YearlyErrorReportRow> rowsData;
   final YearlyErrorReportSummary? summary;
 
   List<DataGridRow> _gridRows = [];
 
-  YearlyErrProductionDataSource({required this.rowsData, this.summary}) {
+  YearlyErrProductionDataSource({required this.rowsData, this.summary,
+    this.zoom = 1.0,
+  }) {
     _buildRows();
   }
 
@@ -75,14 +78,14 @@ class YearlyErrProductionDataSource extends DataGridSource {
               displayValue = numVal == 0 ? "-" : OrderModel.formatCurrency(numVal);
 
               // if (colName != "index" && numVal > 0) {
-              //   textStyle = const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold);
+              //   textStyle = TextStyle(fontSize: (13.5 * zoom).clamp(10.0, 18.0), fontWeight: FontWeight.bold);
               // }
             } else {
               alignment = Alignment.centerLeft;
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle);
+            return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle, zoom: zoom);
           }).toList(),
     );
   }
@@ -99,7 +102,8 @@ class YearlyErrProductionDataSource extends DataGridSource {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng" : summaryValue,
         alignment: Alignment.center,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
@@ -168,7 +172,7 @@ class YearlyErrProductionDataSource extends DataGridSource {
       );
     }
 
-    return formatDataTable(label: "", alignment: Alignment.center);
+    return formatDataTable(label: "", alignment: Alignment.center, zoom: zoom);
   }
 
   // Giữ lại duy nhất hàm dựng cell format chung này cho gọn UI
@@ -180,7 +184,8 @@ class YearlyErrProductionDataSource extends DataGridSource {
     return formatDataTable(
       label: label,
       alignment: alignment,
-      textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold, color: textColor),
+      textStyle: TextStyle(fontWeight: FontWeight.bold, color: textColor),
+      zoom: zoom,
     );
   }
 }

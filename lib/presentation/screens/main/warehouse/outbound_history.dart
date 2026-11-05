@@ -22,7 +22,6 @@ import "package:dongtam/presentation/components/shared/other/pagination_controls
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:dongtam/utils/helper/picker_date_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -112,8 +111,12 @@ class _OutboundHistoryState extends State<OutboundHistory> {
     columnsOutbound = buildOutboundHistoryColumn(
       themeController: themeController,
       showAllocationHistory: canViewAllocation,
+      zoomNotifier: _zoomNotifier,
     );
-    columnsObDetail = buildOutboundDetailColumn(themeController: themeController);
+    columnsObDetail = buildOutboundDetailColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
 
     ColumnWidthTable.loadWidths(tableKey: "outbound", columns: columnsOutbound).then((w) {
       setState(() {
@@ -187,7 +190,12 @@ class _OutboundHistoryState extends State<OutboundHistory> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   //using to edit outbound
@@ -236,49 +244,23 @@ class _OutboundHistoryState extends State<OutboundHistory> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -640,192 +622,185 @@ class _OutboundHistoryState extends State<OutboundHistory> {
                 builder: (_) => DialogOutboundAllocation(outbound: outbound),
               );
             },
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: SfDataGrid(
-                            source: _cachedDatasource!,
-                            isScrollbarAlwaysShown: true,
-                            columnWidthMode: ColumnWidthMode.auto,
-                            selectionMode: SelectionMode.single,
-                            headerRowHeight: 30,
-                            rowHeight: 40,
-                            columns: ColumnWidthTable.applySavedWidths(
-                              columns: columnsOutbound,
-                              widths: columnWidthsOutbound,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
+                        ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: SfDataGrid(
+                                source: _cachedDatasource!,
+                                isScrollbarAlwaysShown: true,
+                                columnWidthMode: ColumnWidthMode.auto,
+                                selectionMode: SelectionMode.single,
+                                headerRowHeight: (30 * zoom).clamp(28.0, 50.0),
+                                rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                                columns: ColumnWidthTable.applySavedWidths(
+                                  columns: columnsOutbound,
+                                  widths: columnWidthsOutbound,
+                                  zoom: zoom,
+                                ),
+                                stackedHeaderRows: buildOutboundHistorySHR(
+                                  themeController: themeController,
+                                  zoom: zoom,
+                                ),
+
+                                //auto resize
+                                allowColumnsResizing: true,
+                                columnResizeMode: ColumnResizeMode.onResize,
+
+                                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                onColumnResizeUpdate:
+                                    (details) => GridResizeHelper.onResizeUpdate(
+                                      details: details,
+                                      columns: columnsOutbound,
+                                      setState: localSetState,
+                                    ),
+                                onColumnResizeEnd:
+                                    (details) => GridResizeHelper.onResizeEnd(
+                                      details: details,
+                                      tableKey: "outbound",
+                                      columnWidths: columnWidthsOutbound,
+                                      setState: setState,
+                                    ),
+
+                                onSelectionChanged: (addedRows, removedRows) async {
+                                  if (addedRows.isNotEmpty) {
+                                    final selectedRow = addedRows.first;
+
+                                    final outboundId =
+                                        selectedRow
+                                            .getCells()
+                                            .firstWhere((cell) => cell.columnName == "outboundId")
+                                            .value;
+
+                                    final matchingOutbound = outbounds.firstWhere(
+                                      (element) => element.outboundId == outboundId,
+                                    );
+
+                                    setState(() {
+                                      _selectedOutboundIdNotifier.value = outboundId;
+                                      selectOutbound = matchingOutbound;
+                                      selectedObDetail = [];
+                                    });
+
+                                    try {
+                                      final detail = await WarehouseService().getOutboundDetail(
+                                        outboundId: outboundId,
+                                      );
+
+                                      setState(() {
+                                        selectedObDetail = detail;
+                                        localSetState(() {});
+                                      });
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        showSnackBarError(
+                                          context,
+                                          "Lỗi khi lấy chi tiết phiếu xuất kho",
+                                        );
+                                      }
+                                    }
+                                  } else {
+                                    setState(() {
+                                      _selectedOutboundIdNotifier.value = null;
+                                      selectOutbound = null;
+                                      selectedObDetail = [];
+                                    });
+                                  }
+                                },
+                              ),
                             ),
-                            stackedHeaderRows: <StackedHeaderRow>[
-                              StackedHeaderRow(
-                                cells: [
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "totalPriceOrder",
-                                      "totalPriceVAT",
-                                      "totalPricePayment",
-                                      "paidAmount",
-                                      "remainingAmount",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Tổng Tiền (VNĐ)",
-                                        themeController: themeController,
+
+                            selectedObDetail.isNotEmpty
+                                ? Expanded(
+                                  flex: 1,
+                                  child: AnimatedSize(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    child: SfDataGrid(
+                                      source: ObDetailDataSource(detail: selectedObDetail),
+                                      isScrollbarAlwaysShown: true,
+                                      headerRowHeight: (30 * zoom).clamp(28.0, 50.0),
+                                      rowHeight: (35 * zoom).clamp(24.0, 55),
+                                      columnWidthMode: ColumnWidthMode.fill,
+                                      selectionMode: SelectionMode.single,
+                                      columns: ColumnWidthTable.applySavedWidths(
+                                        columns: columnsObDetail,
+                                        widths: columnWidthsObDetail,
+                                        zoom: zoom,
                                       ),
+
+                                      //auto resize
+                                      allowColumnsResizing: true,
+                                      columnResizeMode: ColumnResizeMode.onResize,
+
+                                      onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                      onColumnResizeUpdate:
+                                          (details) => GridResizeHelper.onResizeUpdate(
+                                            details: details,
+                                            columns: columnsObDetail,
+                                            setState: setState,
+                                          ),
+                                      onColumnResizeEnd:
+                                          (details) => GridResizeHelper.onResizeEnd(
+                                            details: details,
+                                            tableKey: "obDetail",
+                                            columnWidths: columnWidthsObDetail,
+                                            setState: setState,
+                                          ),
                                     ),
                                   ),
-                                ],
-                              ),
-                            ],
-
-                            //auto resize
-                            allowColumnsResizing: true,
-                            columnResizeMode: ColumnResizeMode.onResize,
-
-                            onColumnResizeStart: GridResizeHelper.onResizeStart,
-                            onColumnResizeUpdate:
-                                (details) => GridResizeHelper.onResizeUpdate(
-                                  details: details,
-                                  columns: columnsOutbound,
-                                  setState: localSetState,
-                                ),
-                            onColumnResizeEnd:
-                                (details) => GridResizeHelper.onResizeEnd(
-                                  details: details,
-                                  tableKey: "outbound",
-                                  columnWidths: columnWidthsOutbound,
-                                  setState: setState,
-                                ),
-
-                            onSelectionChanged: (addedRows, removedRows) async {
-                              if (addedRows.isNotEmpty) {
-                                final selectedRow = addedRows.first;
-
-                                final outboundId =
-                                    selectedRow
-                                        .getCells()
-                                        .firstWhere((cell) => cell.columnName == "outboundId")
-                                        .value;
-
-                                final matchingOutbound = outbounds.firstWhere(
-                                  (element) => element.outboundId == outboundId,
-                                );
-
-                                setState(() {
-                                  _selectedOutboundIdNotifier.value = outboundId;
-                                  selectOutbound = matchingOutbound;
-                                  selectedObDetail = [];
-                                });
-
-                                try {
-                                  final detail = await WarehouseService().getOutboundDetail(
-                                    outboundId: outboundId,
-                                  );
-
-                                  setState(() {
-                                    selectedObDetail = detail;
-                                    localSetState(() {});
-                                  });
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    showSnackBarError(
-                                      context,
-                                      "Lỗi khi lấy chi tiết phiếu xuất kho",
-                                    );
-                                  }
-                                }
-                              } else {
-                                setState(() {
-                                  _selectedOutboundIdNotifier.value = null;
-                                  selectOutbound = null;
-                                  selectedObDetail = [];
-                                });
-                              }
-                            },
-                          ),
+                                )
+                                : const SizedBox.shrink(),
+                          ],
                         ),
+                      );
+                    },
+                  ),
+                ),
 
-                        selectedObDetail.isNotEmpty
-                            ? Expanded(
-                              flex: 1,
-                              child: AnimatedSize(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                                child: SfDataGrid(
-                                  source: ObDetailDataSource(detail: selectedObDetail),
-                                  isScrollbarAlwaysShown: true,
-                                  headerRowHeight: 30,
-                                  rowHeight: 35,
-                                  columnWidthMode: ColumnWidthMode.fill,
-                                  selectionMode: SelectionMode.single,
-                                  columns: ColumnWidthTable.applySavedWidths(
-                                    columns: columnsObDetail,
-                                    widths: columnWidthsObDetail,
-                                  ),
-
-                                  //auto resize
-                                  allowColumnsResizing: true,
-                                  columnResizeMode: ColumnResizeMode.onResize,
-
-                                  onColumnResizeStart: GridResizeHelper.onResizeStart,
-                                  onColumnResizeUpdate:
-                                      (details) => GridResizeHelper.onResizeUpdate(
-                                        details: details,
-                                        columns: columnsObDetail,
-                                        setState: setState,
-                                      ),
-                                  onColumnResizeEnd:
-                                      (details) => GridResizeHelper.onResizeEnd(
-                                        details: details,
-                                        tableKey: "obDetail",
-                                        columnWidths: columnWidthsObDetail,
-                                        setState: setState,
-                                      ),
-                                ),
-                              ),
-                            )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadOutbound();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadOutbound();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadOutbound();
-                });
-              },
-            ),
-          ],
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadOutbound();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadOutbound();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadOutbound();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );

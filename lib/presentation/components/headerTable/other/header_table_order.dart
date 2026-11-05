@@ -1,7 +1,7 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
 import "package:dongtam/utils/helper/style_table.dart";
-import "package:get/get.dart";
+import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 final List<Map<String, dynamic>> _headerOrder = [
@@ -81,15 +81,60 @@ final List<Map<String, dynamic>> _headerOrder = [
 
 List<GridColumn> buildOrderColumns({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   required UserController userController,
-}) {
-  return [
+}) => buildGridColumns(
+  headerConfig: [
     for (var item in _headerOrder)
       if (!item.containsKey("showIfRole") ||
           userController.hasAnyRole(roles: item["showIfRole"] as List<String>))
-        GridColumn(
-          columnName: item["key"]!,
-          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
+        item,
+  ],
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildOrderStackedHeaderRows({
+  required ThemeController themeController,
+  required double zoom,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["sizeCus", "lengthCus", "sizeManu", "lengthManu"],
+          label: "Quy Cách Giấy (cm)",
+          themeController: themeController,
+          zoom: zoom,
         ),
+        buildStackedHeaderCell(
+          columnNames: ["price", "pricePaper", "discounts", "profitOrd", "totalPrice"],
+          label: "Khoản Phí (VNĐ)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "inMatTruoc",
+            "inMatSau",
+            "canMang",
+            "canLanBox",
+            "xa",
+            "catKhe",
+            "be",
+            "dan_1_Manh",
+            "dan_2_Manh",
+            "dongGhimMotManh",
+            "dongGhimHaiManh",
+            "chongTham",
+            "dongGoi",
+            "maKhuon",
+          ],
+          label: "Công Đoạn 2",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

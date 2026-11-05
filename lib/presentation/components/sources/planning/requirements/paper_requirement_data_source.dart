@@ -7,11 +7,12 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class PaperRequirementsDataSource extends DataGridSource {
   List<PaperRequirementModel> requirements = [];
+  double zoom = 1.0;
 
   late List<DataGridRow> paperDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
 
-  PaperRequirementsDataSource({required this.requirements}) {
+  PaperRequirementsDataSource({required this.requirements, this.zoom = 1.0}) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "dayStart", sortGroupRows: false));
   }
@@ -122,7 +123,7 @@ class PaperRequirementsDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày sản xuất: $displayDate – $itemCount"
             : "📅 Ngày sản xuất: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -141,7 +142,7 @@ class PaperRequirementsDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

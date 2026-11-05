@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerScrapReport = [
@@ -28,13 +28,36 @@ const List<Map<String, dynamic>> _headerScrapReport = [
   {"key": "reportAt", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildScrapReportColumn({required ThemeController themeController}) {
+List<GridColumn> buildScrapReportColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerScrapReport,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+
+List<StackedHeaderRow> buildScrapReportSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
   return [
-    for (var item in _headerScrapReport)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "qtyForklift",
+            "qtyInventory",
+            "qtyCoreTube",
+            "qtyProduction",
+            "qtyOther",
+          ],
+          label: "Số Lượng Phế Liệu (Kg)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

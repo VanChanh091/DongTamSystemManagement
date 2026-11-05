@@ -6,10 +6,11 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class LayerRequirementDataSource extends DataGridSource {
   List<PaperRequirementLayerModel> layers;
+  double zoom = 1.0;
 
   late List<DataGridRow> paperDataGridRows;
 
-  LayerRequirementDataSource({required this.layers}) {
+  LayerRequirementDataSource({required this.layers, this.zoom = 1.0}) {
     buildDataGridRows();
   }
 
@@ -88,7 +89,7 @@ class LayerRequirementDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

@@ -10,6 +10,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MachineBoxDatasource extends DataGridSource {
+  double zoom = 1.0;
   List<PlanningBoxModel> planning = [];
   List<String> selectedPlanningIds = [];
   UnsavedChangeController? unsavedChange;
@@ -30,6 +31,7 @@ class MachineBoxDatasource extends DataGridSource {
     required this.page,
     this.unsavedChange,
     this.onRowTap,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
 
@@ -294,7 +296,7 @@ class MachineBoxDatasource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr"
             : "📅 Ngày sản xuất: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -415,7 +417,7 @@ class MachineBoxDatasource extends DataGridSource {
               label: _formatCellValueBool(dataCell),
               alignment: alignment,
               cellColor: cellColor,
-              textStyle: customTextStyle,
+              textStyle: customTextStyle, zoom: zoom,
             );
 
             return PulsingRowAnimation(isFailed: isFailed, child: cellWidget);

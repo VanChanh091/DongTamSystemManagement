@@ -1,10 +1,11 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildProductionReportColumns({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   required bool isMachine,
 }) {
   final List<Map<String, dynamic>> headers = [
@@ -22,11 +23,9 @@ List<GridColumn> buildProductionReportColumns({
     {"key": "qcErrorPerTon", "title": "% Lỗi (Tấn Giấy)"},
   ];
 
-  return [
-    for (var item in headers)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-      ),
-  ];
+  return buildGridColumns(
+    headerConfig: headers,
+    themeController: themeController,
+    zoomNotifier: zoomNotifier,
+  );
 }

@@ -12,7 +12,6 @@ import "package:dongtam/presentation/components/shared/other/dialog_shared.dart"
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
@@ -78,7 +77,7 @@ class _CustomerPageState extends State<CustomerPage> {
     isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
     loadCustomer();
 
-    columns = buildCustomerColumn(themeController: themeController);
+    columns = buildCustomerColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: "customer", columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
     });
@@ -117,10 +116,6 @@ class _CustomerPageState extends State<CustomerPage> {
       isSearching = (searchType != "Tất cả");
       _fetchData();
     });
-  }
-
-  void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
   }
 
   Future<void> _selectDateRange() async {
@@ -163,6 +158,15 @@ class _CustomerPageState extends State<CustomerPage> {
     }
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -185,49 +189,23 @@ class _CustomerPageState extends State<CustomerPage> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Zoom Control Floating
@@ -447,106 +425,99 @@ class _CustomerPageState extends State<CustomerPage> {
             customer: customers,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 35,
-                      rowHeight: 38,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: [
-                                "debtLimit",
-                                "debtCurrent",
-                                "paymentTermDays",
-                                "paymentType",
-                                "closingDays",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Công Nợ",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                          ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ],
-
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (35 * zoom).clamp(28, 55),
+                          rowHeight: (38 * zoom).clamp(24.0, 60),
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "customer",
-                            columnWidths: columnWidths,
-                            setState: setState,
+                          stackedHeaderRows: buildCustomersSHR(
+                            themeController: themeController,
+                            zoom: zoom,
                           ),
-                      onSelectionChanged: (addedRows, _) {
-                        if (addedRows.isNotEmpty) {
-                          final selectedRow = addedRows.first;
-                          final customerId =
-                              selectedRow
-                                  .getCells()
-                                  .firstWhere((cell) => cell.columnName == "customerId")
-                                  .value
-                                  .toString();
-                          _selectedCustomerIdNotifier.value = customerId;
-                        } else {
-                          _selectedCustomerIdNotifier.value = null;
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
 
-            const SizedBox(height: 8),
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious:
-                  () => setState(() {
-                    currentPage--;
-                    loadCustomer();
-                  }),
-              onNext:
-                  () => setState(() {
-                    currentPage++;
-                    loadCustomer();
-                  }),
-              onJumpToPage:
-                  (page) => setState(() {
-                    currentPage = page;
-                    loadCustomer();
-                  }),
-            ),
-          ],
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "customer",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
+                          onSelectionChanged: (addedRows, _) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final customerId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == "customerId")
+                                      .value
+                                      .toString();
+                              _selectedCustomerIdNotifier.value = customerId;
+                            } else {
+                              _selectedCustomerIdNotifier.value = null;
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious:
+                      () => setState(() {
+                        currentPage--;
+                        loadCustomer();
+                      }),
+                  onNext:
+                      () => setState(() {
+                        currentPage++;
+                        loadCustomer();
+                      }),
+                  onJumpToPage:
+                      (page) => setState(() {
+                        currentPage = page;
+                        loadCustomer();
+                      }),
+                ),
+              ],
+            );
+          },
         );
       },
     );

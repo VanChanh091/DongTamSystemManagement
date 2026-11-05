@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerOutboundHistory = [
@@ -21,7 +21,7 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
 
   {"key": "status", "title": "Trạng Thái"},
   {"key": "outboundBy", "title": "Người Lập Phiếu"},
-  {"key": "allocationHistory", "title": "Lịch Sử Trừ Nợ"},
+  {"key": "allocationHistory", "title": "Lịch Sử Trừ Nợ", "width": 140.0},
 
   //hidden
   {"key": "outboundId", "title": "", "visible": false},
@@ -30,16 +30,37 @@ const List<Map<String, dynamic>> _headerOutboundHistory = [
 
 List<GridColumn> buildOutboundHistoryColumn({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   bool showAllocationHistory = false,
+}) => buildGridColumns(
+  headerConfig: [
+    for (var item in _headerOutboundHistory)
+      if (item["key"] != "allocationHistory" || showAllocationHistory) item,
+  ],
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildOutboundHistorySHR({
+  required ThemeController themeController,
+  required double zoom,
 }) {
   return [
-    for (var item in _headerOutboundHistory)
-      if (item["key"] != "allocationHistory" || showAllocationHistory)
-        GridColumn(
-          columnName: item["key"]!,
-          width: item["key"] == "allocationHistory" ? 140 : double.nan,
-          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "totalPriceOrder",
+            "totalPriceVAT",
+            "totalPricePayment",
+            "paidAmount",
+            "remainingAmount",
+          ],
+          label: "Tổng Tiền (VNĐ)",
+          themeController: themeController,
+          zoom: zoom,
         ),
+      ],
+    ),
   ];
 }

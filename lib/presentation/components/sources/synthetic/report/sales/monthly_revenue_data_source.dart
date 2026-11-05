@@ -7,6 +7,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MonthlyRevenueDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<MonthlyRevenueReport> dailyReports;
   final MonthlyRevenueSummary? summary;
   final int month;
@@ -16,11 +17,11 @@ class MonthlyRevenueDataSource extends DataGridSource {
 
   List<DataGridRow> _rows = [];
 
-  MonthlyRevenueDataSource({
-    required this.dailyReports,
+  MonthlyRevenueDataSource({required this.dailyReports,
     this.summary,
     required this.month,
     required this.year,
+    this.zoom = 1.0,
   }) {
     _buildMonthlyRevenueRows();
   }
@@ -77,7 +78,7 @@ class MonthlyRevenueDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }
@@ -93,7 +94,8 @@ class MonthlyRevenueDataSource extends DataGridSource {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng cộng" : summaryValue,
         alignment: Alignment.center,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
@@ -111,10 +113,11 @@ class MonthlyRevenueDataSource extends DataGridSource {
       return formatDataTable(
         label: val == 0 ? "-" : OrderModel.formatCurrency(val.toDouble()),
         alignment: Alignment.centerRight,
-        textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
-    return formatDataTable(label: "", alignment: Alignment.center);
+    return formatDataTable(label: "", alignment: Alignment.center, zoom: zoom);
   }
 }

@@ -10,6 +10,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class MachinePaperDatasource extends DataGridSource {
+  double zoom = 1.0;
   List<PlanningPaperModel> planning = [];
   List<String> selectedPlanningIds = [];
   UnsavedChangeController? unsavedChange;
@@ -31,6 +32,7 @@ class MachinePaperDatasource extends DataGridSource {
     required this.page,
     this.unsavedChange,
     this.onRowTap,
+    this.zoom = 1.0,
   }) {
     _calculateOrderIdCounts();
     buildDataGridRows();
@@ -308,7 +310,7 @@ class MachinePaperDatasource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày sản xuất: $displayDate – $itemCount$totalPriceStr"
             : "📅 Ngày sản xuất: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -431,7 +433,7 @@ class MachinePaperDatasource extends DataGridSource {
             label: _formatCellValueBool(dataCell),
             alignment: alignment,
             cellColor: cellColor,
-            textStyle: customTextStyle,
+            textStyle: customTextStyle, zoom: zoom,
             leading: buildCellLeading(dataCell, isKhoTransition, transitionColor, isDuplicateOrder),
           );
 

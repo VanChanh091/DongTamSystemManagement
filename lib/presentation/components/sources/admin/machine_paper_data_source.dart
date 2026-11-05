@@ -6,12 +6,16 @@ import 'package:dongtam/data/models/admin/machine/admin_machine_paper_model.dart
 class MachinePaperDataSource extends DataGridSource {
   List<AdminMachinePaperModel> machinePapers = [];
   List<int> selectedPaperIds = [];
+  double zoom;
 
   late List<DataGridRow> machinePaperDataGridRows;
-
   final TextEditingController editingController = TextEditingController();
 
-  MachinePaperDataSource({required this.machinePapers, required this.selectedPaperIds}) {
+  MachinePaperDataSource({
+    required this.machinePapers,
+    required this.selectedPaperIds,
+    this.zoom = 1.0,
+  }) {
     buildDataGridRows();
   }
 
@@ -88,7 +92,11 @@ class MachinePaperDataSource extends DataGridSource {
 
             Alignment alignment = (rawValue is num) ? Alignment.centerRight : Alignment.centerLeft;
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

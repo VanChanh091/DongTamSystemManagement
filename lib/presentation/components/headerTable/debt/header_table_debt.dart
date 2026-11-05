@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerDebt = [
@@ -25,13 +25,47 @@ const List<Map<String, dynamic>> _headerDebt = [
   {"key": "dueDebt", "title": "Tổng Quá Hạn"},
 ];
 
-List<GridColumn> buildDebtColumn({required ThemeController themeController}) {
+List<GridColumn> buildDebtColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerDebt,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildDebtCustomerSHR({
+  required ThemeController themeController,
+  double zoom = 1.0,
+}) {
   return [
-    for (var item in _headerDebt)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "notDueDebt",
+            "currentPeriodDebt",
+            "closedDebt",
+            "dueIn1_3",
+          ],
+          label: "Nợ Trong Hạn (VNĐ)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "overdue1_30",
+            "overdue31_60",
+            "overdue61_90",
+            "overdue91_120",
+            "overdueOver120",
+            "overdueDebt",
+          ],
+          label: "Nợ Quá Hạn (VNĐ)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

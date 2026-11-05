@@ -3,7 +3,6 @@ import "package:dongtam/presentation/components/shared/other/grid_resize_helper.
 import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:flutter/material.dart";
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/data/controller/user_controller.dart";
@@ -85,7 +84,10 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
     }
     _loadDailyRevenue();
 
-    columns = buildDailyRevenueColumn(themeController: themeController);
+    columns = buildDailyRevenueColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
     ColumnWidthTable.loadWidths(tableKey: "daily_revenue", columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
     });
@@ -169,7 +171,12 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -194,48 +201,23 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Zoom Control Floating
@@ -435,6 +417,7 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
 
         // Rebuild columns nếu daysInMonth thay đổi
         columns = buildDailyRevenueColumn(
+          zoomNotifier: _zoomNotifier,
           themeController: themeController,
           daysInMonth: daysInMonth,
         );
@@ -447,131 +430,129 @@ class _SyntheticDailyRevenueState extends State<SyntheticDailyRevenue> {
             daysInMonth: daysInMonth,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 33,
-                      rowHeight: 38,
-                      frozenColumnsCount: 4,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: List.generate(daysInMonth, (i) => "d_${i + 1}"),
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Ngày Trong Tháng",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                          ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ],
-
-                      //table summary
-                      tableSummaryRows: [
-                        GridTableSummaryRow(
-                          showSummaryInRow: false,
-                          title: "Tổng",
-                          position: GridTableSummaryRowPosition.bottom,
-                          columns: [
-                            const GridSummaryColumn(
-                              name: "totalDebt",
-                              columnName: "totalDebt",
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            const GridSummaryColumn(
-                              name: "totalSales",
-                              columnName: "totalSales",
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            for (int d = 1; d <= daysInMonth; d++)
-                              GridSummaryColumn(
-                                name: "d_$d",
-                                columnName: "d_$d",
-                                summaryType: GridSummaryType.sum,
-                              ),
-                          ],
-                        ),
-                      ],
-
-                      //auto resize
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (33 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                          frozenColumnsCount: 4,
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "daily_revenue",
-                            columnWidths: columnWidths,
-                            setState: setState,
+                          stackedHeaderRows: buildDailyRevenueSHR(
+                            themeController: themeController,
+                            daysInMonth: daysInMonth,
+                            zoom: zoom,
                           ),
+                          //table summary
+                          tableSummaryRows: [
+                            GridTableSummaryRow(
+                              showSummaryInRow: false,
+                              title: "Tổng",
+                              position: GridTableSummaryRowPosition.bottom,
+                              columns: [
+                                const GridSummaryColumn(
+                                  name: "totalDebt",
+                                  columnName: "totalDebt",
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                                const GridSummaryColumn(
+                                  name: "totalSales",
+                                  columnName: "totalSales",
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                                for (int d = 1; d <= daysInMonth; d++)
+                                  GridSummaryColumn(
+                                    name: "d_$d",
+                                    columnName: "d_$d",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                              ],
+                            ),
+                          ],
 
-                      onSelectionChanged: (addedRows, _) {
-                        if (addedRows.isNotEmpty) {
-                          final selectedRow = addedRows.first;
-                          final customerId =
-                              selectedRow
-                                  .getCells()
-                                  .firstWhere((cell) => cell.columnName == "customerId")
-                                  .value
-                                  .toString();
-                          _selectedCustomerIdNotifier.value = customerId;
-                        } else {
-                          _selectedCustomerIdNotifier.value = null;
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
 
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious:
-                  () => setState(() {
-                    currentPage--;
-                    _loadDailyRevenue();
-                  }),
-              onNext:
-                  () => setState(() {
-                    currentPage++;
-                    _loadDailyRevenue();
-                  }),
-              onJumpToPage:
-                  (page) => setState(() {
-                    currentPage = page;
-                    _loadDailyRevenue();
-                  }),
-            ),
-          ],
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "daily_revenue",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
+                          onSelectionChanged: (addedRows, _) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final customerId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == "customerId")
+                                      .value
+                                      .toString();
+                              _selectedCustomerIdNotifier.value = customerId;
+                            } else {
+                              _selectedCustomerIdNotifier.value = null;
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious:
+                      () => setState(() {
+                        currentPage--;
+                        _loadDailyRevenue();
+                      }),
+                  onNext:
+                      () => setState(() {
+                        currentPage++;
+                        _loadDailyRevenue();
+                      }),
+                  onJumpToPage:
+                      (page) => setState(() {
+                        currentPage = page;
+                        _loadDailyRevenue();
+                      }),
+                ),
+              ],
+            );
+          },
         );
       },
     );

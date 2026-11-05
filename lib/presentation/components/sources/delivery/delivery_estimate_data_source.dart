@@ -11,6 +11,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
   List<int> selectedPaperIds = [];
   int currentPage;
   int pageSize;
+  double zoom;
 
   late List<DataGridRow> dbPaperDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
@@ -21,6 +22,7 @@ class DeliveryEstimateDataSource extends DataGridSource {
     required this.selectedPaperIds,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -137,7 +139,11 @@ class DeliveryEstimateDataSource extends DataGridSource {
               }
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

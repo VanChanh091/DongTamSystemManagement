@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _reportBoxColumns = [
@@ -55,13 +55,39 @@ final List<Map<String, dynamic>> _reportBoxColumns = [
   {"key": "dateTimeRp", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildReportBoxColumn({required ThemeController themeController}) {
+List<GridColumn> buildReportBoxColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _reportBoxColumns,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+
+List<StackedHeaderRow> buildReportBoxSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
   return [
-    for (var item in _reportBoxColumns)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "qtyPrinted",
+            "qtyCanLan",
+            "qtyCanMang",
+            "qtyXa",
+            "qtyCatKhe",
+            "qtyBe",
+            "qtyDan",
+            "qtyDongGhim",
+          ],
+          label: "Báo Cáo Số Lượng Các Công Đoạn",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

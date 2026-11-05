@@ -1,27 +1,29 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/scrap/scrap_report_model.dart';
-import 'package:dongtam/presentation/components/headerTable/other/header_table_scrap_report.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/other/pagination_controls.dart';
-import 'package:dongtam/presentation/components/shared/planning/handle_request_complete.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/sources/other/scrap_report_data_source.dart';
-import 'package:dongtam/service/quality_control_service.dart';
-import 'package:dongtam/service/scrap_report_service.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/logger/app_logger.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/symbols.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/scrap/scrap_report_model.dart";
+import "package:dongtam/presentation/components/headerTable/other/header_table_scrap_report.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
+import "package:dongtam/presentation/components/shared/planning/handle_request_complete.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/sources/other/scrap_report_data_source.dart";
+import "package:dongtam/service/quality_control_service.dart";
+import "package:dongtam/service/scrap_report_service.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/helper/style_table.dart";
+import "package:dongtam/utils/logger/app_logger.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/symbols.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingCheckScrapReport extends StatefulWidget {
   const WaitingCheckScrapReport({super.key});
@@ -41,6 +43,10 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
   final themeController = Get.find<ThemeController>();
   final badgesController = Get.find<BadgesController>();
   final headerScrollController = ScrollController();
+
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  List<ScrapReportModel>? _cachedScraps;
+  ScrapReportDataSource? _cachedDatasource;
 
   List<int> selectedScrapIds = [];
   Map<String, double> columnWidths = {}; //map header table
@@ -88,9 +94,9 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
     _loadRawMachine();
     loadScrapReports();
 
-    columns = buildScrapReportColumn(themeController: themeController);
+    columns = buildScrapReportColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
 
-    ColumnWidthTable.loadWidths(tableKey: 'scrapReport', columns: columns).then((w) {
+    ColumnWidthTable.loadWidths(tableKey: "scrapReport", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -157,9 +163,19 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
     });
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
+    _zoomNotifier.dispose();
     searchController.dispose();
     reasonController.dispose();
     headerScrollController.dispose();
@@ -169,23 +185,46 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+      body: Listener(
+        onPointerSignal: (pointerSignal) {
+          handleScrollZoom(
+            pointerSignal: pointerSignal,
+            currentZoom: _zoomNotifier.value,
+            onZoomChanged: _updateZoom,
+          );
+        },
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-          //table & pagination
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder:
+                  (context, zoom, _) => SliderZoom(
+                    zoomLevel: zoom,
+                    onZoomChanged: _updateZoom,
+                    initialMargin: const Offset(73, 200),
+                    buttonColor: themeController.buttonColor.value,
+                  ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadScrapReports(),
@@ -248,7 +287,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                                 if (success) {
                                   final scrapReports = await futureScrap;
                                   final List<ScrapReportModel> scrapReportList =
-                                      (scrapReports['scrapReports'] as List? ?? [])
+                                      (scrapReports["scrapReports"] as List? ?? [])
                                           .cast<ScrapReportModel>();
                                   final selectedScrap = scrapReportList.firstWhere(
                                     (scrap) => scrap.scrapId == selectedScrapIds.first,
@@ -357,7 +396,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("Lỗi: ${snapshot.error}"));
-        } else if (!snapshot.hasData || snapshot.data!['scrapReports'].isEmpty) {
+        } else if (!snapshot.hasData || snapshot.data!["scrapReports"].isEmpty) {
           return Container(
             color: themeController.backgroundColor.value,
             child: Center(
@@ -370,116 +409,137 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
         }
 
         final data = snapshot.data!;
-        final scrapReports = data['scrapReports'] as List<ScrapReportModel>;
-        final currentPg = data['currentPage'];
-        final totalPgs = data['totalPages'];
+        final scrapReports = data["scrapReports"] as List<ScrapReportModel>;
+        final currentPg = data["currentPage"];
+        final totalPgs = data["totalPages"];
 
-        scrapReportDatasource = ScrapReportDataSource(
-          scrapReports: scrapReports,
-          selectedScrapIds: selectedScrapIds,
-          currentPage: currentPage,
-          pageSize: pageSize,
-        );
+        if (_cachedScraps == null || _cachedScraps != scrapReports) {
+          _cachedDatasource = scrapReportDatasource;
+          scrapReportDatasource = ScrapReportDataSource(
+            scrapReports: scrapReports,
+            selectedScrapIds: selectedScrapIds,
+            currentPage: currentPage,
+            pageSize: pageSize,
+            zoom: _zoomNotifier.value,
+          );
+        }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: scrapReportDatasource,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.auto,
-                selectionMode: SelectionMode.multiple,
-                headerRowHeight: 35,
-                rowHeight: 40,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: [
-                          "qtyForklift",
-                          "qtyInventory",
-                          "qtyCoreTube",
-                          "qtyProduction",
-                          "qtyOther",
-                        ],
-                        child: Obx(
-                          () => formatColumn(
-                            label: "Số Lượng Phế Liệu (Kg)",
-                            themeController: themeController,
-                          ),
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ),
-                    ],
+                        child: SfDataGrid(
+                          controller: dataGridController,
+                          source: scrapReportDatasource,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.multiple,
+                          headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                            zoom: zoom,
+                          ),
+                          stackedHeaderRows: <StackedHeaderRow>[
+                            StackedHeaderRow(
+                              cells: [
+                                buildStackedHeaderCell(
+                                  columnNames: [
+                                    "qtyForklift",
+                                    "qtyInventory",
+                                    "qtyCoreTube",
+                                    "qtyProduction",
+                                    "qtyOther",
+                                  ],
+                                  label: "Số Lượng Phế Liệu (Kg)",
+                                  themeController: themeController,
+                                  zoom: zoom,
+                                ),
+                              ],
+                            ),
+                          ],
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: setState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "scrapReport",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
+                          onSelectionChanged: (addedRows, removedRows) async {
+                            if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                            setState(() {
+                              // Lấy selection thật sự từ controller
+                              final selectedRows = dataGridController.selectedRows;
+
+                              selectedScrapIds =
+                                  selectedRows.map((row) {
+                                    final cell = row.getCells().firstWhere(
+                                      (c) => c.columnName == "scrapId",
+                                    );
+                                    return cell.value as int;
+                                  }).toList();
+
+                              // cập nhật cho datasource
+                              scrapReportDatasource.selectedScrapIds = selectedScrapIds;
+                              scrapReportDatasource.notifyListeners();
+                            });
+                          },
+                        ),
+                      );
+                    },
                   ),
-                ],
+                ),
 
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
-                      columns: columns,
-                      setState: setState,
-                    ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: 'scrapReport',
-                      columnWidths: columnWidths,
-                      setState: setState,
-                    ),
-
-                onSelectionChanged: (addedRows, removedRows) async {
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                  setState(() {
-                    // Lấy selection thật sự từ controller
-                    final selectedRows = dataGridController.selectedRows;
-
-                    selectedScrapIds =
-                        selectedRows.map((row) {
-                          final cell = row.getCells().firstWhere((c) => c.columnName == 'scrapId');
-                          return cell.value as int;
-                        }).toList();
-
-                    // cập nhật cho datasource
-                    scrapReportDatasource.selectedScrapIds = selectedScrapIds;
-                    scrapReportDatasource.notifyListeners();
-                  });
-                },
-              ),
-            ),
-
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadScrapReports();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadScrapReports();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadScrapReports();
-                });
-              },
-            ),
-          ],
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadScrapReports();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadScrapReports();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadScrapReports();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -533,7 +593,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                 (context) => AlertDialog(
                   backgroundColor: Colors.white,
                   title: const Text(
-                    'Nhập lý do từ chối',
+                    "Nhập lý do từ chối",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   content: SizedBox(
@@ -545,13 +605,13 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                         controller: reasonController,
                         maxLines: 3,
                         decoration: const InputDecoration(
-                          hintText: 'Nhập lý do...',
+                          hintText: "Nhập lý do...",
                           border: OutlineInputBorder(),
                         ),
                         validator:
                             (value) =>
                                 (value == null || value.trim().isEmpty)
-                                    ? 'Vui lòng nhập lý do từ chối'
+                                    ? "Vui lòng nhập lý do từ chối"
                                     : null,
                       ),
                     ),
@@ -559,7 +619,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Hủy', style: TextStyle(fontSize: 16, color: Colors.black)),
+                      child: const Text("Hủy", style: TextStyle(fontSize: 16, color: Colors.black)),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade600),
@@ -595,7 +655,7 @@ class _WaitingCheckScrapReportState extends State<WaitingCheckScrapReport> {
                         }
                       },
                       child: const Text(
-                        'Xác nhận',
+                        "Xác nhận",
                         style: TextStyle(color: Colors.white, fontSize: 16),
                       ),
                     ),

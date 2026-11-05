@@ -6,6 +6,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingCheckBoxDataSource extends DataGridSource {
+  double zoom = 1.0;
   List<PlanningBoxModel> planning = [];
   int? selectedPlanningBoxIds;
 
@@ -15,7 +16,11 @@ class WaitingCheckBoxDataSource extends DataGridSource {
 
   bool hasSortedInitially = false;
 
-  WaitingCheckBoxDataSource({required this.planning, required this.selectedPlanningBoxIds}) {
+  WaitingCheckBoxDataSource({
+    required this.planning,
+    required this.selectedPlanningBoxIds,
+    this.zoom = 1.0,
+  }) {
     buildDataGridRows();
   }
 
@@ -139,7 +144,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày sản xuất: $displayDate – $itemCount"
             : "📅 Ngày sản xuất: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -171,7 +176,7 @@ class WaitingCheckBoxDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

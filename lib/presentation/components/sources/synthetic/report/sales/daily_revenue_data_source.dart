@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DailyRevenueDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<CustomerDailyRevenueRow> customers;
   final DailyRevenueSummary? summary;
   final int daysInMonth;
@@ -13,12 +14,12 @@ class DailyRevenueDataSource extends DataGridSource {
 
   List<DataGridRow> _dailyRevenueRows = [];
 
-  DailyRevenueDataSource({
-    required this.customers,
+  DailyRevenueDataSource({required this.customers,
     this.summary,
     required this.daysInMonth,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     _buildDailyRevenueRows();
   }
@@ -72,7 +73,7 @@ class DailyRevenueDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }
@@ -89,7 +90,8 @@ class DailyRevenueDataSource extends DataGridSource {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng" : summaryValue,
         alignment: Alignment.center,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
@@ -103,12 +105,13 @@ class DailyRevenueDataSource extends DataGridSource {
       return formatDataTable(
         label: displayValue,
         alignment: Alignment.centerRight,
-        textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
     // 3. Fallback ô rỗng để giữ đúng border của bảng
-    return formatDataTable(label: "", alignment: Alignment.center);
+    return formatDataTable(label: "", alignment: Alignment.center, zoom: zoom);
   }
 
   double _getSummaryValue(String columnName) {

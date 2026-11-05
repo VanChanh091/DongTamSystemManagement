@@ -1,10 +1,11 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 List<GridColumn> buildDebtDeductionColumn({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   required bool isReport,
 }) {
   final List<Map<String, dynamic>> headers = [
@@ -25,12 +26,9 @@ List<GridColumn> buildDebtDeductionColumn({
     {"key": "createdRequest", "title": "", "visible": false},
   ];
 
-  return [
-    for (var item in headers)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
-  ];
+  return buildGridColumns(
+    headerConfig: headers,
+    themeController: themeController,
+    zoomNotifier: zoomNotifier,
+  );
 }

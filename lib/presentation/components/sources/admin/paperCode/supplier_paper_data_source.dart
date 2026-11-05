@@ -6,10 +6,15 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 class SupplierPaperDataSource extends DataGridSource {
   List<SupplierPaperCodeModel> supplierPapers = [];
   List<int> selectedIds = [];
+  double zoom;
 
   late List<DataGridRow> supplierPapersDataGridRows;
 
-  SupplierPaperDataSource({required this.supplierPapers, required this.selectedIds}) {
+  SupplierPaperDataSource({
+    required this.supplierPapers,
+    required this.selectedIds,
+    this.zoom = 1.0,
+  }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "supplierName", sortGroupRows: false));
   }
@@ -109,6 +114,7 @@ class SupplierPaperDataSource extends DataGridSource {
             return formatDataTable(
               label: _formatCellValue(dataCell),
               alignment: Alignment.centerLeft,
+              zoom: zoom,
             );
           }).toList(),
     );

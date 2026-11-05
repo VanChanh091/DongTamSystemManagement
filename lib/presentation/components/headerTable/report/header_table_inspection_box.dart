@@ -1,6 +1,6 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/utils/helper/style_table.dart";
-import "package:get/get.dart";
+import 'package:flutter/material.dart';
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 final List<Map<String, dynamic>> inspectionBoxColumns = [
@@ -230,16 +230,70 @@ bool isColumnVisibleForMachine(Map<String, dynamic> column, String machine) {
 
 List<GridColumn> buildInspectionBoxColumn({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   required String machine,
+}) => buildGridColumns(
+  headerConfig: [
+    for (var item in inspectionBoxColumns)
+      if (isColumnVisibleForMachine(item, machine)) item,
+  ],
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+
+List<StackedHeaderRow> buildInspectionBoxSHR({
+  required ThemeController themeController,
+  required double zoom,
 }) {
-  return inspectionBoxColumns
-      .where((item) => isColumnVisibleForMachine(item, machine))
-      .map(
-        (item) => GridColumn(
-          columnName: item["key"]!,
-          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-          visible: item["visible"] ?? true,
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "orderId",
+            "customerName",
+            "productName",
+            "structure",
+            "sizePaper",
+            "lengthPaper",
+            "runningPlan",
+            "qcBox",
+            "isFSC",
+            "canLan",
+          ],
+          label: "Thông Tin Đơn Hàng",
+          themeController: themeController,
+          zoom: zoom,
         ),
-      )
-      .toList();
+        buildStackedHeaderCell(
+          columnNames: [
+            "boxDimension",
+            "colorCount",
+            "colorMatch",
+            "colorRegistration",
+            "fluteCrushing",
+            "glueAdhesion",
+            "glueViscosity",
+            "imagePosition",
+            "jointGap",
+            "jointMisalignment",
+            "paperSurface",
+            "printContent",
+            "printSharpness",
+            "scoringLine",
+            "stitchCount",
+            "stitchHolding",
+            "stitchPitch",
+            "stitchPosition",
+            "tabOverlap",
+            "trimLineBurr",
+          ],
+          label: "Lỗi",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
+  ];
 }

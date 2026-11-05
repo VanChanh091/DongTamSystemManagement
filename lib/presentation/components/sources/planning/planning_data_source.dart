@@ -8,11 +8,12 @@ class PlanningDataSource extends DataGridSource {
   List<OrderModel> orders;
   String? selectedOrderId;
   bool selectedAll = false;
+  double zoom = 1.0;
 
   late List<DataGridRow> orderDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
 
-  PlanningDataSource({required this.orders, this.selectedOrderId}) {
+  PlanningDataSource({required this.orders, this.selectedOrderId, this.zoom = 1.0}) {
     buildDataCell();
   }
 
@@ -96,7 +97,7 @@ class PlanningDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

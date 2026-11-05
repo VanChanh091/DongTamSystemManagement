@@ -8,12 +8,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class StagesDataSource extends DataGridSource {
   List<PlanningStageModel> stages = [];
+  double zoom = 1.0;
 
   late List<DataGridRow> stagesDataGridRows;
   final formatter = DateFormat('dd/MM/yyyy');
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  StagesDataSource({required this.stages}) {
+  StagesDataSource({required this.stages, this.zoom = 1.0}) {
     buildDataGridRows();
   }
 
@@ -94,7 +95,11 @@ class StagesDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

@@ -6,6 +6,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class WaitingCheckPaperDataSource extends DataGridSource {
+  double zoom = 1.0;
   List<PlanningPaperModel> planning = [];
   List<String> selectedPlanningIds = [];
   bool showGroup;
@@ -20,6 +21,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
     required this.planning,
     required this.selectedPlanningIds,
     required this.showGroup,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
 
@@ -161,7 +163,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày sản xuất: $displayDate – $itemCount"
             : "📅 Ngày sản xuất: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -195,7 +197,7 @@ class WaitingCheckPaperDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

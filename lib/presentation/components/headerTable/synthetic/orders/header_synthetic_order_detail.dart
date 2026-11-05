@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _headerSyntheticPlanningBox = [
@@ -17,13 +17,11 @@ final List<Map<String, dynamic>> _headerSyntheticPlanningBox = [
   {"key": "planningBoxId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildSyntheticBoxesColumn({required ThemeController themeController}) {
-  return [
-    for (var item in _headerSyntheticPlanningBox)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
-  ];
-}
+List<GridColumn> buildSyntheticBoxesColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerSyntheticPlanningBox,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);

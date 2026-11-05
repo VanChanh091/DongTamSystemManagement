@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerBoxWaiting = [
@@ -33,13 +33,47 @@ const List<Map<String, dynamic>> _headerBoxWaiting = [
   {"key": "planningBoxId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildBoxWaitingColumn({required ThemeController themeController}) {
+List<GridColumn> buildBoxWaitingColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerBoxWaiting,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildWaitingCheckBoxSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
   return [
-    for (var item in _headerBoxWaiting)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["quantityOrd", "qtyPaper", "inboundQty"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["inMatTruoc", "inMatSau"],
+          label: "In Ấn",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["dan_1_Manh", "dan_2_Manh"],
+          label: "Dán",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["dongGhim1Manh", "dongGhim2Manh"],
+          label: "Đóng Ghim",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

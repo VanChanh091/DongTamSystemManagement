@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class YearlyRevenueDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<CustomerYearRevenue> customers;
   final MultiYearSummary? summary;
   final List<int> years;
@@ -13,12 +14,12 @@ class YearlyRevenueDataSource extends DataGridSource {
 
   List<DataGridRow> _yearlyRevenueRows = [];
 
-  YearlyRevenueDataSource({
-    required this.customers,
+  YearlyRevenueDataSource({required this.customers,
     this.summary,
     required this.years,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     _buildYearlyRevenueRows();
   }
@@ -75,7 +76,7 @@ class YearlyRevenueDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }
@@ -91,7 +92,8 @@ class YearlyRevenueDataSource extends DataGridSource {
       return formatDataTable(
         label: summaryValue.isEmpty ? "Tổng" : summaryValue,
         alignment: Alignment.center,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
@@ -104,11 +106,12 @@ class YearlyRevenueDataSource extends DataGridSource {
       return formatDataTable(
         label: displayValue,
         alignment: Alignment.centerRight,
-        textStyle: TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
-    return formatDataTable(label: "", alignment: Alignment.center);
+    return formatDataTable(label: "", alignment: Alignment.center, zoom: zoom);
   }
 
   /// Tách riêng logic bóc tách dữ liệu theo columnName

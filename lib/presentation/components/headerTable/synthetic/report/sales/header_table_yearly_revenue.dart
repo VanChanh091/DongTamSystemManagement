@@ -1,6 +1,6 @@
-import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/utils/helper/style_table.dart";
-import "package:get/get.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import 'package:flutter/material.dart';
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 // Cột cố định (không phụ thuộc vào danh sách năm)
@@ -16,30 +16,39 @@ const List<Map<String, dynamic>> _fixedHeaderYearlyRevenue = [
 
 List<GridColumn> buildYearlyRevenueColumn({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   List<int> years = const [],
-}) {
-  final columns = <GridColumn>[
-    // Cột cố định đầu bảng
-    for (var item in _fixedHeaderYearlyRevenue)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
-
-    // Cột động: 12 tháng + tổng cho mỗi năm
+}) => buildGridColumns(
+  headerConfig: [
+    ..._fixedHeaderYearlyRevenue,
     for (final y in years) ...[
       for (int m = 1; m <= 12; m++)
-        GridColumn(
-          columnName: "y_${y}_m_$m",
-          label: Obx(() => formatColumn(label: "T$m", themeController: themeController)),
-        ),
-      GridColumn(
-        columnName: "y_${y}_total",
-        label: Obx(() => formatColumn(label: "Tổng $y", themeController: themeController)),
-      ),
+        {"key": "y_${y}_m_$m", "title": "T$m"},
+      {"key": "y_${y}_total", "title": "Tổng $y"},
     ],
-  ];
+  ],
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
 
-  return columns;
+List<StackedHeaderRow> buildYearlyRevenueSHR({
+  required ThemeController themeController,
+  required List<int> years,
+  double zoom = 1.0,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: years.map((y) {
+        return buildStackedHeaderCell(
+          columnNames: [
+            for (int m = 1; m <= 12; m++) "y_${y}_m_$m",
+            "y_${y}_total",
+          ],
+          label: "Năm $y",
+          themeController: themeController,
+          zoom: zoom,
+        );
+      }).toList(),
+    ),
+  ];
 }

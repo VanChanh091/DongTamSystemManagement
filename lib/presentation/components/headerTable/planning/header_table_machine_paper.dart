@@ -1,6 +1,6 @@
 import "package:dongtam/data/controller/theme_controller.dart";
 import "package:dongtam/utils/helper/style_table.dart";
-import "package:get/get.dart";
+import 'package:flutter/material.dart';
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 final List<Map<String, dynamic>> _machinePaperColumns = [
@@ -145,15 +145,128 @@ final List<Map<String, dynamic>> _machinePaperColumns = [
 
 List<GridColumn> buildMachinePaperColumns({
   required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
   required String page,
+}) => buildGridColumns(
+  headerConfig: _machinePaperColumns,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+  page: page,
+);
+
+List<StackedHeaderRow> buildInspectPaperSHR({
+  required ThemeController themeController,
+  required double zoom,
 }) {
   return [
-    for (var item in _machinePaperColumns)
-      if (!item.containsKey("visiblePages") || (item["visiblePages"] as List).contains(page))
-        GridColumn(
-          columnName: item["key"]!,
-          label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-          visible: item.containsKey("visible") ? item["visible"]! as bool : true,
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["qtyProduced", "runningPlanProd"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
         ),
+        buildStackedHeaderCell(
+          columnNames: ["bottom", "fluteE", "fluteE2", "fluteB", "fluteC", "fluteA", "knife", "totalLoss"],
+          label: "Định Mức Phế Liệu",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
+  ];
+}
+
+List<StackedHeaderRow> buildWaitingCheckPaperSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["qtyProduced", "inboundQty"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["bottom", "fluteE", "fluteE2", "fluteB", "fluteC", "knife", "totalLoss"],
+          label: "Định Mức Phế Liệu",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
+  ];
+}
+
+List<StackedHeaderRow> buildProductionQueuePaperSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["bottom", "fluteE", "fluteE2", "fluteB", "fluteC", "fluteA", "knife", "totalLoss"],
+          label: "Định Mức Phế Liệu (Kg)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
+  ];
+}
+
+List<StackedHeaderRow> buildPlanningStopSHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
+  return [
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["bottom", "fluteE", "fluteE2", "fluteB", "fluteC", "knife", "totalLoss"],
+          label: "Định Mức Phế Liệu",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "inMatTruoc",
+            "inMatSau",
+            "canLanBox",
+            "canMang",
+            "xa",
+            "catKhe",
+            "be",
+            "dan_1_Manh",
+            "dan_2_Manh",
+            "dongGhimMotManh",
+            "dongGhimHaiManh",
+            "chongTham",
+            "dongGoi",
+            "maKhuon",
+          ],
+          label: "Công Đoạn Thùng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

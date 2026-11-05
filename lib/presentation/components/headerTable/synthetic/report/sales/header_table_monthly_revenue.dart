@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerMonthlyRevenue = [
@@ -14,13 +14,29 @@ const List<Map<String, dynamic>> _headerMonthlyRevenue = [
   {"key": "returnAmount", "title": "DS Trả Về"},
 ];
 
-List<GridColumn> buildMonthlyRevenueColumn({required ThemeController themeController}) {
+List<GridColumn> buildMonthlyRevenueColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerMonthlyRevenue,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildMonthlyRevenueSHR({
+  required ThemeController themeController,
+  double zoom = 1.0,
+}) {
   return [
-    for (var item in _headerMonthlyRevenue)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["totalBeforeVat", "totalVat", "salesAmount"],
+          label: "DS Bán Hàng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

@@ -8,6 +8,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportBoxDatasource extends DataGridSource {
+  double zoom = 1.0;
   List<ReportBoxModel> reportPapers = [];
   int? selectedReportId;
   String machine;
@@ -24,6 +25,7 @@ class ReportBoxDatasource extends DataGridSource {
     required this.machine,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
 
@@ -201,7 +203,7 @@ class ReportBoxDatasource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày báo cáo: $displayDate – $itemCount"
             : "📅 Ngày báo cáo: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -284,7 +286,7 @@ class ReportBoxDatasource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment, cellColor: cellColor);
+            return formatDataTable(label: displayValue, alignment: alignment, cellColor: cellColor, zoom: zoom);
           }).toList(),
     );
   }

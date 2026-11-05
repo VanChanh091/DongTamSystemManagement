@@ -19,7 +19,6 @@ import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/utils/helper/picker_date_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -108,8 +107,8 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
     isPlan = userController.hasPermission(permission: "plan");
     isAccountant = userController.hasPermission(permission: "accountant");
 
-    columnsOrders = buildSyntheticOrderColumn(themeController: themeController);
-    columnsBoxes = buildSyntheticBoxesColumn(themeController: themeController);
+    columnsOrders = buildSyntheticOrderColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
+    columnsBoxes = buildSyntheticBoxesColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
 
     ColumnWidthTable.loadWidths(tableKey: "syntheticOrders", columns: columnsOrders).then((w) {
       setState(() {
@@ -214,7 +213,12 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -239,32 +243,7 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-
-              child: Column(
+            Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // title & buttons
@@ -282,7 +261,6 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                   ),
                 ],
               ),
-            ),
 
             //slider zoom
             ValueListenableBuilder<double>(
@@ -542,14 +520,18 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
             selectedOrderIds: _selectedOrderIdsNotifier.value,
             currentPage: currentPg,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
                 builder: (context, localSetState) {
                   return SfDataGridTheme(
                     data: SfDataGridThemeData(
@@ -569,62 +551,17 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                             isScrollbarAlwaysShown: true,
                             columnWidthMode: ColumnWidthMode.auto,
                             selectionMode: SelectionMode.multiple,
-                            headerRowHeight: 35,
-                            rowHeight: 40,
+                            headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                            rowHeight: (40 * zoom).clamp(24.0, 60.0),
                             columns: ColumnWidthTable.applySavedWidths(
                               columns: columnsOrders,
                               widths: columnWidthOrders,
+                              zoom: zoom,
                             ),
-                            stackedHeaderRows: <StackedHeaderRow>[
-                              StackedHeaderRow(
-                                cells: [
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "sizeCust",
-                                      "lengthCust",
-                                      "sizeManu",
-                                      "lengthManu",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Quy Cách Giấy (cm)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "quantityCustomer",
-                                      "qtyOutbound",
-                                      "qtyInventory",
-                                      "qtyVariance",
-                                      "qtyWasteNorm",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Số Lượng",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "price",
-                                      "pricePaper",
-                                      "totalPrice",
-                                      "totalPriceVAT",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Khoản Phí (VNĐ)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-
+                            stackedHeaderRows: buildSyntheticOrdersSHR(
+                              themeController: themeController,
+                              zoom: zoom,
+                            ),
                             //auto resize
                             allowColumnsResizing: true,
                             columnResizeMode: ColumnResizeMode.onResize,
@@ -728,15 +665,16 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                                 child: SfDataGrid(
-                                  source: SyntheticBoxDetail(boxes: selectedBoxesDetail),
+                                  source: SyntheticBoxDetail(boxes: selectedBoxesDetail, zoom: zoom),
                                   isScrollbarAlwaysShown: true,
-                                  headerRowHeight: 30,
-                                  rowHeight: 35,
+                                  headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                                  rowHeight: (35 * zoom).clamp(24.0, 60.0),
                                   columnWidthMode: ColumnWidthMode.fill,
                                   selectionMode: SelectionMode.single,
                                   columns: ColumnWidthTable.applySavedWidths(
                                     columns: columnsBoxes,
                                     widths: columnWidthBoxes,
+                                    zoom: zoom,
                                   ),
 
                                   //auto resize
@@ -792,6 +730,8 @@ class _SyntheticOrderState extends State<SyntheticOrder> {
               },
             ),
           ],
+        );
+          },
         );
       },
     );

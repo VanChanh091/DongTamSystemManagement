@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _inventoryColumns = [
@@ -33,13 +33,41 @@ final List<Map<String, dynamic>> _inventoryColumns = [
   {"key": "inventoryId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildInventoryColumn({required ThemeController themeController}) {
+List<GridColumn> buildInventoryColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _inventoryColumns,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildInventorySHR({
+  required ThemeController themeController,
+  required double zoom,
+}) {
   return [
-    for (var item in _inventoryColumns)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["totalQtyInbound", "totalQtyOutbound", "qtyTransfer", "qtyInventory"],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: ["totalPrice", "totalPriceVAT"],
+          label: "Tổng Tiền",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

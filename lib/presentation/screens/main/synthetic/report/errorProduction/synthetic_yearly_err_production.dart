@@ -12,7 +12,6 @@ import 'package:dongtam/service/employee_service.dart';
 import 'package:dongtam/service/synthetic_service.dart';
 import 'package:dongtam/utils/helper/machine_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +71,10 @@ class _SyntheticYearlyErrProductionState extends State<SyntheticYearlyErrProduct
     _loadEmployees();
     _fetchData();
 
-    columns = buildYearlyErrProductionColumn(themeController: themeController);
+    columns = buildYearlyErrProductionColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
 
     ColumnWidthTable.loadWidths(tableKey: 'yearly_err_production', columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
@@ -157,7 +159,12 @@ class _SyntheticYearlyErrProductionState extends State<SyntheticYearlyErrProduct
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -180,48 +187,23 @@ class _SyntheticYearlyErrProductionState extends State<SyntheticYearlyErrProduct
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title & Filter Header
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title & Filter Header
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-                  // Table Section
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                // Table Section
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Zoom Control Floating Button
@@ -422,118 +404,105 @@ class _SyntheticYearlyErrProductionState extends State<SyntheticYearlyErrProduct
           _cachedDatasource = YearlyErrProductionDataSource(rowsData: rawList, summary: summary);
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 33,
-                      rowHeight: 38,
-                      frozenColumnsCount: 5,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: const ["totalTonnage", "totalErrors", "totalErrorRate"],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Cả Năm $selectedYear",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            for (int m = 1; m <= 12; m++)
-                              StackedHeaderCell(
-                                columnNames: ["m_${m}_tonnage", "m_${m}_errors", "m_${m}_rate"],
-                                child: Obx(
-                                  () => formatColumn(
-                                    label: "Tháng $m",
-                                    themeController: themeController,
-                                  ),
-                                ),
-                              ),
-                          ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ],
-
-                      // Table summary row
-                      tableSummaryRows: [
-                        GridTableSummaryRow(
-                          showSummaryInRow: false,
-                          title: "Tổng",
-                          position: GridTableSummaryRowPosition.bottom,
-                          columns: [
-                            const GridSummaryColumn(
-                              name: "totalTonnage",
-                              columnName: "totalTonnage",
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            const GridSummaryColumn(
-                              name: "totalErrors",
-                              columnName: "totalErrors",
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            const GridSummaryColumn(
-                              name: "totalErrorRate",
-                              columnName: "totalErrorRate",
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            for (int m = 1; m <= 12; m++) ...[
-                              GridSummaryColumn(
-                                name: "m_${m}_tonnage",
-                                columnName: "m_${m}_tonnage",
-                                summaryType: GridSummaryType.sum,
-                              ),
-                              GridSummaryColumn(
-                                name: "m_${m}_errors",
-                                columnName: "m_${m}_errors",
-                                summaryType: GridSummaryType.sum,
-                              ),
-                              GridSummaryColumn(
-                                name: "m_${m}_rate",
-                                columnName: "m_${m}_rate",
-                                summaryType: GridSummaryType.sum,
-                              ),
-                            ],
-                          ],
-                        ),
-                      ],
-
-                      // Auto resize columns
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (33 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                          frozenColumnsCount: 5,
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: 'yearly_err_production',
-                            columnWidths: columnWidths,
-                            setState: setState,
+                          stackedHeaderRows: buildYearlyErrProductionSHR(
+                            themeController: themeController,
+                            selectedYear: selectedYear,
+                            zoom: zoom,
                           ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+                          // Table summary row
+                          tableSummaryRows: [
+                            GridTableSummaryRow(
+                              showSummaryInRow: false,
+                              title: "Tổng",
+                              position: GridTableSummaryRowPosition.bottom,
+                              columns: [
+                                const GridSummaryColumn(
+                                  name: "totalTonnage",
+                                  columnName: "totalTonnage",
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                                const GridSummaryColumn(
+                                  name: "totalErrors",
+                                  columnName: "totalErrors",
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                                const GridSummaryColumn(
+                                  name: "totalErrorRate",
+                                  columnName: "totalErrorRate",
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                                for (int m = 1; m <= 12; m++) ...[
+                                  GridSummaryColumn(
+                                    name: "m_${m}_tonnage",
+                                    columnName: "m_${m}_tonnage",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  GridSummaryColumn(
+                                    name: "m_${m}_errors",
+                                    columnName: "m_${m}_errors",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                  GridSummaryColumn(
+                                    name: "m_${m}_rate",
+                                    columnName: "m_${m}_rate",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+
+                          // Auto resize columns
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: 'yearly_err_production',
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );

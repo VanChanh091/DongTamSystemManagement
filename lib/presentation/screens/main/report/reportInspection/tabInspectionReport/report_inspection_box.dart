@@ -11,7 +11,6 @@ import "package:dongtam/presentation/components/sources/report/inspection_box_da
 import "package:dongtam/service/report_service.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
 import "package:get/get.dart";
@@ -84,6 +83,7 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
     final initialColumns = buildInspectionBoxColumn(
       themeController: themeController,
       machine: machine,
+      zoomNotifier: _zoomNotifier,
     );
 
     ColumnWidthTable.loadWidths(tableKey: "inspectionBox", columns: initialColumns).then((w) {
@@ -137,7 +137,12 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -377,88 +382,47 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
             machine: machine,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
         final dynamicColumns = buildInspectionBoxColumn(
           themeController: themeController,
           machine: machine,
+          zoomNotifier: _zoomNotifier,
         );
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      key: ValueKey(machine), // Thêm key để rebuild khi máy thay đổi
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      allowExpandCollapseGroup: true, // Bật grouping
-                      autoExpandGroups: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      navigationMode: GridNavigationMode.row,
-                      selectionMode: SelectionMode.multiple,
-                      headerRowHeight: 35,
-                      rowHeight: 38,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: dynamicColumns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: [
-                                "orderId",
-                                "customerName",
-                                "productName",
-                                "structure",
-                                "sizePaper",
-                                "lengthPaper",
-                                "runningPlan",
-                                "qcBox",
-                                "isFSC",
-                                "canLan",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Thông Tin Đơn Hàng",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: [
-                                "boxDimension",
-                                "colorCount",
-                                "colorMatch",
-                                "colorRegistration",
-                                "fluteCrushing",
-                                "glueAdhesion",
-                                "glueViscosity",
-                                "imagePosition",
-                                "jointGap",
-                                "jointMisalignment",
-                                "paperSurface",
-                                "printContent",
-                                "printSharpness",
-                                "scoringLine",
-                                "stitchCount",
-                                "stitchHolding",
-                                "stitchPitch",
-                                "stitchPosition",
-                                "tabOverlap",
-                                "trimLineBurr",
-                              ],
-                              child: formatColumn(label: "Lỗi", themeController: themeController),
-                            ),
-                          ],
-                        ),
-                      ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                        child: SfDataGrid(
+                          key: ValueKey(machine), // Thêm key để rebuild khi máy thay đổi
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          navigationMode: GridNavigationMode.row,
+                          selectionMode: SelectionMode.multiple,
+                          headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: dynamicColumns,
+                            widths: columnWidths,
+                            zoom: zoom,
+                          ),
+                          stackedHeaderRows: buildInspectionBoxSHR(
+                            themeController: themeController,
+                            zoom: zoom,
+                          ),
 
                       //auto resize
                       allowColumnsResizing: true,
@@ -525,6 +489,8 @@ class _ReportInspectionBoxState extends State<ReportInspectionBox> {
             ),
           ],
         );
+      },
+    );
       },
     );
   }

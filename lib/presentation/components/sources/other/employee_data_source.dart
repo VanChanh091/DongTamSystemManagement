@@ -9,6 +9,7 @@ class EmployeeDataSource extends DataGridSource {
   int? selectedEmployeeId;
   int currentPage;
   int pageSize;
+  double zoom;
 
   late List<DataGridRow> employeeDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
@@ -18,6 +19,7 @@ class EmployeeDataSource extends DataGridSource {
     this.selectedEmployeeId,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -94,7 +96,11 @@ class EmployeeDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(
+              label: dataCell.value?.toString() ?? "",
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

@@ -7,12 +7,13 @@ import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ObDetailDataSource extends DataGridSource {
   List<OutboundDetailModel> detail = [];
+  double zoom;
 
   late List<DataGridRow> stagesDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
   final formatterDayCompleted = DateFormat("dd/MM/yyyy HH:mm:ss");
 
-  ObDetailDataSource({required this.detail}) {
+  ObDetailDataSource({required this.detail, this.zoom = 1.0}) {
     buildDataGridRows();
   }
 
@@ -99,7 +100,11 @@ class ObDetailDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

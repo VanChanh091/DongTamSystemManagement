@@ -15,7 +15,6 @@ import "package:dongtam/utils/handleError/api_exception.dart";
 import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -78,7 +77,7 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
 
     isPlan = userController.hasPermission(permission: "plan");
 
-    columns = buildColumnPlanning(themeController: themeController);
+    columns = buildColumnPlanning(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: "waitingPlanning", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -124,7 +123,12 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -149,49 +153,23 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -414,78 +392,71 @@ class WaitingForPlanningState extends State<WaitingForPlanning> {
           _cachedDatasource = PlanningDataSource(
             orders: data,
             selectedOrderId: _selectedOrderIdNotifier.value,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return StatefulBuilder(
-          builder: (context, localSetState) {
-            return SfDataGridTheme(
-              data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-              child: SfDataGrid(
-                source: _cachedDatasource!,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.auto,
-                selectionMode: SelectionMode.single,
-                headerRowHeight: 35,
-                rowHeight: 40,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: ["sizeManu", "lengthMf"],
-                        child: Obx(
-                          () => formatColumn(
-                            label: "Quy Cách (cm)",
-                            themeController: themeController,
-                          ),
-                        ),
-                      ),
-                      StackedHeaderCell(
-                        columnNames: ["qtyManufacture", "runningPlan", "quantityProduced"],
-                        child: Obx(
-                          () => formatColumn(label: "Số Lượng", themeController: themeController),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return StatefulBuilder(
+              builder: (context, localSetState) {
+                return SfDataGridTheme(
+                  data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
+                  child: SfDataGrid(
+                    source: _cachedDatasource!,
+                    isScrollbarAlwaysShown: true,
+                    columnWidthMode: ColumnWidthMode.auto,
+                    selectionMode: SelectionMode.single,
+                    headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                    rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                    columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
-                      setState: localSetState,
+                      widths: columnWidths,
+                      zoom: zoom,
                     ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: "waitingPlanning",
-                      columnWidths: columnWidths,
-                      setState: setState,
+                    stackedHeaderRows: buildPlanningSHR(
+                      themeController: themeController,
+                      zoom: zoom,
                     ),
 
-                onSelectionChanged: (addedRows, removedRows) {
-                  if (addedRows.isNotEmpty) {
-                    final selectedRow = addedRows.first;
-                    final orderId =
-                        selectedRow
-                            .getCells()
-                            .firstWhere((cell) => cell.columnName == "orderId")
-                            .value
-                            .toString();
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
 
-                    _selectedOrderIdNotifier.value = orderId;
-                  } else {
-                    _selectedOrderIdNotifier.value = null;
-                  }
-                },
-              ),
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: localSetState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: "waitingPlanning",
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
+
+                    onSelectionChanged: (addedRows, removedRows) {
+                      if (addedRows.isNotEmpty) {
+                        final selectedRow = addedRows.first;
+                        final orderId =
+                            selectedRow
+                                .getCells()
+                                .firstWhere((cell) => cell.columnName == "orderId")
+                                .value
+                                .toString();
+
+                        _selectedOrderIdNotifier.value = orderId;
+                      } else {
+                        _selectedOrderIdNotifier.value = null;
+                      }
+                    },
+                  ),
+                );
+              },
             );
           },
         );

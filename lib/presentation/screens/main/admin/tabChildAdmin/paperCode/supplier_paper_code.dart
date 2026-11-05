@@ -1,20 +1,21 @@
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/admin/paperCode/supplier_paper_code_model.dart';
-import 'package:dongtam/presentation/components/dialog/paperCode/dialog_supplier_paper_code.dart';
-import 'package:dongtam/presentation/components/headerTable/paperCode/header_table_supplier_paper.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/presentation/components/sources/admin/paperCode/supplier_paper_data_source.dart';
-import 'package:dongtam/service/admin/admin_paper_code_service.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/admin/paperCode/supplier_paper_code_model.dart";
+import "package:dongtam/presentation/components/dialog/paperCode/dialog_supplier_paper_code.dart";
+import "package:dongtam/presentation/components/headerTable/paperCode/header_table_supplier_paper.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
+import "package:dongtam/presentation/components/sources/admin/paperCode/supplier_paper_data_source.dart";
+import "package:dongtam/service/admin/admin_paper_code_service.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:get/get.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SupplierPaperCode extends StatefulWidget {
   const SupplierPaperCode({super.key});
@@ -29,13 +30,16 @@ class _SupplierPaperCodeState extends State<SupplierPaperCode> {
   late List<GridColumn> columns;
 
   //controller
+  final headerScrollController = ScrollController();
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
   List<int> selectedIds = [];
   List<SupplierPaperCodeModel> currentSupplierPaperCodes = [];
+
   Map<String, double> columnWidths = {}; //map header table
+  final _zoomNotifier = ValueNotifier<double>(1.0);
 
   //flag
   bool _isSelectionChange = false;
@@ -45,8 +49,11 @@ class _SupplierPaperCodeState extends State<SupplierPaperCode> {
     super.initState();
     loadSupplierPaperCode();
 
-    columns = buildSupplierPaperColumn(themeController: themeController);
-    ColumnWidthTable.loadWidths(tableKey: 'supplierPaperCode', columns: columns).then((w) {
+    columns = buildSupplierPaperColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
+    ColumnWidthTable.loadWidths(tableKey: "supplierPaperCode", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -68,36 +75,77 @@ class _SupplierPaperCodeState extends State<SupplierPaperCode> {
     selectedIds =
         rows.map((row) {
           final cell = row.getCells().firstWhere(
-            (c) => c.columnName == 'supplierPaperId',
-            orElse: () => const DataGridCell(columnName: 'supplierPaperId', value: 0),
+            (c) => c.columnName == "supplierPaperId",
+            orElse: () => const DataGridCell(columnName: "supplierPaperId", value: 0),
           );
           return cell.value as int;
         }).toList();
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (supplierDatasource != null) {
+      supplierDatasource!.zoom = clamped;
+      supplierDatasource!.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _zoomNotifier.dispose();
+    headerScrollController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: themeController.backgroundColor.value,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-          //table & pagination
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+      backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-          ),
-        ],
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
+            ),
+
+            // Zoom Control Floating
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(73, 200),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
+            ),
+          ],
+        ),
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadSupplierPaperCode(),
         backgroundColor: themeController.buttonColor.value,
@@ -121,71 +169,87 @@ class _SupplierPaperCodeState extends State<SupplierPaperCode> {
         const SizedBox(height: 8),
 
         //button
-        Row(
-          children: [
-            //left button
-            Expanded(flex: 2, child: const SizedBox()),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return Scrollbar(
+              controller: headerScrollController,
+              child: SingleChildScrollView(
+                controller: headerScrollController,
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      //left button
+                      const SizedBox(), const SizedBox(width: 20),
 
-            //right button
-            Expanded(
-              flex: 3,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // Button Thêm
-                  AnimatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder:
-                            (context) => SupplierPaperCodeDialog(
-                              isEdit: false,
-                              onSuccess: () => loadSupplierPaperCode(),
-                            ),
-                      );
-                    },
-                    label: "Thêm Mới",
-                    icon: Icons.add,
-                    backgroundColor: themeController.buttonColor,
+                      //right button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          // Button Add
+                          AnimatedButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder:
+                                    (context) => SupplierPaperCodeDialog(
+                                      isEdit: false,
+                                      onSuccess: () => loadSupplierPaperCode(),
+                                    ),
+                              );
+                            },
+                            label: "Thêm Mới",
+                            icon: Icons.add,
+                            backgroundColor: themeController.buttonColor,
+                          ),
+                          const SizedBox(width: 10),
+
+                          // Button update
+                          AnimatedButton(
+                            onPressed: () {
+                              if (selectedIds.isEmpty) {
+                                showSnackBarError(
+                                  context,
+                                  "Vui lòng chọn ít nhất 1 dòng để cập nhật",
+                                );
+                                return;
+                              }
+
+                              List<SupplierPaperCodeModel> selectedData = [];
+                              if (selectedIds.isNotEmpty && currentSupplierPaperCodes.isNotEmpty) {
+                                selectedData =
+                                    currentSupplierPaperCodes
+                                        .where((e) => selectedIds.contains(e.supplierPaperId))
+                                        .toList();
+                              }
+
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder:
+                                    (context) => SupplierPaperCodeDialog(
+                                      isEdit: true,
+                                      initialData: selectedData,
+                                      onSuccess: () => loadSupplierPaperCode(),
+                                    ),
+                              );
+                            },
+                            label: "Cập Nhật",
+                            icon: Icons.edit,
+                            backgroundColor: themeController.buttonColor,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-
-                  // Button Cập nhật
-                  AnimatedButton(
-                    onPressed: () {
-                      if (selectedIds.isEmpty) {
-                        showSnackBarError(context, "Vui lòng chọn ít nhất 1 dòng để cập nhật");
-                        return;
-                      }
-
-                      List<SupplierPaperCodeModel> selectedData = [];
-                      if (selectedIds.isNotEmpty && currentSupplierPaperCodes.isNotEmpty) {
-                        selectedData =
-                            currentSupplierPaperCodes
-                                .where((e) => selectedIds.contains(e.supplierPaperId))
-                                .toList();
-                      }
-
-                      showDialog(
-                        context: context,
-                        barrierDismissible: false,
-                        builder:
-                            (context) => SupplierPaperCodeDialog(
-                              isEdit: true,
-                              initialData: selectedData,
-                              onSuccess: () => loadSupplierPaperCode(),
-                            ),
-                      );
-                    },
-                    label: "Cập Nhật",
-                    icon: Icons.edit,
-                    backgroundColor: themeController.buttonColor,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ],
+            );
+          },
         ),
       ],
     );
@@ -221,134 +285,145 @@ class _SupplierPaperCodeState extends State<SupplierPaperCode> {
           supplierDatasource = SupplierPaperDataSource(
             supplierPapers: data,
             selectedIds: selectedIds,
+            zoom: _zoomNotifier.value,
           );
         } else {
           supplierDatasource!.selectedIds = selectedIds;
+          supplierDatasource!.zoom = _zoomNotifier.value;
         }
 
-        return StatefulBuilder(
-          builder: (context, localSetState) {
-            return SfDataGridTheme(
-              data: SfDataGridThemeData(
-                selectionColor: Colors.blue.withValues(alpha: 0.3),
-                currentCellStyle: const DataGridCurrentCellStyle(
-                  borderColor: Colors.transparent,
-                  borderWidth: 0,
-                ),
-              ),
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: supplierDatasource!,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.fill,
-                selectionMode: SelectionMode.multiple,
-                headerRowHeight: 45,
-                rowHeight: 40,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return StatefulBuilder(
+              builder: (context, localSetState) {
+                return SfDataGridTheme(
+                  data: SfDataGridThemeData(
+                    selectionColor: Colors.blue.withValues(alpha: 0.3),
+                    currentCellStyle: const DataGridCurrentCellStyle(
+                      borderColor: Colors.transparent,
+                      borderWidth: 0,
+                    ),
+                  ),
+                  child: SfDataGrid(
+                    controller: dataGridController,
+                    source: supplierDatasource!,
+                    isScrollbarAlwaysShown: true,
+                    columnWidthMode: ColumnWidthMode.fill,
+                    selectionMode: SelectionMode.multiple,
+                    headerRowHeight: (45 * zoom).clamp(28.0, 70.0),
+                    rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                    columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
-                      setState: setState,
-                    ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: 'supplierPaperCode',
-                      columnWidths: columnWidths,
-                      setState: setState,
+                      widths: columnWidths,
+                      zoom: zoom,
                     ),
 
-                onSelectionChanging: (addedRows, removedRows) {
-                  if (_isSelectionChange) return true;
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
 
-                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                  final isShiftPressed =
-                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                      keys.contains(LogicalKeyboardKey.shiftRight);
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: setState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: "supplierPaperCode",
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
 
-                  // Nếu đè phím Shift và trước đó đã có dòng được chọn
-                  if (isShiftPressed &&
-                      dataGridController.selectedRows.isNotEmpty &&
-                      addedRows.isNotEmpty) {
-                    final lastSelected = dataGridController.selectedRows.last;
-                    final newlyClicked = addedRows.last;
+                    onSelectionChanging: (addedRows, removedRows) {
+                      if (_isSelectionChange) return true;
 
-                    // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
-                    final allRows = supplierDatasource!.rows;
-                    final startIdx = allRows.indexOf(lastSelected);
-                    final endIdx = allRows.indexOf(newlyClicked);
+                      final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                      final isShiftPressed =
+                          keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                          keys.contains(LogicalKeyboardKey.shiftRight);
 
-                    if (startIdx != -1 && endIdx != -1) {
-                      final min = startIdx < endIdx ? startIdx : endIdx;
-                      final max = startIdx > endIdx ? startIdx : endIdx;
+                      // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                      if (isShiftPressed &&
+                          dataGridController.selectedRows.isNotEmpty &&
+                          addedRows.isNotEmpty) {
+                        final lastSelected = dataGridController.selectedRows.last;
+                        final newlyClicked = addedRows.last;
 
-                      // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
-                      final List<DataGridRow> rangeSelection = [];
-                      for (int i = min; i <= max; i++) {
-                        rangeSelection.add(allRows[i]);
+                        // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                        final allRows = supplierDatasource!.rows;
+                        final startIdx = allRows.indexOf(lastSelected);
+                        final endIdx = allRows.indexOf(newlyClicked);
+
+                        if (startIdx != -1 && endIdx != -1) {
+                          final min = startIdx < endIdx ? startIdx : endIdx;
+                          final max = startIdx > endIdx ? startIdx : endIdx;
+
+                          // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                          final List<DataGridRow> rangeSelection = [];
+                          for (int i = min; i <= max; i++) {
+                            rangeSelection.add(allRows[i]);
+                          }
+
+                          // Ép controller chọn dải dòng
+                          _isSelectionChange = true;
+                          dataGridController.selectedRows = List.from(rangeSelection);
+                          _isSelectionChange = false;
+
+                          // Cập nhật ID đơn hàng
+                          Future.microtask(() {
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = List.from(rangeSelection);
+                            _isSelectionChange = false;
+
+                            _updateSelectedIdsFromRows(rangeSelection);
+                          });
+                          return false;
+                        }
+                      }
+                      return true;
+                    },
+
+                    onSelectionChanged: (addedRows, removedRows) {
+                      if (_isSelectionChange) return;
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                      // bắt sự kiện từ bàn phím
+                      final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                      final isCtrlPressed =
+                          keys.contains(LogicalKeyboardKey.controlLeft) ||
+                          keys.contains(LogicalKeyboardKey.controlRight);
+                      final isShiftPressed =
+                          keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                          keys.contains(LogicalKeyboardKey.shiftRight);
+
+                      if (!isCtrlPressed && !isShiftPressed) {
+                        if (addedRows.isNotEmpty) {
+                          // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                          final latestRow = addedRows.last;
+
+                          _isSelectionChange = true;
+                          dataGridController.selectedRows = [latestRow];
+
+                          _isSelectionChange = false;
+                        } else if (removedRows.isNotEmpty &&
+                            dataGridController.selectedRows.isNotEmpty) {
+                          //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                          final clickedRow = removedRows.first;
+                          _isSelectionChange = true;
+                          dataGridController.selectedRows = [clickedRow];
+                          _isSelectionChange = false;
+                        }
                       }
 
-                      // Ép controller chọn dải dòng
-                      _isSelectionChange = true;
-                      dataGridController.selectedRows = List.from(rangeSelection);
-                      _isSelectionChange = false;
-
-                      // Cập nhật ID đơn hàng
-                      Future.microtask(() {
-                        _isSelectionChange = true;
-                        dataGridController.selectedRows = List.from(rangeSelection);
-                        _isSelectionChange = false;
-
-                        _updateSelectedIdsFromRows(rangeSelection);
-                      });
-                      return false;
-                    }
-                  }
-                  return true;
-                },
-
-                onSelectionChanged: (addedRows, removedRows) {
-                  if (_isSelectionChange) return;
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                  // bắt sự kiện từ bàn phím
-                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                  final isCtrlPressed =
-                      keys.contains(LogicalKeyboardKey.controlLeft) ||
-                      keys.contains(LogicalKeyboardKey.controlRight);
-                  final isShiftPressed =
-                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                      keys.contains(LogicalKeyboardKey.shiftRight);
-
-                  if (!isCtrlPressed && !isShiftPressed) {
-                    if (addedRows.isNotEmpty) {
-                      // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
-                      final latestRow = addedRows.last;
-
-                      _isSelectionChange = true;
-                      dataGridController.selectedRows = [latestRow];
-
-                      _isSelectionChange = false;
-                    } else if (removedRows.isNotEmpty &&
-                        dataGridController.selectedRows.isNotEmpty) {
-                      //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
-                      final clickedRow = removedRows.first;
-                      _isSelectionChange = true;
-                      dataGridController.selectedRows = [clickedRow];
-                      _isSelectionChange = false;
-                    }
-                  }
-
-                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                },
-              ),
+                      _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                    },
+                  ),
+                );
+              },
             );
           },
         );

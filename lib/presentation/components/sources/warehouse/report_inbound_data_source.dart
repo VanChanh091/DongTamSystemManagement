@@ -5,6 +5,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class ReportInboundDataSource extends DataGridSource {
+  double zoom = 1.0;
   List<InboundHistoryModel> reportInbounds = [];
   List<int>? selectedInboundId;
   int currentPage;
@@ -18,6 +19,7 @@ class ReportInboundDataSource extends DataGridSource {
     this.selectedInboundId,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "dateInbound", sortGroupRows: false));
@@ -122,7 +124,7 @@ class ReportInboundDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày nhập kho: $displayDate  $itemCount"
             : "📅 Ngày nhập kho: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -152,7 +154,7 @@ class ReportInboundDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: cellText, alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

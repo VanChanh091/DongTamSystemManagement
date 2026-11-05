@@ -26,6 +26,7 @@ const Set<String> _boolColumns = {
 class OrderDataSource extends DataGridSource {
   final BuildContext context;
   late List<DataGridRow> orderDataGridRows;
+  double zoom;
 
   List<OrderModel> orders;
   String? selectedOrderId;
@@ -33,7 +34,12 @@ class OrderDataSource extends DataGridSource {
   final userController = Get.find<UserController>();
   final formatter = DateFormat("dd/MM/yyyy");
 
-  OrderDataSource({required this.orders, this.selectedOrderId, required this.context}) {
+  OrderDataSource({
+    required this.orders,
+    this.selectedOrderId,
+    required this.context,
+    this.zoom = 1.0,
+  }) {
     buildDataCell();
   }
 
@@ -251,7 +257,11 @@ class OrderDataSource extends DataGridSource {
       displayValue = value?.toString() ?? "";
     }
 
-    return formatDataTable(label: displayValue, alignment: alignment);
+    return formatDataTable(
+      label: displayValue,
+      alignment: alignment,
+      zoom: zoom,
+    );
   }
 
   @override

@@ -8,6 +8,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticOrdersDataSource extends DataGridSource {
+  double zoom = 1.0;
   List<OrderModel> orders = [];
   List<String> selectedOrderIds;
   int currentPage;
@@ -17,11 +18,11 @@ class SyntheticOrdersDataSource extends DataGridSource {
   final formatter = DateFormat("dd/MM/yyyy");
   final userController = Get.find<UserController>();
 
-  SyntheticOrdersDataSource({
-    required this.orders,
+  SyntheticOrdersDataSource({required this.orders,
     required this.selectedOrderIds,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataCell();
   }
@@ -160,7 +161,7 @@ class SyntheticOrdersDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

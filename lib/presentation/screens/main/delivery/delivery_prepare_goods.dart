@@ -1,31 +1,30 @@
-import 'package:dongtam/data/controller/badges_controller.dart';
-import 'package:dongtam/data/controller/theme_controller.dart';
-import 'package:dongtam/data/controller/user_controller.dart';
-import 'package:dongtam/data/models/delivery/delivery_schedule_model.dart';
-import 'package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart';
-import 'package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_schedule.dart';
-import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
-import 'package:dongtam/presentation/components/shared/planning/widgets_planning.dart';
-import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
-import 'package:dongtam/presentation/components/sources/delivery/delivery_schedule_data_source.dart';
-import 'package:dongtam/service/delivery_service.dart';
-import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
-import 'package:dongtam/socket/socket_service.dart';
-import 'package:dongtam/utils/extension/extension_helper.dart';
-import 'package:dongtam/utils/handleError/api_exception.dart';
-import 'package:dongtam/utils/handleError/show_snack_bar.dart';
-import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
-import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:dongtam/utils/socket/init_socket_prepare_goods.dart';
-import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:material_symbols_icons/material_symbols_icons.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid/datagrid.dart';
+import "package:dongtam/data/controller/badges_controller.dart";
+import "package:dongtam/data/controller/theme_controller.dart";
+import "package:dongtam/data/controller/user_controller.dart";
+import "package:dongtam/data/models/delivery/delivery_schedule_model.dart";
+import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
+import "package:dongtam/presentation/components/headerTable/delivery/header_table_delivery_schedule.dart";
+import "package:dongtam/presentation/components/shared/other/dialog_shared.dart";
+import "package:dongtam/presentation/components/shared/planning/widgets_planning.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
+import "package:dongtam/presentation/components/sources/delivery/delivery_schedule_data_source.dart";
+import "package:dongtam/service/delivery_service.dart";
+import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
+import "package:dongtam/socket/socket_service.dart";
+import "package:dongtam/utils/extension/extension_helper.dart";
+import "package:dongtam/utils/handleError/api_exception.dart";
+import "package:dongtam/utils/handleError/show_snack_bar.dart";
+import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
+import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
+import "package:dongtam/utils/socket/init_socket_prepare_goods.dart";
+import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:intl/intl.dart";
+import "package:get/get.dart";
+import "package:material_symbols_icons/material_symbols_icons.dart";
+import "package:syncfusion_flutter_core/theme.dart";
+import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DeliveryPrepareGoods extends StatefulWidget {
   const DeliveryPrepareGoods({super.key});
@@ -40,7 +39,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   late List<GridColumn> columns;
 
   final socketService = SocketService();
-  final formatter = DateFormat('dd/MM/yyyy');
+  final formatter = DateFormat("dd/MM/yyyy");
   final dataGridController = DataGridController();
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
@@ -71,6 +70,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   @override
   void initState() {
     super.initState();
+    isDelivery = userController.canAccess(permissions: ["delivery"]);
 
     _initSocket = InitSocketPrepareGoods(
       context: context,
@@ -82,16 +82,18 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
 
     final now = DateTime.now();
     dayStartController.text =
-        "${now.day.toString().padLeft(2, '0')}/"
-        "${now.month.toString().padLeft(2, '0')}/"
+        "${now.day.toString().padLeft(2, "0")}/"
+        "${now.month.toString().padLeft(2, "0")}/"
         "${now.year}";
 
     loadDeliveryPrepareGoods();
 
-    isDelivery = userController.hasPermission(permission: "delivery");
-
-    columns = buildDeliveryScheduleColumn(themeController: themeController, page: 'prepare');
-    ColumnWidthTable.loadWidths(tableKey: 'DeliveryPrepareGoods', columns: columns).then((w) {
+    columns = buildDeliveryScheduleColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+      page: "prepare",
+    );
+    ColumnWidthTable.loadWidths(tableKey: "DeliveryPrepareGoods", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
       });
@@ -113,7 +115,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   void _updateSelectedIdsFromRows(List<DataGridRow> rows) {
     final newIds =
         rows.map((row) {
-          return row.getCells().firstWhere((cell) => cell.columnName == 'deliveryItemId').value
+          return row.getCells().firstWhere((cell) => cell.columnName == "deliveryItemId").value
               as int;
         }).toList();
 
@@ -122,7 +124,12 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -148,49 +155,23 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -278,7 +259,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
 
                           if (selected != null) {
                             setState(() {
-                              dayStartController.text = DateFormat('dd/MM/yyyy').format(selected);
+                              dayStartController.text = DateFormat("dd/MM/yyyy").format(selected);
 
                               selectedDeliveryIds.clear();
                             });
@@ -335,8 +316,8 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                         return false;
                                       } on ApiException catch (e) {
                                         final errorText = switch (e.errorCode) {
-                                          'ITEM_NOT_FOUND' => e.message!,
-                                          _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                          "ITEM_NOT_FOUND" => e.message!,
+                                          _ => "Có lỗi xảy ra, vui lòng thử lại",
                                         };
 
                                         if (context.mounted) {
@@ -382,7 +363,7 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                                   action: "REQUEST",
                                                   deliveryItemIds: [selectedDeliveryIds.first],
                                                   isRequest: false,
-                                                  empCode: 'DTGH-${employeeCodeController.trimmed}',
+                                                  empCode: "DTGH-${employeeCodeController.trimmed}",
                                                 );
 
                                             if (success) {
@@ -401,8 +382,8 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
                                             return false;
                                           } on ApiException catch (e) {
                                             final errorText = switch (e.errorCode) {
-                                              'EMPLOYEE_NOT_FOUND' => e.message!,
-                                              _ => 'Có lỗi xảy ra, vui lòng thử lại',
+                                              "EMPLOYEE_NOT_FOUND" => e.message!,
+                                              _ => "Có lỗi xảy ra, vui lòng thử lại",
                                             };
 
                                             if (context.mounted) {
@@ -494,150 +475,153 @@ class _DeliveryPrepareGoodsState extends State<DeliveryPrepareGoods> {
             delivery: data,
             selectedDeliveryId: _selectedDeliveryIdsNotifier.value,
             showGroup: true,
-            page: 'prepare',
+            page: "prepare",
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return StatefulBuilder(
-          builder: (context, localSetState) {
-            return SfDataGridTheme(
-              data: SfDataGridThemeData(
-                selectionColor: Colors.blue.withValues(alpha: 0.3),
-                currentCellStyle: const DataGridCurrentCellStyle(
-                  borderColor: Colors.transparent,
-                  borderWidth: 0,
-                ),
-              ),
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: _cachedDatasource!,
-                allowExpandCollapseGroup: true, // Bật grouping
-                autoExpandGroups: true,
-                isScrollbarAlwaysShown: true,
-                columnWidthMode: ColumnWidthMode.auto,
-                navigationMode: GridNavigationMode.row,
-                selectionMode: SelectionMode.multiple,
-                headerRowHeight: 30,
-                rowHeight: 37,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: ["qtyRegistered", "qtyOutbound"],
-                        child: Obx(
-                          () => formatColumn(label: 'Số Lượng', themeController: themeController),
-                        ),
-                      ),
-                    ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return StatefulBuilder(
+              builder: (context, localSetState) {
+                return SfDataGridTheme(
+                  data: SfDataGridThemeData(
+                    selectionColor: Colors.blue.withValues(alpha: 0.3),
+                    currentCellStyle: const DataGridCurrentCellStyle(
+                      borderColor: Colors.transparent,
+                      borderWidth: 0,
+                    ),
                   ),
-                ],
-
-                //auto resize
-                allowColumnsResizing: true,
-                columnResizeMode: ColumnResizeMode.onResize,
-
-                onColumnResizeStart: GridResizeHelper.onResizeStart,
-                onColumnResizeUpdate:
-                    (details) => GridResizeHelper.onResizeUpdate(
-                      details: details,
+                  child: SfDataGrid(
+                    controller: dataGridController,
+                    source: _cachedDatasource!,
+                    allowExpandCollapseGroup: true, // Bật grouping
+                    autoExpandGroups: true,
+                    isScrollbarAlwaysShown: true,
+                    columnWidthMode: ColumnWidthMode.auto,
+                    navigationMode: GridNavigationMode.row,
+                    selectionMode: SelectionMode.multiple,
+                    headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                    rowHeight: (37 * zoom).clamp(24.0, 60.0),
+                    columns: ColumnWidthTable.applySavedWidths(
                       columns: columns,
-                      setState: localSetState,
+                      widths: columnWidths,
+                      zoom: zoom,
                     ),
-                onColumnResizeEnd:
-                    (details) => GridResizeHelper.onResizeEnd(
-                      details: details,
-                      tableKey: 'DeliveryPrepareGoods',
-                      columnWidths: columnWidths,
-                      setState: setState,
+                    stackedHeaderRows: buildDeliveryScheduleSHR(
+                      themeController: themeController,
+                      zoom: zoom,
+                      page: "prepare",
                     ),
 
-                onSelectionChanging: (addedRows, removedRows) {
-                  if (_isSelectionChange) return true;
+                    //auto resize
+                    allowColumnsResizing: true,
+                    columnResizeMode: ColumnResizeMode.onResize,
 
-                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                  final isShiftPressed =
-                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                      keys.contains(LogicalKeyboardKey.shiftRight);
+                    onColumnResizeStart: GridResizeHelper.onResizeStart,
+                    onColumnResizeUpdate:
+                        (details) => GridResizeHelper.onResizeUpdate(
+                          details: details,
+                          columns: columns,
+                          setState: localSetState,
+                        ),
+                    onColumnResizeEnd:
+                        (details) => GridResizeHelper.onResizeEnd(
+                          details: details,
+                          tableKey: "DeliveryPrepareGoods",
+                          columnWidths: columnWidths,
+                          setState: setState,
+                        ),
 
-                  // Nếu đè phím Shift và trước đó đã có dòng được chọn
-                  if (isShiftPressed &&
-                      dataGridController.selectedRows.isNotEmpty &&
-                      addedRows.isNotEmpty) {
-                    final lastSelected = dataGridController.selectedRows.last;
-                    final newlyClicked = addedRows.last;
+                    onSelectionChanging: (addedRows, removedRows) {
+                      if (_isSelectionChange) return true;
 
-                    // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
-                    final allRows = _cachedDatasource!.rows;
-                    final startIdx = allRows.indexOf(lastSelected);
-                    final endIdx = allRows.indexOf(newlyClicked);
+                      final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                      final isShiftPressed =
+                          keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                          keys.contains(LogicalKeyboardKey.shiftRight);
 
-                    if (startIdx != -1 && endIdx != -1) {
-                      final min = startIdx < endIdx ? startIdx : endIdx;
-                      final max = startIdx > endIdx ? startIdx : endIdx;
+                      // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                      if (isShiftPressed &&
+                          dataGridController.selectedRows.isNotEmpty &&
+                          addedRows.isNotEmpty) {
+                        final lastSelected = dataGridController.selectedRows.last;
+                        final newlyClicked = addedRows.last;
 
-                      // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
-                      final List<DataGridRow> rangeSelection = [];
-                      for (int i = min; i <= max; i++) {
-                        rangeSelection.add(allRows[i]);
+                        // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                        final allRows = _cachedDatasource!.rows;
+                        final startIdx = allRows.indexOf(lastSelected);
+                        final endIdx = allRows.indexOf(newlyClicked);
+
+                        if (startIdx != -1 && endIdx != -1) {
+                          final min = startIdx < endIdx ? startIdx : endIdx;
+                          final max = startIdx > endIdx ? startIdx : endIdx;
+
+                          // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                          final List<DataGridRow> rangeSelection = [];
+                          for (int i = min; i <= max; i++) {
+                            rangeSelection.add(allRows[i]);
+                          }
+
+                          // Ép controller chọn dải dòng
+                          _isSelectionChange = true;
+                          dataGridController.selectedRows = List.from(rangeSelection);
+                          _isSelectionChange = false;
+
+                          // Cập nhật ID đơn hàng
+                          Future.microtask(() {
+                            _isSelectionChange = true;
+                            dataGridController.selectedRows = List.from(rangeSelection);
+                            _isSelectionChange = false;
+
+                            _updateSelectedIdsFromRows(rangeSelection);
+                          });
+                          return false;
+                        }
+                      }
+                      return true;
+                    },
+
+                    onSelectionChanged: (addedRows, removedRows) {
+                      if (_isSelectionChange) return;
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                      // bắt sự kiện từ bàn phím
+                      final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                      final isCtrlPressed =
+                          keys.contains(LogicalKeyboardKey.controlLeft) ||
+                          keys.contains(LogicalKeyboardKey.controlRight);
+                      final isShiftPressed =
+                          keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                          keys.contains(LogicalKeyboardKey.shiftRight);
+
+                      if (!isCtrlPressed && !isShiftPressed) {
+                        if (addedRows.isNotEmpty) {
+                          // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                          final latestRow = addedRows.last;
+
+                          _isSelectionChange = true;
+                          dataGridController.selectedRows = [latestRow];
+
+                          _isSelectionChange = false;
+                        } else if (removedRows.isNotEmpty &&
+                            dataGridController.selectedRows.isNotEmpty) {
+                          //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                          final clickedRow = removedRows.first;
+                          _isSelectionChange = true;
+                          dataGridController.selectedRows = [clickedRow];
+                          _isSelectionChange = false;
+                        }
                       }
 
-                      // Ép controller chọn dải dòng
-                      _isSelectionChange = true;
-                      dataGridController.selectedRows = List.from(rangeSelection);
-                      _isSelectionChange = false;
+                      if (addedRows.isEmpty && removedRows.isEmpty) return;
 
-                      // Cập nhật ID đơn hàng
-                      Future.microtask(() {
-                        _isSelectionChange = true;
-                        dataGridController.selectedRows = List.from(rangeSelection);
-                        _isSelectionChange = false;
-
-                        _updateSelectedIdsFromRows(rangeSelection);
-                      });
-                      return false;
-                    }
-                  }
-                  return true;
-                },
-
-                onSelectionChanged: (addedRows, removedRows) {
-                  if (_isSelectionChange) return;
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                  // bắt sự kiện từ bàn phím
-                  final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                  final isCtrlPressed =
-                      keys.contains(LogicalKeyboardKey.controlLeft) ||
-                      keys.contains(LogicalKeyboardKey.controlRight);
-                  final isShiftPressed =
-                      keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                      keys.contains(LogicalKeyboardKey.shiftRight);
-
-                  if (!isCtrlPressed && !isShiftPressed) {
-                    if (addedRows.isNotEmpty) {
-                      // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
-                      final latestRow = addedRows.last;
-
-                      _isSelectionChange = true;
-                      dataGridController.selectedRows = [latestRow];
-
-                      _isSelectionChange = false;
-                    } else if (removedRows.isNotEmpty &&
-                        dataGridController.selectedRows.isNotEmpty) {
-                      //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
-                      final clickedRow = removedRows.first;
-                      _isSelectionChange = true;
-                      dataGridController.selectedRows = [clickedRow];
-                      _isSelectionChange = false;
-                    }
-                  }
-
-                  if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                  _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                },
-              ),
+                      _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                    },
+                  ),
+                );
+              },
             );
           },
         );

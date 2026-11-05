@@ -14,7 +14,6 @@ import "package:dongtam/presentation/components/sources/planning/stages_data_sou
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -91,8 +90,8 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
     super.initState();
     loadDashboard();
 
-    columnsPaper = buildSyntheticPaperColumn(themeController: themeController, page: "dashboard");
-    columnsStages = buildStageColumn(themeController: themeController);
+    columnsPaper = buildSyntheticPaperColumn(themeController: themeController, zoomNotifier: _zoomNotifier, page: "dashboard");
+    columnsStages = buildStageColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
 
     ColumnWidthTable.loadWidths(tableKey: "dashboard", columns: columnsPaper).then((w) {
       setState(() {
@@ -210,7 +209,12 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -235,32 +239,7 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-
-              child: Column(
+            Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // title & buttons
@@ -278,7 +257,6 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                   ),
                 ],
               ),
-            ),
 
             //slider zoom
             ValueListenableBuilder<double>(
@@ -482,7 +460,10 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
           );
         }
 
-        return Column(
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
           children: [
             //table
             Expanded(
@@ -506,84 +487,17 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                             isScrollbarAlwaysShown: true,
                             columnWidthMode: ColumnWidthMode.auto,
                             selectionMode: SelectionMode.multiple,
-                            headerRowHeight: 35,
-                            rowHeight: 38,
+                            headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                            rowHeight: (38 * zoom).clamp(24.0, 60.0),
                             columns: ColumnWidthTable.applySavedWidths(
                               columns: columnsPaper,
                               widths: columnWidthsPlanning,
+                              zoom: zoom,
                             ),
-                            stackedHeaderRows: <StackedHeaderRow>[
-                              StackedHeaderRow(
-                                cells: [
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "dayReceive",
-                                      "dateShipping",
-                                      "dayStartProduction",
-                                      "dayCompletedProd",
-                                      "dayCompletedOvfl",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Ngày",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: ["size", "length"],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Quy Cách (cm)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "quantityOrd",
-                                      "qtyProduced",
-                                      "runningPlanProd",
-                                      "totalOutbound",
-                                      "qtyInventory",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Số Lượng",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: ["timeRunningProd", "timeRunningOvfl"],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Thời Gian",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "bottom",
-                                      "fluteE",
-                                      "fluteE2",
-                                      "fluteB",
-                                      "fluteC",
-                                      "knife",
-                                      "totalLoss",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Định Mức Phế Liệu (Kg)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-
+                            stackedHeaderRows: buildSyntheticPlanningPaperSHR(
+                              themeController: themeController,
+                              zoom: zoom,
+                            ),
                             //auto resize
                             allowColumnsResizing: true,
                             columnResizeMode: ColumnResizeMode.onResize,
@@ -687,63 +601,21 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
                                 duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                                 child: SfDataGrid(
-                                  source: StagesDataSource(stages: selectedStages),
+                                  source: StagesDataSource(stages: selectedStages, zoom: zoom),
                                   isScrollbarAlwaysShown: true,
-                                  headerRowHeight: 30,
-                                  rowHeight: 35,
+                                  headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                                  rowHeight: (35 * zoom).clamp(24.0, 60.0),
                                   columnWidthMode: ColumnWidthMode.fill,
                                   selectionMode: SelectionMode.single,
                                   columns: ColumnWidthTable.applySavedWidths(
                                     columns: columnsStages,
                                     widths: columnWidthsStage,
+                                    zoom: zoom,
                                   ),
-                                  stackedHeaderRows: <StackedHeaderRow>[
-                                    StackedHeaderRow(
-                                      cells: [
-                                        StackedHeaderCell(
-                                          columnNames: [
-                                            "dayStart",
-                                            "dayCompleted",
-                                            "dayCompletedOvfl",
-                                          ],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Ngày",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["timeRunning", "timeRunningOvfl"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Thời Gian",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["runningPlan", "qtyProduced"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Số Lượng",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                        StackedHeaderCell(
-                                          columnNames: ["wasteBox", "rpWasteLoss"],
-                                          child: Obx(
-                                            () => formatColumn(
-                                              label: "Phế Liệu",
-                                              themeController: themeController,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-
+                                  stackedHeaderRows: buildSyntheticPlanningStageSHR(
+                                    themeController: themeController,
+                                    zoom: zoom,
+                                  ),
                                   //auto resize
                                   allowColumnsResizing: true,
                                   columnResizeMode: ColumnResizeMode.onResize,
@@ -797,6 +669,8 @@ class _SyntheticPlanningState extends State<SyntheticPlanning> {
               },
             ),
           ],
+        );
+          },
         );
       },
     );

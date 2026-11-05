@@ -10,7 +10,6 @@ import "package:dongtam/service/order_service.dart";
 import "package:dongtam/presentation/components/shared/animation/animated_button.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -71,7 +70,11 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
     isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
     loadOrders(ownOnly: isSeenOrder);
 
-    columns = buildOrderColumns(themeController: themeController, userController: userController);
+    columns = buildOrderColumns(
+      themeController: themeController,
+      userController: userController,
+      zoomNotifier: _zoomNotifier,
+    );
     ColumnWidthTable.loadWidths(tableKey: "order", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -120,7 +123,12 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -146,49 +154,23 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
 
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -198,8 +180,8 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  // initialMargin: Offset(73, 173),
-                  initialMargin: Offset(73, 200),
+
+                  initialMargin: const Offset(73, 200),
                   buttonColor: themeController.buttonColor.value,
                 );
               },
@@ -371,123 +353,80 @@ class _OrderAcceptAndPlanningState extends State<OrderAccept> {
             context: context,
             orders: orders,
             selectedOrderId: _selectedOrderIdNotifier.value,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      selectionMode: SelectionMode.single,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      headerRowHeight: 30,
-                      rowHeight: 38,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: ["sizeCus", "lengthCus", "sizeManu", "lengthManu"],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Quy Cách Giấy (cm)",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: [
-                                "price",
-                                "pricePaper",
-                                "discounts",
-                                "profitOrd",
-                                "totalPrice",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Khoản Phí (VNĐ)",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: [
-                                "inMatTruoc",
-                                "inMatSau",
-                                "canMang",
-                                "canLanBox",
-                                "xa",
-                                "catKhe",
-                                "be",
-                                "dan_1_Manh",
-                                "dan_2_Manh",
-                                "dongGhimMotManh",
-                                "dongGhimHaiManh",
-                                "chongTham",
-                                "dongGoi",
-                                "maKhuon",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Công Đoạn 2",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                          ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ],
-
-                      //auto resize
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          selectionMode: SelectionMode.single,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "order",
-                            columnWidths: columnWidths,
-                            setState: setState,
+                          stackedHeaderRows: buildOrderStackedHeaderRows(
+                            themeController: themeController,
+                            zoom: zoom,
                           ),
 
-                      onSelectionChanged: (addedRows, removedRows) {
-                        if (addedRows.isNotEmpty) {
-                          final selectedRow = addedRows.first;
-                          final orderId =
-                              selectedRow
-                                  .getCells()
-                                  .firstWhere((cell) => cell.columnName == "orderId")
-                                  .value
-                                  .toString();
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
 
-                          _selectedOrderIdNotifier.value = orderId;
-                        } else {
-                          _selectedOrderIdNotifier.value = null;
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "order",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+
+                          onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final orderId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == "orderId")
+                                      .value
+                                      .toString();
+
+                              _selectedOrderIdNotifier.value = orderId;
+                            } else {
+                              _selectedOrderIdNotifier.value = null;
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );

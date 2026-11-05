@@ -74,7 +74,7 @@ class _ProductPageState extends State<ProductPage> {
     isSale = userController.canAccess(departments: ["Sale"], requireDept: true);
     loadProduct();
 
-    columns = buildProductColumn(themeController: themeController);
+    columns = buildProductColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: 'product', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -122,7 +122,12 @@ class _ProductPageState extends State<ProductPage> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -148,49 +153,23 @@ class _ProductPageState extends State<ProductPage> {
 
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -200,7 +179,6 @@ class _ProductPageState extends State<ProductPage> {
                 return SliderZoom(
                   zoomLevel: zoom,
                   onZoomChanged: _updateZoom,
-                  // initialMargin: Offset(142, 56),
                   initialMargin: Offset(73, 152),
                   buttonColor: themeController.buttonColor.value,
                 );
@@ -385,97 +363,110 @@ class _ProductPageState extends State<ProductPage> {
             selectedProductId: _selectedProductIdNotifier.value,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.fill,
-                      gridLinesVisibility: GridLinesVisibility.both,
-                      headerGridLinesVisibility: GridLinesVisibility.both,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 45,
-                      rowHeight: 40,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-
-                      //auto resize
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
+                          currentCellStyle: const DataGridCurrentCellStyle(
+                            borderColor: Colors.transparent,
+                            borderWidth: 0,
+                          ),
+                        ),
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.fill,
+                          gridLinesVisibility: GridLinesVisibility.both,
+                          headerGridLinesVisibility: GridLinesVisibility.both,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (45 * zoom).clamp(28.0, 70.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
-                          ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: 'product',
-                            columnWidths: columnWidths,
-                            setState: setState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
 
-                      onSelectionChanged: (addedRows, removedRows) {
-                        if (addedRows.isNotEmpty) {
-                          final selectedRow = addedRows.first;
-                          final productId =
-                              selectedRow
-                                  .getCells()
-                                  .firstWhere((cell) => cell.columnName == 'productId')
-                                  .value
-                                  .toString();
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
 
-                          _selectedProductIdNotifier.value = productId;
-                        } else {
-                          setState(() {
-                            _selectedProductIdNotifier.value = null;
-                          });
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: 'product',
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
 
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadProduct();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadProduct();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadProduct();
-                });
-              },
-            ),
-          ],
+                          onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final productId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == 'productId')
+                                      .value
+                                      .toString();
+
+                              _selectedProductIdNotifier.value = productId;
+                            } else {
+                              setState(() {
+                                _selectedProductIdNotifier.value = null;
+                              });
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadProduct();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadProduct();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadProduct();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );

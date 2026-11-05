@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _headerSyntheticOrder = [
@@ -48,13 +48,57 @@ final List<Map<String, dynamic>> _headerSyntheticOrder = [
   {"key": "status", "title": "Trạng thái"},
 ];
 
-List<GridColumn> buildSyntheticOrderColumn({required ThemeController themeController}) {
+List<GridColumn> buildSyntheticOrderColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerSyntheticOrder,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);
+
+List<StackedHeaderRow> buildSyntheticOrdersSHR({
+  required ThemeController themeController,
+  double zoom = 1.0,
+}) {
   return [
-    for (var item in _headerSyntheticOrder)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
+    StackedHeaderRow(
+      cells: [
+        buildStackedHeaderCell(
+          columnNames: [
+            "sizeCust",
+            "lengthCust",
+            "sizeManu",
+            "lengthManu",
+          ],
+          label: "Quy Cách Giấy (cm)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "quantityCustomer",
+            "qtyOutbound",
+            "qtyInventory",
+            "qtyVariance",
+            "qtyWasteNorm",
+          ],
+          label: "Số Lượng",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+        buildStackedHeaderCell(
+          columnNames: [
+            "price",
+            "pricePaper",
+            "totalPrice",
+            "totalPriceVAT",
+          ],
+          label: "Khoản Phí (VNĐ)",
+          themeController: themeController,
+          zoom: zoom,
+        ),
+      ],
+    ),
   ];
 }

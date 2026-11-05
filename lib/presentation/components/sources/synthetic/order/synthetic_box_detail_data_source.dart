@@ -7,6 +7,7 @@ import "package:get/get.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class SyntheticBoxDetail extends DataGridSource {
+  double zoom = 1.0;
   List<PlanningBoxModel> boxes;
   int? selectedBoxId;
 
@@ -14,7 +15,7 @@ class SyntheticBoxDetail extends DataGridSource {
 
   final userController = Get.find<UserController>();
 
-  SyntheticBoxDetail({required this.boxes, this.selectedBoxId}) {
+  SyntheticBoxDetail({required this.boxes, this.selectedBoxId, this.zoom = 1.0}) {
     buildDataCell();
   }
 
@@ -118,7 +119,7 @@ class SyntheticBoxDetail extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment);
+            return formatDataTable(label: _formatCellValueBool(dataCell), alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

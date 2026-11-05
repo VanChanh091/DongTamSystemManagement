@@ -12,7 +12,6 @@ import "package:dongtam/presentation/components/sources/report/inspection_paper_
 import "package:dongtam/service/report_service.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
 import "package:get/get.dart";
@@ -77,7 +76,10 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
     _loadRawMachine();
     loadInspectionPaper();
 
-    columns = buildInspectionPaperColumn(themeController: themeController);
+    columns = buildInspectionPaperColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
     ColumnWidthTable.loadWidths(tableKey: "inspectionPaper", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -145,7 +147,12 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -171,49 +178,23 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -383,160 +364,108 @@ class _ReportInspectionPaperState extends State<ReportInspectionPaper> {
             selectedPaperIds: _selectedPaperIdsNotifier.value,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      allowExpandCollapseGroup: true, // Bật grouping
-                      autoExpandGroups: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 35,
-                      rowHeight: 38,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: [
-                                "orderId",
-                                "customerName",
-                                "productName",
-                                "structure",
-                                "flute",
-                                "sizePaper",
-                                "lengthPaper",
-                                "runningPlan",
-                                "canLan",
-                                "isFSC",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Thông Tin Đơn Hàng",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: [
-                                "moisture",
-                                "steamPressure",
-                                "preheaterTemp",
-                                "fctValue",
-                                "patValue",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Thông Tin Kiểm Tra",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: [
-                                "blishter",
-                                "wrongWidth",
-                                "wrongLength",
-                                "wrongScoringSpec",
-                                "poorScoring",
-                                "drityLiner",
-                                "losseLiner",
-                                "earDefect",
-                                "skewedFlute",
-                                "warppage",
-                                "wrongStructure",
-                                "waveHeight",
-                                "poorTrim",
-                                "misalignment",
-                                "glueDripping",
-                                "trimScrap",
-                                "poorBundling",
-                                "totalWidthErr",
-                                "wrongProductInfo",
-                              ],
-                              child: formatColumn(label: "Lỗi", themeController: themeController),
-                            ),
-                          ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ],
-
-                      //auto resize
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "inspectionPaper",
-                            columnWidths: columnWidths,
-                            setState: setState,
+                          stackedHeaderRows: buildInspectionPaperSHR(
+                            themeController: themeController,
+                            zoom: zoom,
                           ),
 
-                      onSelectionChanged: (addedRows, removedRows) {
-                        if (addedRows.isNotEmpty) {
-                          final selectedRow = addedRows.first;
-                          final selectedInspecPaperId =
-                              selectedRow
-                                      .getCells()
-                                      .firstWhere((cell) => cell.columnName == "inspecPaperId")
-                                      .value
-                                  as int?;
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
 
-                          _selectedPaperIdsNotifier.value = selectedInspecPaperId;
-                        } else {
-                          _selectedPaperIdsNotifier.value = null;
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "inspectionPaper",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
 
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadInspectionPaper();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadInspectionPaper();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadInspectionPaper();
-                });
-              },
-            ),
-          ],
+                          onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final selectedInspecPaperId =
+                                  selectedRow
+                                          .getCells()
+                                          .firstWhere((cell) => cell.columnName == "inspecPaperId")
+                                          .value
+                                      as int?;
+
+                              _selectedPaperIdsNotifier.value = selectedInspecPaperId;
+                            } else {
+                              _selectedPaperIdsNotifier.value = null;
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadInspectionPaper();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadInspectionPaper();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadInspectionPaper();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );

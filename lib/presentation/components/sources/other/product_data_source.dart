@@ -8,6 +8,7 @@ class ProductDataSource extends DataGridSource {
   String? selectedProductId;
   int currentPage;
   int pageSize;
+  double zoom;
 
   final BuildContext context;
   late List<DataGridRow> productDataGridRows;
@@ -18,6 +19,7 @@ class ProductDataSource extends DataGridSource {
     this.selectedProductId,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -129,7 +131,11 @@ class ProductDataSource extends DataGridSource {
             }
 
             // Các cột khác giữ nguyên
-            return formatDataTable(label: dataCell.value?.toString() ?? "", alignment: alignment);
+            return formatDataTable(
+              label: dataCell.value?.toString() ?? "",
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

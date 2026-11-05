@@ -9,6 +9,7 @@ class LiquidationInvDataSource extends DataGridSource {
   List<int>? selectedLiquidationId;
   int currentPage;
   int pageSize;
+  double zoom;
 
   late List<DataGridRow> liquidationDataGridRows;
 
@@ -17,6 +18,7 @@ class LiquidationInvDataSource extends DataGridSource {
     this.selectedLiquidationId,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -102,7 +104,11 @@ class LiquidationInvDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

@@ -5,6 +5,7 @@ import "package:flutter/material.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DebtCustomerDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<CustomerDebtItemModel> customers;
   final String? selectedCustomerId;
   final int currentPage;
@@ -13,12 +14,12 @@ class DebtCustomerDataSource extends DataGridSource {
 
   late List<DataGridRow> customerDataGridRows;
 
-  DebtCustomerDataSource({
-    required this.customers,
+  DebtCustomerDataSource({required this.customers,
     required this.currentPage,
     required this.pageSize,
     this.selectedCustomerId,
     this.grandTotal,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -91,7 +92,7 @@ class DebtCustomerDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment, textColor: textColor);
+            return formatDataTable(label: displayValue, alignment: alignment, textColor: textColor, zoom: zoom);
           }).toList(),
     );
   }
@@ -114,7 +115,7 @@ class DebtCustomerDataSource extends DataGridSource {
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Text(
         displayValue,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (13.5 * zoom).clamp(10.0, 18.0)),
       ),
     );
   }

@@ -11,6 +11,7 @@ class ObHistoryDataSource extends DataGridSource {
   List<OutboundHistoryModel> outbounds = [];
   int? selectedOutboundId;
   Map<String, dynamic> totalPriceByDate = {};
+  double zoom;
 
   int currentPage;
   int pageSize;
@@ -28,6 +29,7 @@ class ObHistoryDataSource extends DataGridSource {
     required this.pageSize,
     this.showAllocationHistory = false,
     this.onOpenAllocationHistory,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "dateOutbound", sortGroupRows: false));
@@ -136,7 +138,7 @@ class ObHistoryDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày xuất kho: $displayDate – $itemCount – Tổng Tiền: $formattedTotal VNĐ"
             : "📅 Ngày xuất kho: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -225,7 +227,11 @@ class ObHistoryDataSource extends DataGridSource {
               }
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

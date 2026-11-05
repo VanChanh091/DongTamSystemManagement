@@ -16,7 +16,6 @@ import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/debt_service.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -100,7 +99,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
     _loadSalesUsers();
     loadDebtCustomer();
 
-    columnsDebt = buildDebtColumn(themeController: themeController);
+    columnsDebt = buildDebtColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: "debtCustomer", columns: columnsDebt).then((w) {
       setState(() {
         columnWidthsDebt = w;
@@ -181,7 +180,12 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -208,32 +212,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-
-              child: Column(
+            Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // title & buttons
@@ -251,7 +230,6 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                   ),
                 ],
               ),
-            ),
 
             //slider zoom
             ValueListenableBuilder<double>(
@@ -578,7 +556,7 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
         // totalPriceByDate = data["totalPriceByDate"] as Map<String, dynamic>;
         // grandTotal = data["grandTotal"] as Map<String, dynamic>;
 
-        if (_cachedDataSourceList != debts || _cachedDatasource != null) {
+        if (_cachedDataSourceList == null || _cachedDataSourceList != debts) {
           _cachedDataSourceList = debts;
           _cachedDatasource = DebtCustomerDataSource(
             customers: debts,
@@ -588,14 +566,18 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                 data["grandTotal"] != null
                     ? CustomerDebtItemModel.fromJson(data["grandTotal"] as Map<String, dynamic>)
                     : null,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
                 builder: (context, localSetState) {
                   return SfDataGridTheme(
                     data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
@@ -608,48 +590,17 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
                             isScrollbarAlwaysShown: true,
                             columnWidthMode: ColumnWidthMode.auto,
                             selectionMode: SelectionMode.single,
-                            headerRowHeight: 30,
-                            rowHeight: 40,
+                            headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                            rowHeight: (40 * zoom).clamp(24.0, 60.0),
                             columns: ColumnWidthTable.applySavedWidths(
                               columns: columnsDebt,
                               widths: columnWidthsDebt,
+                              zoom: zoom,
                             ),
-                            stackedHeaderRows: <StackedHeaderRow>[
-                              StackedHeaderRow(
-                                cells: [
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "notDueDebt",
-                                      "currentPeriodDebt",
-                                      "closedDebt",
-                                      "dueIn1_3",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Nợ Trong Hạn (VNĐ)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                  StackedHeaderCell(
-                                    columnNames: [
-                                      "overdue1_30",
-                                      "overdue31_60",
-                                      "overdue61_90",
-                                      "overdue91_120",
-                                      "overdueOver120",
-                                      "overdueDebt",
-                                    ],
-                                    child: Obx(
-                                      () => formatColumn(
-                                        label: "Nợ Quá Hạn (VNĐ)",
-                                        themeController: themeController,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                            stackedHeaderRows: buildDebtCustomerSHR(
+                              themeController: themeController,
+                              zoom: zoom,
+                            ),
 
                             //table summary
                             tableSummaryRows: [
@@ -777,6 +728,8 @@ class _DebtCustomerSummaryState extends State<DebtCustomerSummary> {
               },
             ),
           ],
+        );
+          },
         );
       },
     );

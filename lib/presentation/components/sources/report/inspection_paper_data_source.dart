@@ -5,6 +5,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class InspectionPaperDataSource extends DataGridSource {
+  double zoom = 1.0;
   final BuildContext context;
   List<QcInspectionPaperModel> inspectionPapers = [];
   int? selectedPaperIds;
@@ -21,6 +22,7 @@ class InspectionPaperDataSource extends DataGridSource {
     required this.selectedPaperIds,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "timeInspecDate", sortGroupRows: false));
@@ -240,7 +242,7 @@ class InspectionPaperDataSource extends DataGridSource {
       alignment: Alignment.centerLeft,
       child: Text(
         displayDate.isNotEmpty ? "📅 Ngày kiểm: $displayDate" : "📅 Ngày kiểm: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -266,7 +268,7 @@ class InspectionPaperDataSource extends DataGridSource {
               alignment = Alignment.centerLeft;
             }
 
-            return formatDataTable(label: cellText, alignment: alignment);
+            return formatDataTable(label: cellText, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }

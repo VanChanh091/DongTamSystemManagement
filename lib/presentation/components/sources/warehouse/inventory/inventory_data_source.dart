@@ -10,6 +10,7 @@ class InventoryDataSource extends DataGridSource {
   List<int>? selectedInventoryId;
   int currentPage;
   int pageSize;
+  double zoom;
 
   late List<DataGridRow> inventoryDataGridRows;
   final formatter = DateFormat("dd/MM/yyyy");
@@ -19,6 +20,7 @@ class InventoryDataSource extends DataGridSource {
     this.selectedInventoryId,
     required this.currentPage,
     required this.pageSize,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
   }
@@ -113,7 +115,11 @@ class InventoryDataSource extends DataGridSource {
               displayValue = value?.toString() ?? "";
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(
+              label: displayValue,
+              alignment: alignment,
+              zoom: zoom,
+            );
           }).toList(),
     );
   }

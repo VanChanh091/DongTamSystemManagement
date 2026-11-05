@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerProduct = [
@@ -11,22 +11,15 @@ const List<Map<String, dynamic>> _headerProduct = [
   {"key": "layerCount", "title": "Số lớp"},
   {"key": "wave", "title": "Loại Sóng"},
   {"key": "maKhuon", "title": "Mã Khuôn"},
-  {"key": "imageProduct", "title": "Hình ảnh"},
+  {"key": "imageProduct", "title": "Hình ảnh", "width": 150.0},
 ];
 
-double? getColumnWidth(String key) {
-  if (key == "stt") return 60;
-  if (key == "imageProduct") return 150;
-  return double.nan;
-}
 
-List<GridColumn> buildProductColumn({required ThemeController themeController}) {
-  return [
-    for (var item in _headerProduct)
-      GridColumn(
-        columnName: item["key"]!,
-        width: getColumnWidth(item["key"]!) ?? double.nan,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-      ),
-  ];
-}
+List<GridColumn> buildProductColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerProduct,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);

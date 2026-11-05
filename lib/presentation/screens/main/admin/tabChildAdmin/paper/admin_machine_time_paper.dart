@@ -3,12 +3,12 @@ import 'package:dongtam/data/controller/user_controller.dart';
 import 'package:dongtam/data/models/admin/machine/admin_machine_paper_model.dart';
 import 'package:dongtam/presentation/components/headerTable/other/header_table_machine_paper.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
+import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
 import 'package:dongtam/presentation/components/sources/admin/machine_paper_data_source.dart';
 import 'package:dongtam/service/admin/admin_service.dart';
 import 'package:dongtam/utils/handleError/show_snack_bar.dart';
 import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,13 +34,17 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
 
   List<int> selectedPaperIds = [];
   Map<String, double> columnWidths = {}; //map header table
+  final _zoomNotifier = ValueNotifier<double>(1.0);
 
   @override
   void initState() {
     super.initState();
     loadMachinePaper();
 
-    columns = buildMachinePaperColumn(themeController: themeController);
+    columns = buildMachinePaperColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
 
     ColumnWidthTable.loadWidths(tableKey: 'machinePaper', columns: columns).then((w) {
       setState(() {
@@ -57,28 +61,69 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
     });
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (machineDatasource != null) {
+      machineDatasource!.zoom = clamped;
+      machineDatasource!.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _zoomNotifier.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-          //table & pagination
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-          ),
-        ],
+
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
+            ),
+
+            // Zoom Control Floating
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder: (context, zoom, _) {
+                return SliderZoom(
+                  zoomLevel: zoom,
+                  onZoomChanged: _updateZoom,
+                  initialMargin: Offset(73, 200),
+                  buttonColor: themeController.buttonColor.value,
+                );
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadMachinePaper(),
@@ -187,85 +232,70 @@ class _AdminMachinePaperState extends State<AdminMachinePaper> {
           machineDatasource = MachinePaperDataSource(
             machinePapers: data,
             selectedPaperIds: selectedPaperIds,
+            zoom: _zoomNotifier.value,
           );
         } else {
           machineDatasource!.selectedPaperIds = selectedPaperIds;
+          machineDatasource!.zoom = _zoomNotifier.value;
         }
 
-        return SfDataGrid(
-          controller: dataGridController,
-          source: machineDatasource!,
-          allowEditing: true, // Bật tính năng chỉnh sửa
-          navigationMode: GridNavigationMode.cell, // chọn cell để edit
-          editingGestureType: EditingGestureType.tap, // double tap để edit
-          // showCheckboxColumn: true,
-          // checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          isScrollbarAlwaysShown: true,
-          columnWidthMode: ColumnWidthMode.fill,
-          selectionMode: SelectionMode.multiple,
-          headerRowHeight: 30,
-          rowHeight: 40,
-          columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-          stackedHeaderRows: <StackedHeaderRow>[
-            StackedHeaderRow(
-              cells: [
-                StackedHeaderCell(
-                  columnNames: [
-                    "speed2Layer",
-                    "speed3Layer",
-                    "speed4Layer",
-                    "speed5Layer",
-                    "speed6Layer",
-                    "speed7Layer",
-                    "machineRollPaper",
-                  ],
-                  child: Obx(
-                    () => formatColumn(label: 'Tốc Độ Máy', themeController: themeController),
-                  ),
-                ),
-                StackedHeaderCell(
-                  columnNames: ["changeDiffSize", "changeSameSize"],
-                  child: Obx(
-                    () => formatColumn(label: 'Thời Gian Đổi', themeController: themeController),
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          //auto resize
-          allowColumnsResizing: true,
-          columnResizeMode: ColumnResizeMode.onResize,
-
-          onColumnResizeStart: GridResizeHelper.onResizeStart,
-          onColumnResizeUpdate:
-              (details) => GridResizeHelper.onResizeUpdate(
-                details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return SfDataGrid(
+              controller: dataGridController,
+              source: machineDatasource!,
+              allowEditing: true, // Bật tính năng chỉnh sửa
+              navigationMode: GridNavigationMode.cell, // chọn cell để edit
+              editingGestureType: EditingGestureType.tap, // double tap để edit
+              isScrollbarAlwaysShown: true,
+              columnWidthMode: ColumnWidthMode.fill,
+              selectionMode: SelectionMode.multiple,
+              headerRowHeight: (30 * zoom).clamp(28.0, 50),
+              rowHeight: (40 * zoom).clamp(24.0, 60.0),
+              columns: ColumnWidthTable.applySavedWidths(
                 columns: columns,
-                setState: setState,
-              ),
-          onColumnResizeEnd:
-              (details) => GridResizeHelper.onResizeEnd(
-                details: details,
-                tableKey: 'machinePaper',
-                columnWidths: columnWidths,
-                setState: setState,
+                widths: columnWidths,
+                zoom: zoom,
               ),
 
-          onSelectionChanged: (addedRows, removedRows) {
-            if (addedRows.isEmpty && removedRows.isEmpty) return;
+              stackedHeaderRows: buildMachinePaperSHR(themeController: themeController, zoom: zoom),
 
-            // Lấy selection thật sự từ controller
-            final selectedRows = dataGridController.selectedRows;
+              //auto resize
+              allowColumnsResizing: true,
+              columnResizeMode: ColumnResizeMode.onResize,
 
-            selectedPaperIds =
-                selectedRows.map((row) {
-                  final cell = row.getCells().firstWhere(
-                    (c) => c.columnName == 'machineId',
-                    orElse: () => const DataGridCell(columnName: 'machineId', value: 0),
-                  );
-                  return cell.value as int;
-                }).toList();
+              onColumnResizeStart: GridResizeHelper.onResizeStart,
+              onColumnResizeUpdate:
+                  (details) => GridResizeHelper.onResizeUpdate(
+                    details: details,
+                    columns: columns,
+                    setState: setState,
+                  ),
+              onColumnResizeEnd:
+                  (details) => GridResizeHelper.onResizeEnd(
+                    details: details,
+                    tableKey: 'machinePaper',
+                    columnWidths: columnWidths,
+                    setState: setState,
+                  ),
+
+              onSelectionChanged: (addedRows, removedRows) {
+                if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                // Lấy selection thật sự từ controller
+                final selectedRows = dataGridController.selectedRows;
+
+                selectedPaperIds =
+                    selectedRows.map((row) {
+                      final cell = row.getCells().firstWhere(
+                        (c) => c.columnName == 'machineId',
+                        orElse: () => const DataGridCell(columnName: 'machineId', value: 0),
+                      );
+                      return cell.value as int;
+                    }).toList();
+              },
+            );
           },
         );
       },

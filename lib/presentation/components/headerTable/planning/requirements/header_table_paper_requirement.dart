@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 final List<Map<String, dynamic>> _paperRequirementColumns = [
@@ -26,13 +26,11 @@ final List<Map<String, dynamic>> _paperRequirementColumns = [
   {"key": "dayStart", "title": "Ngày Sản Xuất", "visible": false},
 ];
 
-List<GridColumn> buildPaperRequirementColumns({required ThemeController themeController}) {
-  return [
-    for (var item in _paperRequirementColumns)
-      GridColumn(
-        columnName: item['key']!,
-        label: Obx(() => formatColumn(label: item['title']!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
-  ];
-}
+List<GridColumn> buildPaperRequirementColumns({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _paperRequirementColumns,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);

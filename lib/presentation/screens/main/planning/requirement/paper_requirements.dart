@@ -106,8 +106,14 @@ class _PaperRequirementsState extends State<PaperRequirements> {
     _loadRawMachine();
     loadPaperRequirements();
 
-    columnsRequirements = buildPaperRequirementColumns(themeController: themeController);
-    columnsLayers = buildLayerRequirementColumns(themeController: themeController);
+    columnsRequirements = buildPaperRequirementColumns(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
+    columnsLayers = buildLayerRequirementColumns(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
 
     ColumnWidthTable.loadWidths(tableKey: "requirements", columns: columnsRequirements).then((w) {
       setState(() {
@@ -218,7 +224,12 @@ class _PaperRequirementsState extends State<PaperRequirements> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -244,49 +255,23 @@ class _PaperRequirementsState extends State<PaperRequirements> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -437,176 +422,189 @@ class _PaperRequirementsState extends State<PaperRequirements> {
 
         if (_cachedRequirements == null || _cachedRequirements != requirements) {
           _cachedRequirements = requirements;
-          _cachedDatasource = PaperRequirementsDataSource(requirements: requirements);
+          _cachedDatasource = PaperRequirementsDataSource(
+            requirements: requirements,
+            zoom: _zoomNotifier.value,
+          );
         }
 
-        return StatefulBuilder(
-          builder: (context, localSetState) {
-            return SfDataGridTheme(
-              data: SfDataGridThemeData(
-                selectionColor: Colors.blue.withValues(alpha: 0.3),
-                currentCellStyle: const DataGridCurrentCellStyle(
-                  borderColor: Colors.transparent,
-                  borderWidth: 0,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: SfDataGrid(
-                      controller: dataGridController,
-                      source: _cachedDatasource!,
-                      allowExpandCollapseGroup: true, // Bật grouping
-                      autoExpandGroups: true,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.multiple,
-                      headerRowHeight: 42,
-                      rowHeight: 40,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columnsRequirements,
-                        widths: columnWidthRequirements,
-                      ),
-
-                      //auto resize
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
-                            columns: columnsRequirements,
-                            setState: localSetState,
-                          ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "requirements",
-                            columnWidths: columnWidthRequirements,
-                            setState: setState,
-                          ),
-
-                      onSelectionChanging: (addedRows, removedRows) {
-                        if (_isSelectionChange) return true;
-
-                        // Kiểm tra trạng thái bấm phím từ bàn phím
-                        final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                        final isShiftPressed =
-                            keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                            keys.contains(LogicalKeyboardKey.shiftRight);
-                        final isCtrlPressed =
-                            keys.contains(LogicalKeyboardKey.controlLeft) ||
-                            keys.contains(LogicalKeyboardKey.controlRight);
-
-                        // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
-                        if (!isShiftPressed && !isCtrlPressed) {
-                          if (addedRows.isNotEmpty) {
-                            final latestRow = addedRows.last;
-
-                            _isSelectionChange = true;
-                            dataGridController.selectedRows = [latestRow];
-                            _isSelectionChange = false;
-
-                            _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                            return false;
-                          } else if (removedRows.isNotEmpty &&
-                              dataGridController.selectedRows.length > 1) {
-                            // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
-                            final clickedRow = removedRows.first;
-
-                            _isSelectionChange = true;
-                            dataGridController.selectedRows = [clickedRow];
-                            _isSelectionChange = false;
-
-                            _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                            return false;
-                          }
-                        }
-
-                        // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
-                        if (isShiftPressed &&
-                            dataGridController.selectedRows.isNotEmpty &&
-                            addedRows.isNotEmpty) {
-                          final lastSelected = dataGridController.selectedRows.last;
-                          final newlyClicked = addedRows.last;
-
-                          final allRows = _cachedDatasource!.rows;
-                          final startIdx = allRows.indexOf(lastSelected);
-                          final endIdx = allRows.indexOf(newlyClicked);
-
-                          if (startIdx != -1 && endIdx != -1) {
-                            final min = startIdx < endIdx ? startIdx : endIdx;
-                            final max = startIdx > endIdx ? startIdx : endIdx;
-
-                            final List<DataGridRow> rangeSelection = [];
-                            for (int i = min; i <= max; i++) {
-                              rangeSelection.add(allRows[i]);
-                            }
-
-                            _isSelectionChange = true;
-                            dataGridController.selectedRows = List.from(rangeSelection);
-                            _isSelectionChange = false;
-
-                            _updateSelectedIdsFromRows(rangeSelection);
-                            return false;
-                          }
-                        }
-
-                        // TH 3: Giữ phím Ctrl
-                        return true;
-                      },
-
-                      onSelectionChanged: (addedRows, removedRows) async {
-                        if (_isSelectionChange) return;
-                        _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                      },
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return StatefulBuilder(
+              builder: (context, localSetState) {
+                return SfDataGridTheme(
+                  data: SfDataGridThemeData(
+                    selectionColor: Colors.blue.withValues(alpha: 0.3),
+                    currentCellStyle: const DataGridCurrentCellStyle(
+                      borderColor: Colors.transparent,
+                      borderWidth: 0,
                     ),
                   ),
-
-                  selectedPaperLayers.isNotEmpty
-                      ? Expanded(
-                        flex: 1,
-                        child: AnimatedSize(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          child: SfDataGrid(
-                            source: LayerRequirementDataSource(layers: selectedPaperLayers),
-                            isScrollbarAlwaysShown: true,
-                            headerRowHeight: 30,
-                            rowHeight: 35,
-                            columnWidthMode: ColumnWidthMode.fill,
-                            selectionMode: SelectionMode.single,
-                            columns: ColumnWidthTable.applySavedWidths(
-                              columns: columnsLayers,
-                              widths: columnWidthLayers,
-                            ),
-
-                            //auto resize
-                            allowColumnsResizing: true,
-                            columnResizeMode: ColumnResizeMode.onResize,
-
-                            onColumnResizeStart: GridResizeHelper.onResizeStart,
-                            onColumnResizeUpdate:
-                                (details) => GridResizeHelper.onResizeUpdate(
-                                  details: details,
-                                  columns: columnsLayers,
-                                  setState: setState,
-                                ),
-                            onColumnResizeEnd:
-                                (details) => GridResizeHelper.onResizeEnd(
-                                  details: details,
-                                  tableKey: "layers",
-                                  columnWidths: columnWidthLayers,
-                                  setState: setState,
-                                ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: SfDataGrid(
+                          controller: dataGridController,
+                          source: _cachedDatasource!,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.multiple,
+                          headerRowHeight: (42 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columnsRequirements,
+                            widths: columnWidthRequirements,
+                            zoom: zoom,
                           ),
+
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columnsRequirements,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "requirements",
+                                columnWidths: columnWidthRequirements,
+                                setState: setState,
+                              ),
+
+                          onSelectionChanging: (addedRows, removedRows) {
+                            if (_isSelectionChange) return true;
+
+                            // Kiểm tra trạng thái bấm phím từ bàn phím
+                            final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                            final isShiftPressed =
+                                keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                keys.contains(LogicalKeyboardKey.shiftRight);
+                            final isCtrlPressed =
+                                keys.contains(LogicalKeyboardKey.controlLeft) ||
+                                keys.contains(LogicalKeyboardKey.controlRight);
+
+                            // TH 1: Click bình thường (Không nhấn Shift & Ctrl)
+                            if (!isShiftPressed && !isCtrlPressed) {
+                              if (addedRows.isNotEmpty) {
+                                final latestRow = addedRows.last;
+
+                                _isSelectionChange = true;
+                                dataGridController.selectedRows = [latestRow];
+                                _isSelectionChange = false;
+
+                                _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                return false;
+                              } else if (removedRows.isNotEmpty &&
+                                  dataGridController.selectedRows.length > 1) {
+                                // Nếu đang chọn nhiều dòng, click vào 1 dòng bất kỳ không giữ phím -> Reset về duy nhất dòng đó
+                                final clickedRow = removedRows.first;
+
+                                _isSelectionChange = true;
+                                dataGridController.selectedRows = [clickedRow];
+                                _isSelectionChange = false;
+
+                                _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                                return false;
+                              }
+                            }
+
+                            // TH 2: Giữ phím Shift (Chọn một dải dòng liên tiếp)
+                            if (isShiftPressed &&
+                                dataGridController.selectedRows.isNotEmpty &&
+                                addedRows.isNotEmpty) {
+                              final lastSelected = dataGridController.selectedRows.last;
+                              final newlyClicked = addedRows.last;
+
+                              final allRows = _cachedDatasource!.rows;
+                              final startIdx = allRows.indexOf(lastSelected);
+                              final endIdx = allRows.indexOf(newlyClicked);
+
+                              if (startIdx != -1 && endIdx != -1) {
+                                final min = startIdx < endIdx ? startIdx : endIdx;
+                                final max = startIdx > endIdx ? startIdx : endIdx;
+
+                                final List<DataGridRow> rangeSelection = [];
+                                for (int i = min; i <= max; i++) {
+                                  rangeSelection.add(allRows[i]);
+                                }
+
+                                _isSelectionChange = true;
+                                dataGridController.selectedRows = List.from(rangeSelection);
+                                _isSelectionChange = false;
+
+                                _updateSelectedIdsFromRows(rangeSelection);
+                                return false;
+                              }
+                            }
+
+                            // TH 3: Giữ phím Ctrl
+                            return true;
+                          },
+
+                          onSelectionChanged: (addedRows, removedRows) async {
+                            if (_isSelectionChange) return;
+                            _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                          },
                         ),
-                      )
-                      : const SizedBox.shrink(),
-                ],
-              ),
+                      ),
+
+                      selectedPaperLayers.isNotEmpty
+                          ? Expanded(
+                            flex: 1,
+                            child: AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              child: SfDataGrid(
+                                source: LayerRequirementDataSource(
+                                  layers: selectedPaperLayers,
+                                  zoom: zoom,
+                                ),
+                                isScrollbarAlwaysShown: true,
+                                headerRowHeight: (30 * zoom).clamp(24.0, 60.0),
+                                rowHeight: (35 * zoom).clamp(24.0, 60.0),
+                                columnWidthMode: ColumnWidthMode.fill,
+                                selectionMode: SelectionMode.single,
+                                columns: ColumnWidthTable.applySavedWidths(
+                                  columns: columnsLayers,
+                                  widths: columnWidthLayers,
+                                  zoom: zoom,
+                                ),
+
+                                //auto resize
+                                allowColumnsResizing: true,
+                                columnResizeMode: ColumnResizeMode.onResize,
+
+                                onColumnResizeStart: GridResizeHelper.onResizeStart,
+                                onColumnResizeUpdate:
+                                    (details) => GridResizeHelper.onResizeUpdate(
+                                      details: details,
+                                      columns: columnsLayers,
+                                      setState: setState,
+                                    ),
+                                onColumnResizeEnd:
+                                    (details) => GridResizeHelper.onResizeEnd(
+                                      details: details,
+                                      tableKey: "layers",
+                                      columnWidths: columnWidthLayers,
+                                      setState: setState,
+                                    ),
+                              ),
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+                    ],
+                  ),
+                );
+              },
             );
           },
         );

@@ -1,6 +1,6 @@
 import 'package:dongtam/data/controller/theme_controller.dart';
 import 'package:dongtam/utils/helper/style_table.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 const List<Map<String, dynamic>> _headerPaperClassification = [
@@ -19,18 +19,17 @@ const List<Map<String, dynamic>> _headerPaperClassification = [
   {"key": "burstStrength", "title": "Độ Bục (kgf/cm2)"},
   {"key": "ringCrush", "title": "Độ Nén Vòng (kff/6 inch)"},
   {"key": "pricePaper", "title": "Giá Giấy (VNĐ)"},
+  {"key": "isActive", "title": "Trạng Thái"},
 
   //hidden field
   {"key": "classificationId", "title": "", "visible": false},
 ];
 
-List<GridColumn> buildPaperClassificationColumn({required ThemeController themeController}) {
-  return [
-    for (var item in _headerPaperClassification)
-      GridColumn(
-        columnName: item["key"]!,
-        label: Obx(() => formatColumn(label: item["title"]!, themeController: themeController)),
-        visible: item.containsKey("visible") ? item["visible"]! as bool : true,
-      ),
-  ];
-}
+List<GridColumn> buildPaperClassificationColumn({
+  required ThemeController themeController,
+  required ValueNotifier<double> zoomNotifier,
+}) => buildGridColumns(
+  headerConfig: _headerPaperClassification,
+  themeController: themeController,
+  zoomNotifier: zoomNotifier,
+);

@@ -7,11 +7,11 @@ import "package:dongtam/presentation/components/shared/animation/animated_button
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/other/left_button_search.dart";
 import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
+import "package:dongtam/presentation/components/shared/other/slider_zoom.dart";
 import "package:dongtam/presentation/components/sources/warehouse/report_inbound_data_source.dart";
 import "package:dongtam/service/warehouse_service.dart";
 import "package:dongtam/utils/helper/picker_date_helper.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -55,6 +55,19 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   DateTime? startDate;
   DateTime? endDate;
 
+  List<InboundHistoryModel>? _cachedInbounds;
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+  ReportInboundDataSource? _cachedDatasource;
+
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
+  }
+
   List<int> selectedInboundId = [];
   Map<String, double> columnWidths = {}; //map header table
 
@@ -72,7 +85,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
     super.initState();
     loadReportInbound();
 
-    columns = buildReportInboundColumn(themeController: themeController);
+    columns = buildReportInboundColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
 
     ColumnWidthTable.loadWidths(tableKey: "reportInbound", columns: columns).then((w) {
       setState(() {
@@ -140,6 +153,7 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
   @override
   void dispose() {
     super.dispose();
+    _zoomNotifier.dispose();
     searchController.dispose();
     dateController.dispose();
     headerScrollController.dispose();
@@ -151,23 +165,45 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
 
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isAccountant)),
-
-          //table & pagination
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-          ),
-        ],
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar(isAccountant)),
+
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
+            ),
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder:
+                  (context, zoom, _) => SliderZoom(
+                    zoomLevel: zoom,
+                    onZoomChanged: _updateZoom,
+                    initialMargin: const Offset(73, 200),
+                    buttonColor: themeController.buttonColor.value,
+                  ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadReportInbound(),
@@ -315,41 +351,45 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
         final currentPg = data["currentPage"];
         final totalPgs = data["totalPages"];
 
-        reportInboundDataSource = ReportInboundDataSource(
-          reportInbounds: reportInbounds,
-          selectedInboundId: selectedInboundId,
-          currentPage: currentPage,
-          pageSize: pageSize,
-        );
+        if (_cachedInbounds == null || _cachedInbounds != reportInbounds) {
+          _cachedInbounds = reportInbounds;
+          reportInboundDataSource = ReportInboundDataSource(
+            reportInbounds: reportInbounds,
+            selectedInboundId: selectedInboundId,
+            currentPage: currentPage,
+            pageSize: pageSize,
+            zoom: _zoomNotifier.value,
+          );
+          _cachedDatasource = reportInboundDataSource;
+        }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: SfDataGrid(
-                controller: dataGridController,
-                source: reportInboundDataSource,
-                isScrollbarAlwaysShown: true,
-                allowExpandCollapseGroup: true, // Bật grouping
-                autoExpandGroups: true,
-                columnWidthMode: ColumnWidthMode.auto,
-                navigationMode: GridNavigationMode.row,
-                selectionMode: SelectionMode.multiple,
-                headerRowHeight: 35,
-                rowHeight: 40,
-                columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-                stackedHeaderRows: <StackedHeaderRow>[
-                  StackedHeaderRow(
-                    cells: [
-                      StackedHeaderCell(
-                        columnNames: ["quantityOrd", "qtyPaper", "qtyInbound"],
-                        child: Obx(
-                          () => formatColumn(label: "Số Lượng", themeController: themeController),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: SfDataGrid(
+                    controller: dataGridController,
+                    source: reportInboundDataSource,
+                    isScrollbarAlwaysShown: true,
+                    allowExpandCollapseGroup: true, // Bật grouping
+                    autoExpandGroups: true,
+                    columnWidthMode: ColumnWidthMode.auto,
+                    navigationMode: GridNavigationMode.row,
+                    selectionMode: SelectionMode.multiple,
+                    headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+                    rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                    columns: ColumnWidthTable.applySavedWidths(
+                      columns: columns,
+                      widths: columnWidths,
+                      zoom: zoom,
+                    ),
+                    stackedHeaderRows: buildReportInboundSHR(
+                      themeController: themeController,
+                      zoom: zoom,
+                    ),
 
                 //auto resize
                 allowColumnsResizing: true,
@@ -423,6 +463,8 @@ class _ReportInboundHistoryState extends State<ReportInboundHistory> {
             ),
           ],
         );
+      },
+    );
       },
     );
   }

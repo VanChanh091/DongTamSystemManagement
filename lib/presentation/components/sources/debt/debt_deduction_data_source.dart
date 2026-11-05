@@ -6,6 +6,7 @@ import "package:intl/intl.dart";
 import "package:syncfusion_flutter_datagrid/datagrid.dart";
 
 class DebtDeductionDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<DebtDeductionRequestModel> debtDeductions;
   final int? selectedRequestId;
   final bool isReport;
@@ -22,6 +23,7 @@ class DebtDeductionDataSource extends DataGridSource {
     required this.currentPage,
     required this.pageSize,
     this.selectedRequestId,
+    this.zoom = 1.0,
   }) {
     buildDataGridRows();
     addColumnGroup(ColumnGroup(name: "createdRequest", sortGroupRows: false));
@@ -125,7 +127,7 @@ class DebtDeductionDataSource extends DataGridSource {
         displayDate.isNotEmpty
             ? "📅 Ngày Yêu Cầu: $displayDate  $itemCount"
             : "📅 Ngày Yêu Cầu: Không xác định",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: (15 * zoom).clamp(12.0, 24.0)),
       ),
     );
   }
@@ -173,7 +175,7 @@ class DebtDeductionDataSource extends DataGridSource {
               }
             }
 
-            return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle);
+            return formatDataTable(label: displayValue, alignment: alignment, textStyle: textStyle, zoom: zoom);
           }).toList(),
     );
   }

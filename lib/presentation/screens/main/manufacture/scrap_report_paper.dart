@@ -5,11 +5,11 @@ import 'package:dongtam/presentation/components/dialog/add/dialog_add_scrap_repo
 import 'package:dongtam/presentation/components/headerTable/other/header_table_scrap_report.dart';
 import 'package:dongtam/presentation/components/shared/other/dialog_shared.dart';
 import 'package:dongtam/presentation/components/sources/other/scrap_report_data_source.dart';
+import 'package:dongtam/presentation/components/shared/other/slider_zoom.dart';
 import 'package:dongtam/presentation/components/shared/animation/animated_button.dart';
 import 'package:dongtam/service/scrap_report_service.dart';
 import 'package:dongtam/presentation/components/shared/other/grid_resize_helper.dart';
 import 'package:dongtam/utils/helper/skeleton/skeleton_loading.dart';
-import 'package:dongtam/utils/helper/style_table.dart';
 import 'package:dongtam/utils/logger/app_logger.dart';
 import 'package:dongtam/utils/storage/sharedPreferences/column_width_table.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +34,10 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
   final userController = Get.find<UserController>();
   final themeController = Get.find<ThemeController>();
 
+  List<ScrapReportModel>? _cachedScraps;
+  ScrapReportDataSource? _cachedDatasource;
+  final _zoomNotifier = ValueNotifier<double>(1.0);
+
   List<int> selectedScrapIds = [];
   Map<String, double> columnWidths = {}; //map header table
 
@@ -42,8 +46,7 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
     super.initState();
     loadScrapReports();
 
-    columns = buildScrapReportColumn(themeController: themeController);
-
+    columns = buildScrapReportColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: 'scrapReport', columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -58,27 +61,66 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
     });
   }
 
+  void _updateZoom(double newZoom) {
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _zoomNotifier.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: themeController.backgroundColor.value, // Nền xám nhạt giúp bảng nổi bật
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // title & buttons
-          Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-          //table & pagination
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: _buildTableSection(),
+      body: Listener(
+        onPointerSignal:
+            (pointerSignal) => handleScrollZoom(
+              pointerSignal: pointerSignal,
+              currentZoom: _zoomNotifier.value,
+              onZoomChanged: _updateZoom,
             ),
-          ),
-        ],
+        child: Stack(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
+
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: _buildTableSection(),
+                  ),
+                ),
+              ],
+            ),
+
+            //slider zoom
+            ValueListenableBuilder<double>(
+              valueListenable: _zoomNotifier,
+              builder:
+                  (context, zoom, _) => SliderZoom(
+                    zoomLevel: zoom,
+                    onZoomChanged: _updateZoom,
+                    initialMargin: const Offset(73, 200),
+                    buttonColor: themeController.buttonColor.value,
+                  ),
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => loadScrapReports(),
@@ -216,80 +258,74 @@ class _ScrapReportPaperState extends State<ScrapReportPaper> {
         final data = snapshot.data!;
         final scrapReports = data;
 
-        scrapReportDatasource = ScrapReportDataSource(
-          scrapReports: scrapReports,
-          selectedScrapIds: selectedScrapIds,
-          currentPage: 1,
-          pageSize: 35,
-        );
+        if (_cachedScraps == null || _cachedScraps != scrapReports) {
+          _cachedScraps = scrapReports;
+          scrapReportDatasource = ScrapReportDataSource(
+            scrapReports: scrapReports,
+            selectedScrapIds: selectedScrapIds,
+            currentPage: 1,
+            pageSize: 35,
+            zoom: _zoomNotifier.value,
+          );
+          _cachedDatasource = scrapReportDatasource;
+        }
 
-        return SfDataGrid(
-          controller: dataGridController,
-          source: scrapReportDatasource,
-          isScrollbarAlwaysShown: true,
-          columnWidthMode: ColumnWidthMode.auto,
-          selectionMode: SelectionMode.single,
-          headerRowHeight: 35,
-          rowHeight: 40,
-          columns: ColumnWidthTable.applySavedWidths(columns: columns, widths: columnWidths),
-          stackedHeaderRows: <StackedHeaderRow>[
-            StackedHeaderRow(
-              cells: [
-                StackedHeaderCell(
-                  columnNames: [
-                    "qtyForklift",
-                    "qtyInventory",
-                    "qtyCoreTube",
-                    "qtyProduction",
-                    "qtyOther",
-                  ],
-                  child: Obx(
-                    () => formatColumn(
-                      label: "Số Lượng Phế Liệu (Kg)",
-                      themeController: themeController,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          //auto resize
-          allowColumnsResizing: true,
-          columnResizeMode: ColumnResizeMode.onResize,
-
-          onColumnResizeStart: GridResizeHelper.onResizeStart,
-          onColumnResizeUpdate:
-              (details) => GridResizeHelper.onResizeUpdate(
-                details: details,
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return SfDataGrid(
+              controller: dataGridController,
+              source: scrapReportDatasource,
+              isScrollbarAlwaysShown: true,
+              columnWidthMode: ColumnWidthMode.auto,
+              selectionMode: SelectionMode.single,
+              headerRowHeight: (35 * zoom).clamp(24.0, 60.0),
+              rowHeight: (40 * zoom).clamp(24.0, 60.0),
+              columns: ColumnWidthTable.applySavedWidths(
                 columns: columns,
-                setState: setState,
+                widths: columnWidths,
+                zoom: zoom,
               ),
-          onColumnResizeEnd:
-              (details) => GridResizeHelper.onResizeEnd(
-                details: details,
-                tableKey: 'scrapReport',
-                columnWidths: columnWidths,
-                setState: setState,
-              ),
+              stackedHeaderRows: buildScrapReportSHR(themeController: themeController, zoom: zoom),
 
-          onSelectionChanged: (addedRows, removedRows) async {
-            if (addedRows.isEmpty && removedRows.isEmpty) return;
+              //auto resize
+              allowColumnsResizing: true,
+              columnResizeMode: ColumnResizeMode.onResize,
 
-            setState(() {
-              // Lấy selection thật sự từ controller
-              final selectedRows = dataGridController.selectedRows;
+              onColumnResizeStart: GridResizeHelper.onResizeStart,
+              onColumnResizeUpdate:
+                  (details) => GridResizeHelper.onResizeUpdate(
+                    details: details,
+                    columns: columns,
+                    setState: setState,
+                  ),
+              onColumnResizeEnd:
+                  (details) => GridResizeHelper.onResizeEnd(
+                    details: details,
+                    tableKey: 'scrapReport',
+                    columnWidths: columnWidths,
+                    setState: setState,
+                  ),
 
-              selectedScrapIds =
-                  selectedRows.map((row) {
-                    final cell = row.getCells().firstWhere((c) => c.columnName == 'scrapId');
-                    return cell.value as int;
-                  }).toList();
+              onSelectionChanged: (addedRows, removedRows) async {
+                if (addedRows.isEmpty && removedRows.isEmpty) return;
 
-              // cập nhật cho datasource
-              scrapReportDatasource.selectedScrapIds = selectedScrapIds;
-              scrapReportDatasource.notifyListeners();
-            });
+                setState(() {
+                  // Lấy selection thật sự từ controller
+                  final selectedRows = dataGridController.selectedRows;
+
+                  selectedScrapIds =
+                      selectedRows.map((row) {
+                        final cell = row.getCells().firstWhere((c) => c.columnName == 'scrapId');
+                        return cell.value as int;
+                      }).toList();
+
+                  // cập nhật cho datasource
+                  scrapReportDatasource.selectedScrapIds = selectedScrapIds;
+                  scrapReportDatasource.notifyListeners();
+                });
+              },
+            );
           },
         );
       },

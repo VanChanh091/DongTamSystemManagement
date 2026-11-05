@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class ProductionReportDataSource extends DataGridSource {
+  double zoom = 1.0;
   final List<ProductionReportModel> items;
   final bool isMachine;
   List<DataGridRow> _productionReportRows = [];
@@ -20,7 +21,9 @@ class ProductionReportDataSource extends DataGridSource {
   double _avgTimeAdherence = 0;
   double _avgFulfillment = 0;
 
-  ProductionReportDataSource({required this.items, required this.isMachine}) {
+  ProductionReportDataSource({required this.items, required this.isMachine,
+    this.zoom = 1.0,
+  }) {
     _buildRows();
     _initSummary();
   }
@@ -94,7 +97,7 @@ class ProductionReportDataSource extends DataGridSource {
             // Format hiển thị theo từng cột
             String displayValue = _formatCellValue(colName, value);
 
-            return formatDataTable(label: displayValue, alignment: alignment);
+            return formatDataTable(label: displayValue, alignment: alignment, zoom: zoom);
           }).toList(),
     );
   }
@@ -138,7 +141,8 @@ class ProductionReportDataSource extends DataGridSource {
                 ? (rowColumnIndex.columnIndex == 0 ? "Tổng cộng" : "")
                 : summaryValue,
         alignment: Alignment.center,
-        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        textStyle: const TextStyle(fontWeight: FontWeight.bold),
+        zoom: zoom,
       );
     }
 
@@ -146,7 +150,8 @@ class ProductionReportDataSource extends DataGridSource {
     return formatDataTable(
       label: _getSummaryDisplay(colName),
       alignment: Alignment.centerRight,
-      textStyle: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.bold),
+      textStyle: const TextStyle(fontWeight: FontWeight.bold),
+      zoom: zoom,
     );
   }
 

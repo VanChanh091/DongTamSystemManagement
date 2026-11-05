@@ -13,7 +13,6 @@ import "package:dongtam/service/customer_service.dart";
 import "package:dongtam/service/synthetic_service.dart";
 import "package:dongtam/utils/helper/helper_model.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:flutter/material.dart";
@@ -88,7 +87,10 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
     }
     _loadYearlyRevenue();
 
-    columns = buildYearlyRevenueColumn(themeController: themeController);
+    columns = buildYearlyRevenueColumn(
+      themeController: themeController,
+      zoomNotifier: _zoomNotifier,
+    );
     ColumnWidthTable.loadWidths(tableKey: "yearly_revenue", columns: columns).then((w) {
       if (mounted) setState(() => columnWidths = w);
     });
@@ -172,7 +174,12 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -197,49 +204,23 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             // Zoom Control Floating
@@ -441,7 +422,11 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
             (responseMap["years"] as List<dynamic>? ?? []).map((e) => toInt(e)).toList();
 
         // Tự động rebuild columns nếu số năm thay đổi
-        columns = buildYearlyRevenueColumn(themeController: themeController, years: years);
+        columns = buildYearlyRevenueColumn(
+          themeController: themeController,
+          zoomNotifier: _zoomNotifier,
+          years: years,
+        );
 
         if (_cachedYearlyRevenue != customers || _cachedDatasource == null) {
           _cachedYearlyRevenue = customers;
@@ -451,141 +436,135 @@ class _SyntheticYearlyRevenueState extends State<SyntheticYearlyRevenue> {
             years: years,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(selectionColor: Colors.blue.withValues(alpha: 0.3)),
-                    child: SfDataGrid(
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.single,
-                      headerRowHeight: 33,
-                      rowHeight: 38,
-                      frozenColumnsCount: 4,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-
-                      // Stacked Header nhóm 12 tháng vào từng Năm
-                      stackedHeaderRows: [
-                        StackedHeaderRow(
-                          cells:
-                              years.map((y) {
-                                return StackedHeaderCell(
-                                  columnNames: [
-                                    for (int m = 1; m <= 12; m++) "y_${y}_m_$m",
-                                    "y_${y}_total",
-                                  ],
-                                  child: Obx(
-                                    () => formatColumn(
-                                      label: "Năm $y",
-                                      themeController: themeController,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
                         ),
-                      ],
+                        child: SfDataGrid(
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.single,
+                          headerRowHeight: (33 * zoom).clamp(24.0, 60.0),
+                          rowHeight: (38 * zoom).clamp(24.0, 60.0),
+                          frozenColumnsCount: 4,
+                          columns: ColumnWidthTable.applySavedWidths(
+                            columns: columns,
+                            widths: columnWidths,
+                            zoom: zoom,
+                          ),
 
-                      // Dòng tổng cộng ở đáy bảng
-                      tableSummaryRows: [
-                        GridTableSummaryRow(
-                          showSummaryInRow: false,
-                          title: "Tổng cộng",
-                          position: GridTableSummaryRowPosition.bottom,
-                          columns: [
-                            const GridSummaryColumn(
-                              name: "sumDebt",
-                              columnName: "currentDebt",
-                              summaryType: GridSummaryType.sum,
-                            ),
-                            for (final y in years) ...[
-                              for (int m = 1; m <= 12; m++)
-                                GridSummaryColumn(
-                                  name: "sum_y_${y}_m_$m",
-                                  columnName: "y_${y}_m_$m",
+                          // Stacked Header nhóm 12 tháng vào từng Năm
+                          stackedHeaderRows: buildYearlyRevenueSHR(
+                            themeController: themeController,
+                            years: years,
+                            zoom: zoom,
+                          ),
+                          // Dòng tổng cộng ở đáy bảng
+                          tableSummaryRows: [
+                            GridTableSummaryRow(
+                              showSummaryInRow: false,
+                              title: "Tổng cộng",
+                              position: GridTableSummaryRowPosition.bottom,
+                              columns: [
+                                const GridSummaryColumn(
+                                  name: "sumDebt",
+                                  columnName: "currentDebt",
                                   summaryType: GridSummaryType.sum,
                                 ),
-                              GridSummaryColumn(
-                                name: "sum_y_${y}_total",
-                                columnName: "y_${y}_total",
-                                summaryType: GridSummaryType.sum,
-                              ),
-                            ],
-                            const GridSummaryColumn(
-                              name: "sumGrandTotal",
-                              columnName: "grandTotal",
-                              summaryType: GridSummaryType.sum,
+                                for (final y in years) ...[
+                                  for (int m = 1; m <= 12; m++)
+                                    GridSummaryColumn(
+                                      name: "sum_y_${y}_m_$m",
+                                      columnName: "y_${y}_m_$m",
+                                      summaryType: GridSummaryType.sum,
+                                    ),
+                                  GridSummaryColumn(
+                                    name: "sum_y_${y}_total",
+                                    columnName: "y_${y}_total",
+                                    summaryType: GridSummaryType.sum,
+                                  ),
+                                ],
+                                const GridSummaryColumn(
+                                  name: "sumGrandTotal",
+                                  columnName: "grandTotal",
+                                  summaryType: GridSummaryType.sum,
+                                ),
+                              ],
                             ),
                           ],
+
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "yearly_revenue",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
+                          onSelectionChanged: (addedRows, _) {
+                            if (addedRows.isNotEmpty) {
+                              final selectedRow = addedRows.first;
+                              final customerId =
+                                  selectedRow
+                                      .getCells()
+                                      .firstWhere((cell) => cell.columnName == "customerId")
+                                      .value
+                                      .toString();
+                              _selectedCustomerIdNotifier.value = customerId;
+                            } else {
+                              _selectedCustomerIdNotifier.value = null;
+                            }
+                          },
                         ),
-                      ],
+                      );
+                    },
+                  ),
+                ),
 
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
-                            columns: columns,
-                            setState: localSetState,
-                          ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "yearly_revenue",
-                            columnWidths: columnWidths,
-                            setState: setState,
-                          ),
-                      onSelectionChanged: (addedRows, _) {
-                        if (addedRows.isNotEmpty) {
-                          final selectedRow = addedRows.first;
-                          final customerId =
-                              selectedRow
-                                  .getCells()
-                                  .firstWhere((cell) => cell.columnName == "customerId")
-                                  .value
-                                  .toString();
-                          _selectedCustomerIdNotifier.value = customerId;
-                        } else {
-                          _selectedCustomerIdNotifier.value = null;
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            const SizedBox(height: 8),
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious:
-                  () => setState(() {
-                    currentPage--;
-                    _loadYearlyRevenue();
-                  }),
-              onNext:
-                  () => setState(() {
-                    currentPage++;
-                    _loadYearlyRevenue();
-                  }),
-              onJumpToPage:
-                  (page) => setState(() {
-                    currentPage = page;
-                    _loadYearlyRevenue();
-                  }),
-            ),
-          ],
+                const SizedBox(height: 8),
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious:
+                      () => setState(() {
+                        currentPage--;
+                        _loadYearlyRevenue();
+                      }),
+                  onNext:
+                      () => setState(() {
+                        currentPage++;
+                        _loadYearlyRevenue();
+                      }),
+                  onJumpToPage:
+                      (page) => setState(() {
+                        currentPage = page;
+                        _loadYearlyRevenue();
+                      }),
+                ),
+              ],
+            );
+          },
         );
       },
     );

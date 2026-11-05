@@ -18,7 +18,6 @@ import "package:dongtam/utils/handleError/show_snack_bar.dart";
 import "package:dongtam/presentation/components/shared/other/grid_resize_helper.dart";
 import "package:dongtam/presentation/components/shared/other/pagination_controls.dart";
 import "package:dongtam/utils/helper/skeleton/skeleton_loading.dart";
-import "package:dongtam/utils/helper/style_table.dart";
 import "package:dongtam/utils/logger/app_logger.dart";
 import "package:dongtam/utils/storage/sharedPreferences/column_width_table.dart";
 import "package:dongtam/data/models/warehouse/outbound/outbound_temp_item.dart";
@@ -98,7 +97,7 @@ class _InventoryState extends State<Inventory> {
 
     loadInventory();
 
-    columns = buildInventoryColumn(themeController: themeController);
+    columns = buildInventoryColumn(themeController: themeController, zoomNotifier: _zoomNotifier);
     ColumnWidthTable.loadWidths(tableKey: "inventory", columns: columns).then((w) {
       setState(() {
         columnWidths = w;
@@ -166,7 +165,12 @@ class _InventoryState extends State<Inventory> {
   }
 
   void _updateZoom(double newZoom) {
-    _zoomNotifier.value = newZoom.clamp(0.5, 1.5);
+    final clamped = newZoom.clamp(0.5, 1.5);
+    _zoomNotifier.value = clamped;
+    if (_cachedDatasource != null) {
+      _cachedDatasource!.zoom = clamped;
+      _cachedDatasource!.notifyListeners();
+    }
   }
 
   @override
@@ -193,49 +197,23 @@ class _InventoryState extends State<Inventory> {
             ),
         child: Stack(
           children: [
-            ValueListenableBuilder<double>(
-              valueListenable: _zoomNotifier,
-              builder: (context, zoom, cachedChild) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth,
-                      height: constraints.maxHeight,
-                      child: OverflowBox(
-                        minWidth: constraints.maxWidth / zoom,
-                        maxWidth: constraints.maxWidth / zoom,
-                        minHeight: constraints.maxHeight / zoom,
-                        maxHeight: constraints.maxHeight / zoom,
-                        alignment: Alignment.topLeft,
-                        child: Transform.scale(
-                          scale: zoom,
-                          alignment: Alignment.topLeft,
-                          child: cachedChild,
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // title & buttons
+                Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
 
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // title & buttons
-                  Container(padding: const EdgeInsets.all(12), child: _buildHeaderBar()),
-
-                  //table & pagination
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: _buildTableSection(),
+                //table & pagination
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
+                    child: _buildTableSection(),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             //slider zoom
@@ -670,207 +648,180 @@ class _InventoryState extends State<Inventory> {
             selectedInventoryId: _selectedInventoryIdsNotifier.value,
             currentPage: currentPage,
             pageSize: pageSize,
+            zoom: _zoomNotifier.value,
           );
         }
 
-        return Column(
-          children: [
-            //table
-            Expanded(
-              child: StatefulBuilder(
-                builder: (context, localSetState) {
-                  return SfDataGridTheme(
-                    data: SfDataGridThemeData(
-                      selectionColor: Colors.blue.withValues(alpha: 0.3),
-                      currentCellStyle: const DataGridCurrentCellStyle(
-                        borderColor: Colors.transparent,
-                        borderWidth: 0,
-                      ),
-                    ),
-                    child: SfDataGrid(
-                      controller: dataGridController,
-                      source: _cachedDatasource!,
-                      isScrollbarAlwaysShown: true,
-                      allowExpandCollapseGroup: true, // Bật grouping
-                      autoExpandGroups: true,
-                      columnWidthMode: ColumnWidthMode.auto,
-                      selectionMode: SelectionMode.multiple,
-                      headerRowHeight: 30,
-                      rowHeight: 40,
-                      columns: ColumnWidthTable.applySavedWidths(
-                        columns: columns,
-                        widths: columnWidths,
-                      ),
-                      stackedHeaderRows: <StackedHeaderRow>[
-                        StackedHeaderRow(
-                          cells: [
-                            StackedHeaderCell(
-                              columnNames: ["quantityOrd", "runningPlanProd", "qtyProduced"],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Số Lượng",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: [
-                                "totalQtyInbound",
-                                "totalQtyOutbound",
-                                "qtyTransfer",
-                                "qtyInventory",
-                              ],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Số Lượng",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                            StackedHeaderCell(
-                              columnNames: ["totalPrice", "totalPriceVAT"],
-                              child: Obx(
-                                () => formatColumn(
-                                  label: "Tổng Tiền",
-                                  themeController: themeController,
-                                ),
-                              ),
-                            ),
-                          ],
+        return ValueListenableBuilder<double>(
+          valueListenable: _zoomNotifier,
+          builder: (context, zoom, _) {
+            return Column(
+              children: [
+                //table
+                Expanded(
+                  child: StatefulBuilder(
+                    builder: (context, localSetState) {
+                      return SfDataGridTheme(
+                        data: SfDataGridThemeData(
+                          selectionColor: Colors.blue.withValues(alpha: 0.3),
+                          currentCellStyle: const DataGridCurrentCellStyle(
+                            borderColor: Colors.transparent,
+                            borderWidth: 0,
+                          ),
                         ),
-                      ],
-
-                      //auto resize
-                      allowColumnsResizing: true,
-                      columnResizeMode: ColumnResizeMode.onResize,
-
-                      onColumnResizeStart: GridResizeHelper.onResizeStart,
-                      onColumnResizeUpdate:
-                          (details) => GridResizeHelper.onResizeUpdate(
-                            details: details,
+                        child: SfDataGrid(
+                          controller: dataGridController,
+                          source: _cachedDatasource!,
+                          isScrollbarAlwaysShown: true,
+                          allowExpandCollapseGroup: true, // Bật grouping
+                          autoExpandGroups: true,
+                          columnWidthMode: ColumnWidthMode.auto,
+                          selectionMode: SelectionMode.multiple,
+                          headerRowHeight: (30 * zoom).clamp(28.0, 50.0),
+                          rowHeight: (40 * zoom).clamp(24.0, 60.0),
+                          columns: ColumnWidthTable.applySavedWidths(
                             columns: columns,
-                            setState: localSetState,
+                            widths: columnWidths,
+                            zoom: zoom,
                           ),
-                      onColumnResizeEnd:
-                          (details) => GridResizeHelper.onResizeEnd(
-                            details: details,
-                            tableKey: "inventory",
-                            columnWidths: columnWidths,
-                            setState: setState,
+                          stackedHeaderRows: buildInventorySHR(
+                            themeController: themeController,
+                            zoom: zoom,
                           ),
 
-                      onSelectionChanging: (addedRows, removedRows) {
-                        if (_isSelectionChange) return true;
+                          //auto resize
+                          allowColumnsResizing: true,
+                          columnResizeMode: ColumnResizeMode.onResize,
 
-                        final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                        final isShiftPressed =
-                            keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                            keys.contains(LogicalKeyboardKey.shiftRight);
+                          onColumnResizeStart: GridResizeHelper.onResizeStart,
+                          onColumnResizeUpdate:
+                              (details) => GridResizeHelper.onResizeUpdate(
+                                details: details,
+                                columns: columns,
+                                setState: localSetState,
+                              ),
+                          onColumnResizeEnd:
+                              (details) => GridResizeHelper.onResizeEnd(
+                                details: details,
+                                tableKey: "inventory",
+                                columnWidths: columnWidths,
+                                setState: setState,
+                              ),
 
-                        // Nếu đè phím Shift và trước đó đã có dòng được chọn
-                        if (isShiftPressed &&
-                            dataGridController.selectedRows.isNotEmpty &&
-                            addedRows.isNotEmpty) {
-                          final lastSelected = dataGridController.selectedRows.last;
-                          final newlyClicked = addedRows.last;
+                          onSelectionChanging: (addedRows, removedRows) {
+                            if (_isSelectionChange) return true;
 
-                          // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
-                          final allRows = _cachedDatasource!.rows;
-                          final startIdx = allRows.indexOf(lastSelected);
-                          final endIdx = allRows.indexOf(newlyClicked);
+                            final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                            final isShiftPressed =
+                                keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                keys.contains(LogicalKeyboardKey.shiftRight);
 
-                          if (startIdx != -1 && endIdx != -1) {
-                            final min = startIdx < endIdx ? startIdx : endIdx;
-                            final max = startIdx > endIdx ? startIdx : endIdx;
+                            // Nếu đè phím Shift và trước đó đã có dòng được chọn
+                            if (isShiftPressed &&
+                                dataGridController.selectedRows.isNotEmpty &&
+                                addedRows.isNotEmpty) {
+                              final lastSelected = dataGridController.selectedRows.last;
+                              final newlyClicked = addedRows.last;
 
-                            // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
-                            final List<DataGridRow> rangeSelection = [];
-                            for (int i = min; i <= max; i++) {
-                              rangeSelection.add(allRows[i]);
+                              // Lấy tất cả các dòng dữ liệu trong datasource (không bao gồm caption row)
+                              final allRows = _cachedDatasource!.rows;
+                              final startIdx = allRows.indexOf(lastSelected);
+                              final endIdx = allRows.indexOf(newlyClicked);
+
+                              if (startIdx != -1 && endIdx != -1) {
+                                final min = startIdx < endIdx ? startIdx : endIdx;
+                                final max = startIdx > endIdx ? startIdx : endIdx;
+
+                                // Tự gom tất cả các dòng dữ liệu nằm giữa khoảng click
+                                final List<DataGridRow> rangeSelection = [];
+                                for (int i = min; i <= max; i++) {
+                                  rangeSelection.add(allRows[i]);
+                                }
+
+                                // Ép controller chọn dải dòng
+                                _isSelectionChange = true;
+                                dataGridController.selectedRows = List.from(rangeSelection);
+                                _isSelectionChange = false;
+
+                                // Cập nhật ID đơn hàng
+                                Future.microtask(() {
+                                  _isSelectionChange = true;
+                                  dataGridController.selectedRows = List.from(rangeSelection);
+                                  _isSelectionChange = false;
+
+                                  _updateSelectedIdsFromRows(rangeSelection);
+                                });
+                                return false;
+                              }
+                            }
+                            return true;
+                          },
+
+                          onSelectionChanged: (addedRows, removedRows) {
+                            if (addedRows.isEmpty && removedRows.isEmpty) return;
+
+                            // bắt sự kiện từ bàn phím
+                            final keys = HardwareKeyboard.instance.logicalKeysPressed;
+                            final isCtrlPressed =
+                                keys.contains(LogicalKeyboardKey.controlLeft) ||
+                                keys.contains(LogicalKeyboardKey.controlRight);
+                            final isShiftPressed =
+                                keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                                keys.contains(LogicalKeyboardKey.shiftRight);
+
+                            if (!isCtrlPressed && !isShiftPressed) {
+                              if (addedRows.isNotEmpty) {
+                                // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
+                                final latestRow = addedRows.last;
+
+                                _isSelectionChange = true;
+                                dataGridController.selectedRows = [latestRow];
+
+                                _isSelectionChange = false;
+                              } else if (removedRows.isNotEmpty &&
+                                  dataGridController.selectedRows.isNotEmpty) {
+                                //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
+                                final clickedRow = removedRows.first;
+                                _isSelectionChange = true;
+                                dataGridController.selectedRows = [clickedRow];
+                                _isSelectionChange = false;
+                              }
                             }
 
-                            // Ép controller chọn dải dòng
-                            _isSelectionChange = true;
-                            dataGridController.selectedRows = List.from(rangeSelection);
-                            _isSelectionChange = false;
+                            _updateSelectedIdsFromRows(dataGridController.selectedRows);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ),
 
-                            // Cập nhật ID đơn hàng
-                            Future.microtask(() {
-                              _isSelectionChange = true;
-                              dataGridController.selectedRows = List.from(rangeSelection);
-                              _isSelectionChange = false;
-
-                              _updateSelectedIdsFromRows(rangeSelection);
-                            });
-                            return false;
-                          }
-                        }
-                        return true;
-                      },
-
-                      onSelectionChanged: (addedRows, removedRows) {
-                        if (addedRows.isEmpty && removedRows.isEmpty) return;
-
-                        // bắt sự kiện từ bàn phím
-                        final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                        final isCtrlPressed =
-                            keys.contains(LogicalKeyboardKey.controlLeft) ||
-                            keys.contains(LogicalKeyboardKey.controlRight);
-                        final isShiftPressed =
-                            keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                            keys.contains(LogicalKeyboardKey.shiftRight);
-
-                        if (!isCtrlPressed && !isShiftPressed) {
-                          if (addedRows.isNotEmpty) {
-                            // Nếu click vào một dòng mới thì Xóa hết các dòng cũ, chỉ chọn duy nhất dòng này
-                            final latestRow = addedRows.last;
-
-                            _isSelectionChange = true;
-                            dataGridController.selectedRows = [latestRow];
-
-                            _isSelectionChange = false;
-                          } else if (removedRows.isNotEmpty &&
-                              dataGridController.selectedRows.isNotEmpty) {
-                            //ép chọn lại dòng vừa click vào nếu xóa hết các dòng cũ
-                            final clickedRow = removedRows.first;
-                            _isSelectionChange = true;
-                            dataGridController.selectedRows = [clickedRow];
-                            _isSelectionChange = false;
-                          }
-                        }
-
-                        _updateSelectedIdsFromRows(dataGridController.selectedRows);
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Nút chuyển trang
-            PaginationControls(
-              currentPage: currentPg,
-              totalPages: totalPgs,
-              onPrevious: () {
-                setState(() {
-                  currentPage--;
-                  loadInventory();
-                });
-              },
-              onNext: () {
-                setState(() {
-                  currentPage++;
-                  loadInventory();
-                });
-              },
-              onJumpToPage: (page) {
-                setState(() {
-                  currentPage = page;
-                  loadInventory();
-                });
-              },
-            ),
-          ],
+                // Nút chuyển trang
+                PaginationControls(
+                  currentPage: currentPg,
+                  totalPages: totalPgs,
+                  onPrevious: () {
+                    setState(() {
+                      currentPage--;
+                      loadInventory();
+                    });
+                  },
+                  onNext: () {
+                    setState(() {
+                      currentPage++;
+                      loadInventory();
+                    });
+                  },
+                  onJumpToPage: (page) {
+                    setState(() {
+                      currentPage = page;
+                      loadInventory();
+                    });
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
